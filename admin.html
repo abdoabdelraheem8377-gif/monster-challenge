@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الأدمن - تحدي الوحوش</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 15px;
+      background: #07040F;
+      color: #FFFFFF;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    h1, h2, h3 {
+      color: #FFD700;
+      margin-top: 0;
+    }
+    .header-box, .card {
+      background: #140D24;
+      border: 1px solid #392861;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .header-box {
+      border-color: #FFD70066;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 14px;
+      color: #FFE99E;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="tel"], input[type="number"], textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #483575;
+      background: #090512;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .phone-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      background: #1B1130;
+      padding: 8px;
+      border-radius: 9px;
+      border: 1px solid #3D2B68;
+    }
+    .phone-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #FFD700;
+      cursor: pointer;
+    }
+    .row-2 {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .row-2 > * {
+      flex: 1;
+      min-width: 200px;
+    }
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-gold { background: #FFD700; color: #07040F; width: 100%; }
+    .btn-green { background: #1FA855; color: #FFFFFF; }
+    .btn-red { background: #C9364C; color: #FFFFFF; }
+    .btn-blue { background: #2A6FD6; color: #FFFFFF; }
+    .btn-dark { background: #261942; color: #FFFFFF; border: 1px solid #493575; }
+    .status-msg {
+      color: #6EE7A8;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .warn-msg {
+      color: #FF8FA3;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+    .img-thumb {
+      max-width: 150px;
+      max-height: 110px;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: none;
+    }
+    .team-card {
+      background: #1B1130;
+      border: 1px solid #3D2B68;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .team-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #2E2050;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .b-pending { background: #4A3800; color: #FFD700; }
+    .b-approved { background: #0D3B66; color: #7CC6FE; }
+    .b-won { background: #0E4A26; color: #7EF9AE; }
+    .b-lost { background: #521723; color: #FF9EB0; }
+    .muted { color: #C2B8D9; font-size: 13px; line-height: 1.6; }
+    .members-box {
+      background: #110A21;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    .receipt-img {
+      max-width: 220px;
+      border-radius: 8px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .actions-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .actions-row button {
+      flex: 1;
+      min-width: 105px;
+    }
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+    .modal-bg img {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 10px;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="header-box">
+      <h1>👾 تحدي الوحوش - لوحة الأدمن</h1>
+      <div class="muted">إدارة الأرقام، التحدي، الجوائز، والفرق</div>
+    </div>
+
+    <div class="card">
+      <h2>1. أرقام التحويل (7 أرقام) واختيار 3 أرقام للمستخدم</h2>
+      <div class="muted">اكتب حتى 7 أرقام، وحدد علامة صح أمام 3 أرقام فقط لتظهر للمستخدم:</div>
+      <div id="phonesList" style="margin-top:10px;"></div>
+      <div id="phoneWarn" class="warn-msg"></div>
+
+      <label>نص التحدي</label>
+      <textarea id="cfgChallenge" placeholder="اكتب نص التحدي هنا..."></textarea>
+
+      <button type="button" class="btn btn-gold" onclick="saveAllSettings()">حفظ الأرقام والتحدي</button>
+      <div id="msg1" class="status-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. إعدادات الجوائز والنقاط</h2>
+
+      <label>الجائزة النقدية عند الفوز</label>
+      <input type="text" id="cfgCash" placeholder="مثال: 1000 جنيه">
+
+      <div class="row-2">
+        <div>
+          <label>صورة وجبات الطعام (رابط أو صورة)</label>
+          <input type="text" id="cfgFoodUrl" placeholder="رابط صورة وجبات الطعام" oninput="showThumb('food', this.value)">
+          <input type="file" accept="image/*" style="margin-top:6px;" onchange="readPrizeImg('food', this)">
+          <img id="thumbFood" class="img-thumb" alt="وجبات الطعام">
+        </div>
+        <div>
+          <label>صورة كروت الخصومات (رابط أو صورة)</label>
+          <input type="text" id="cfgVoucherUrl" placeholder="رابط صورة كروت الخصومات" oninput="showThumb('voucher', this.value)">
+          <input type="file" accept="image/*" style="margin-top:6px;" onchange="readPrizeImg('voucher', this)">
+          <img id="thumbVoucher" class="img-thumb" alt="كروت الخصومات">
+        </div>
+      </div>
+
+      <div class="row-2" style="margin-top:10px;">
+        <div>
+          <label>نقاط الفوز</label>
+          <input type="number" id="cfgWinPoints" placeholder="مثال: 100">
+        </div>
+        <div>
+          <label>نقاط الخسارة</label>
+          <input type="number" id="cfgLossPoints" placeholder="مثال: 25">
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-gold" onclick="saveAllSettings()">حفظ الجوائز والنقاط</button>
+      <div id="msg2" class="status-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. الفرق المسجلة</h2>
+      <div id="teamsWrap" class="muted">جاري تحميل الفرق...</div>
+    </div>
+
+  </div>
+
+  <div id="imgModal" class="modal-bg" onclick="this.style.display='none'">
+    <img id="modalImg" src="" alt="صورة مكبرة">
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
+      authDomain: "monester-challenge.firebaseapp.com",
+      databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
+      projectId: "monester-challenge",
+      storageBucket: "monester-challenge.firebasestorage.app",
+      messagingSenderId: "258204342725",
+      appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
+      measurementId: "G-RW050GJMCZ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let foodImg = '';
+    let voucherImg = '';
+
+    // إنشاء خانات الـ 7 أرقام مباشرة
+    const phonesWrap = document.getElementById('phonesList');
+    for (let i = 0; i < 7; i++) {
+      const row = document.createElement('div');
+      row.className = 'phone-row';
+      row.innerHTML =
+        '<input type="checkbox" class="chk-3" data-i="' + i + '" onchange="checkThree(this)">' +
+        '<input type="tel" class="ph-7" id="ph' + i + '" placeholder="رقم موبايل ' + (i + 1) + '">';
+      phonesWrap.appendChild(row);
+    }
+
+    function checkThree(el) {
+      const warn = document.getElementById('phoneWarn');
+      const checked = Array.from(document.querySelectorAll('.chk-3')).filter(c => c.checked);
+      if (checked.length > 3) {
+        el.checked = false;
+        warn.textContent = 'مسموح باختيار 3 أرقام فقط لتظهر للمستخدم.';
+        setTimeout(() => { warn.textContent = ''; }, 2500);
+      } else {
+        warn.textContent = '';
+      }
+    }
+
+    db.ref('settings').on('value', snap => {
+      if (!snap.exists()) return;
+      const s = snap.val();
+      const pool = Array.isArray(s.phonePool) ? s.phonePool : [];
+      const active = Array.isArray(s.activePhones) ? s.activePhones : [];
+
+      for (let i = 0; i < 7; i++) {
+        const inp = document.getElementById('ph' + i);
+        const chk = document.querySelector('.chk-3[data-i="' + i + '"]');
+        const val = pool[i] || '';
+        if (inp && document.activeElement !== inp) inp.value = val;
+        if (chk && document.activeElement !== chk) chk.checked = val ? active.includes(val) : false;
+      }
+
+      if (document.activeElement.id !== 'cfgChallenge') document.getElementById('cfgChallenge').value = s.challengeText || '';
+      if (document.activeElement.id !== 'cfgCash') document.getElementById('cfgCash').value = s.cashPrizeAmount || '';
+      if (document.activeElement.id !== 'cfgFoodUrl') document.getElementById('cfgFoodUrl').value = s.foodPrizeImage || '';
+      if (document.activeElement.id !== 'cfgVoucherUrl') document.getElementById('cfgVoucherUrl').value = s.voucherPrizeImage || '';
+      if (document.activeElement.id !== 'cfgWinPoints') document.getElementById('cfgWinPoints').value = (s.winPoints !== undefined) ? s.winPoints : '';
+      if (document.activeElement.id !== 'cfgLossPoints') document.getElementById('cfgLossPoints').value = (s.lossPoints !== undefined) ? s.lossPoints : '';
+
+      foodImg = s.foodPrizeImage || '';
+      voucherImg = s.voucherPrizeImage || '';
+      showThumb('food', foodImg);
+      showThumb('voucher', voucherImg);
+    });
+
+    function showThumb(kind, src) {
+      const img = document.getElementById(kind === 'food' ? 'thumbFood' : 'thumbVoucher');
+      if (src) {
+        img.src = src;
+        img.style.display = 'block';
+      } else {
+        img.style.display = 'none';
+      }
+    }
+
+    function readPrizeImg(kind, input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxW = 700;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          if (kind === 'food') {
+            foodImg = dataUrl;
+            document.getElementById('cfgFoodUrl').value = dataUrl;
+            showThumb('food', dataUrl);
+          } else {
+            voucherImg = dataUrl;
+            document.getElementById('cfgVoucherUrl').value = dataUrl;
+            showThumb('voucher', dataUrl);
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveAllSettings() {
+      const phonePool = [];
+      const activePhones = [];
+
+      for (let i = 0; i < 7; i++) {
+        const val = document.getElementById('ph' + i).value.trim();
+        const chk = document.querySelector('.chk-3[data-i="' + i + '"]');
+        phonePool.push(val);
+        if (val && chk && chk.checked && activePhones.length < 3) {
+          activePhones.push(val);
+        }
+      }
+
+      if (activePhones.length === 0) {
+        activePhones.push(...phonePool.filter(Boolean).slice(0, 3));
+      }
+
+      const challengeText = document.getElementById('cfgChallenge').value.trim() || 'في انتظار نص التحدي من الأدمن...';
+      const cashPrizeAmount = document.getElementById('cfgCash').value.trim() || '500 جنيه';
+      const foodPrizeImage = document.getElementById('cfgFoodUrl').value.trim() || foodImg || '';
+      const voucherPrizeImage = document.getElementById('cfgVoucherUrl').value.trim() || voucherImg || '';
+      const winPoints = Number(document.getElementById('cfgWinPoints').value || 0);
+      const lossPoints = Number(document.getElementById('cfgLossPoints').value || 0);
+
+      db.ref('settings').set({
+        phonePool,
+        activePhones,
+        transferPhone: activePhones[0] || '',
+        challengeText,
+        cashPrizeAmount,
+        foodPrizeImage,
+        voucherPrizeImage,
+        winPoints,
+        lossPoints,
+        updatedAt: Date.now()
+      }).then(() => {
+        document.getElementById('msg1').textContent = 'تم الحفظ بنجاح!';
+        document.getElementById('msg2').textContent = 'تم الحفظ بنجاح!';
+        setTimeout(() => {
+          document.getElementById('msg1').textContent = '';
+          document.getElementById('msg2').textContent = '';
+        }, 2500);
+      });
+    }
+
+    db.ref('teams').on('value', snap => {
+      const wrap = document.getElementById('teamsWrap');
+      if (!snap.exists()) {
+        wrap.innerHTML = '<div class="muted" style="text-align:center;">لا توجد فرق مسجلة بعد.</div>';
+        return;
+      }
+
+      const data = snap.val();
+      const list = Object.keys(data).map(k => ({ key: k, ...data[k] })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      wrap.innerHTML = '';
+
+      list.forEach(team => {
+        const st = team.status || 'pending';
+        let bClass = 'b-pending';
+        let bText = 'قيد المراجعة';
+        if (st === 'approved' || st === 'challenge') { bClass = 'b-approved'; bText = 'موافقة (في التحدي)'; }
+        else if (st === 'won') { bClass = 'b-won'; bText = 'فائز'; }
+        else if (st === 'lost') { bClass = 'b-lost'; bText = 'خاسر'; }
+
+        const members = Array.isArray(team.members) ? team.members : [];
+        const membersHtml = members.length
+          ? members.map((m, idx) => '<div>• عضو ' + (idx + 1) + ': <strong>' + esc(m.name || '-') + '</strong> | <span dir="ltr">' + esc(m.phone || '-') + '</span></div>').join('')
+          : '<div>لا يوجد أعضاء</div>';
+
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML =
+          '<div class="team-top">' +
+            '<div><strong style="color:#FFD700;font-size:16px;">' + esc(team.name || 'فريق') + '</strong> <span class="muted">(' + (team.mode === 'solo' ? 'فردي' : 'جماعي') + ')</span></div>' +
+            '<span class="badge ' + bClass + '">' + bText + '</span>' +
+          '</div>' +
+          '<div class="members-box">' + membersHtml + '</div>' +
+          '<div class="muted">الاشتراك: <strong>' + (team.amount || 100) + ' جنيه</strong> على رقم <span dir="ltr">' + esc(team.selectedPhone || team.transferPhone || '-') + '</span></div>' +
+          (team.receiptImage ? '<div><img src="' + escAttr(team.receiptImage) + '" class="receipt-img" onclick="openModal(this.src)" alt="إيصال"></div>' : '') +
+          (team.rewardChoice ? '<div class="muted" style="margin-top:8px;color:#FFE99E;">الاختيار: <strong>' + esc(formatReward(team.rewardChoice)) + '</strong> | النقاط: <strong>' + (team.points || 0) + '</strong></div>' : '') +
+          '<div class="actions-row">' +
+            '<button type="button" class="btn btn-blue" onclick="setStatus(\'' + escAttr(team.key) + '\', \'approved\')">موافقة ودخول التحدي</button>' +
+            '<button type="button" class="btn btn-green" onclick="setStatus(\'' + escAttr(team.key) + '\', \'won\')">فوز</button>' +
+            '<button type="button" class="btn btn-red" onclick="setStatus(\'' + escAttr(team.key) + '\', \'lost\')">خسارة</button>' +
+            '<button type="button" class="btn btn-dark" onclick="setStatus(\'' + escAttr(team.key) + '\', \'pending\')">مراجعة</button>' +
+            '<button type="button" class="btn btn-dark" style="color:#FF8FA3;" onclick="delTeam(\'' + escAttr(team.key) + '\')">حذف</button>' +
+          '</div>';
+        wrap.appendChild(card);
+      });
+    });
+
+    function setStatus(key, status) {
+      db.ref('teams/' + key).update({ status: status, updatedAt: Date.now() });
+    }
+
+    function delTeam(key) {
+      if (confirm('حذف هذا الفريق؟')) db.ref('teams/' + key).remove();
+    }
+
+    function formatReward(code) {
+      if (code === 'cash') return 'نقدي';
+      if (code === 'food') return 'وجبات طعام';
+      if (code === 'voucher') return 'كروت خصومات';
+      if (code === 'half_food') return 'وجبات طعام بنصف الثمن';
+      if (code === 'points') return 'نقاط';
+      return code || '';
+    }
+
+    function openModal(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imgModal').style.display = 'flex';
+    }
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function escAttr(str) {
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
