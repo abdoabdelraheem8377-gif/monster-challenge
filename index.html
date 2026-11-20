@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحدي الوحوش</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 15px;
+      background: #07040F;
+      color: #FFFFFF;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #140D24;
+      border: 1px solid #FFD70055;
+      border-radius: 14px;
+      padding: 18px;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #FFD700;
+      margin-top: 0;
+    }
+    .center { text-align: center; }
+    .muted { color: #C2B8D9; font-size: 14px; line-height: 1.6; }
+    .timer-box {
+      font-size: 36px;
+      font-weight: bold;
+      color: #FFD700;
+      background: #1E1436;
+      border: 1px solid #FFD70088;
+      border-radius: 12px;
+      padding: 10px 22px;
+      display: inline-block;
+      margin: 14px auto;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 14px;
+      color: #FFE99E;
+    }
+    input[type="text"], input[type="tel"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #433269;
+      background: #090512;
+      color: #FFFFFF;
+      font-size: 15px;
+    }
+    .row-2 {
+      display: flex;
+      gap: 8px;
+    }
+    .row-2 > * { flex: 1; }
+    .member-box {
+      background: #1E1436;
+      border: 1px solid #392861;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .phones-3-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .phone-option {
+      background: #1E1436;
+      border: 1px solid #493575;
+      border-radius: 9px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #FFD700;
+      direction: ltr;
+      text-align: center;
+      cursor: pointer;
+    }
+    .phone-option.active {
+      background: #FFD700;
+      color: #07040F;
+      border-color: #FFD700;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-gold { background: #FFD700; color: #07040F; }
+    .btn-dark { background: #291C47; color: #FFFFFF; border: 1px solid #4B367A; }
+    .box-card {
+      background: #1D1333;
+      border: 1px solid #3A2961;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .msg-err {
+      color: #FF7A90;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    img.preview {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- 1. الشاشة الأولى: مؤقت 30 ثانية ينقل تلقائياً عند الصفر بدون زرار دخول -->
+    <div id="s1">
+      <div class="center" style="padding: 35px 10px;">
+        <div style="font-size:48px;">👾🔥</div>
+        <h1>تحدي الوحوش</h1>
+        <p class="muted">جاري الدخول...</p>
+        <div id="countdownTimer" class="timer-box">30</div>
+        <div class="muted">ستبدأ اللعبة تلقائياً عندما يصل المؤقت إلى 0</div>
+      </div>
+    </div>
+
+    <!-- 2. الشاشة الثانية: الإعدادات وتسجيل الفريق -->
+    <div id="s2" style="display:none;">
+      <h2>الإعدادات</h2>
+      <div class="row-2">
+        <button type="button" class="btn btn-gold" onclick="setMode('solo')">لعب فردي</button>
+        <button type="button" class="btn btn-dark" onclick="setMode('team')">فريق (حتى 5)</button>
+      </div>
+
+      <label>اسم الفريق</label>
+      <input type="text" id="teamName" placeholder="اكتب اسم الفريق">
+
+      <div id="membersList" style="margin-top:10px;"></div>
+      <button type="button" id="btnAddMember" class="btn btn-dark" onclick="addMember()">+ إضافة عضو (الحد الأقصى 5)</button>
+
+      <div id="err2" class="msg-err"></div>
+      <button type="button" class="btn btn-gold" onclick="goStep3()">التالي</button>
+    </div>
+
+    <!-- 3. الشاشة الثالثة: الاشتراك -->
+    <div id="s3" style="display:none;">
+      <h2>الاشتراك في التحدي</h2>
+      <div class="box-card center">
+        <div>ارسل <strong>100</strong> جنيه إلى أحد أرقام الموبايلات التالية:</div>
+        <div id="payPhonesList" class="phones-3-box"></div>
+        <div class="muted" style="margin-top:6px;">لاعب واحد يبعت الاشتراك (100 جنيه)</div>
+      </div>
+
+      <label>صورة الإيصال (اختر من الاستديو أو صوّر بالكاميرا)</label>
+      <input type="file" id="galleryInput" accept="image/*" style="display:none;">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+
+      <div class="row-2">
+        <button type="button" class="btn btn-gold" onclick="document.getElementById('galleryInput').click()">🖼️ الاستديو</button>
+        <button type="button" class="btn btn-dark" onclick="document.getElementById('cameraInput').click()">📷 الكاميرا</button>
+      </div>
+      <div id="receiptFileName" class="muted" style="margin-top:6px;text-align:center;"></div>
+      <img id="receiptPreview" class="preview" alt="صورة الإيصال">
+
+      <div id="err3" class="msg-err"></div>
+      <button type="button" id="submitBtn" class="btn btn-gold" onclick="submitRegistration()">إرسال طلب الاشتراك</button>
+      <button type="button" class="btn btn-dark" onclick="showScreen('s2')">رجوع</button>
+    </div>
+
+    <!-- 4. الشاشة الرابعة: مراجعة البيانات -->
+    <div id="s4" style="display:none;">
+      <div class="center" style="padding: 30px 10px;">
+        <div style="font-size:44px;">⏳</div>
+        <h2>جاري مراجعة البيانات</h2>
+        <p class="muted">برجاء الانتظار حتى يقوم الأدمن بالموافقة على اشتراك الفريق في التحدي.</p>
+        <div id="s4TeamLabel" class="muted"></div>
+      </div>
+    </div>
+
+    <!-- 5. الشاشة الخامسة: صفحة التحدي -->
+    <div id="s5" style="display:none;">
+      <h2>صفحة التحدي</h2>
+      <div id="challengeText" class="box-card" style="font-size:17px;line-height:1.7;white-space:pre-wrap;">
+        في انتظار نص التحدي من الأدمن...
+      </div>
+    </div>
+
+    <!-- 6. الشاشة السادسة: الفوز أو الخسارة -->
+    <div id="s6" style="display:none;">
+      <div id="winBox" style="display:none;">
+        <div class="box-card center" style="border-color:#FFD700;">
+          <div style="font-size:34px;">🎉🏆✨🎊</div>
+          <h2>لقد ربحت 1000 مبروك</h2>
+          <p class="muted">اختار جائزتك:</p>
+        </div>
+        <button type="button" class="btn btn-gold" onclick="chooseWinPrize('cash')">نقدي</button>
+        <button type="button" class="btn btn-dark" onclick="chooseWinPrize('food')">وجبات طعام</button>
+        <button type="button" class="btn btn-dark" onclick="chooseWinPrize('voucher')">كروت خصومات</button>
+        <div id="winPrizeResult" class="box-card center" style="display:none;"></div>
+      </div>
+
+      <div id="lossBox" style="display:none;">
+        <div class="box-card center">
+          <div style="font-size:34px;">💪👾</div>
+          <h2>لقد خسرت ولكنك ربحت مكافأة لدخول التحدي</h2>
+          <p class="muted">اختار مكافأتك:</p>
+        </div>
+        <button type="button" class="btn btn-gold" onclick="chooseLossReward('half_food')">وجبات طعام بنصف الثمن</button>
+        <button type="button" class="btn btn-dark" onclick="chooseLossReward('points')">نقاط</button>
+        <div id="lossRewardResult" class="box-card center" style="display:none;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
+      authDomain: "monester-challenge.firebaseapp.com",
+      databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
+      projectId: "monester-challenge",
+      storageBucket: "monester-challenge.firebasestorage.app",
+      messagingSenderId: "258204342725",
+      appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
+      measurementId: "G-RW050GJMCZ"
+    };
+
+    let db = null;
+    try {
+      if (window.firebase) {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      }
+    } catch (e) {}
+
+    let playMode = 'team';
+    let memberCount = 1;
+    let receiptBase64 = '';
+    let currentTeamId = '';
+    let selectedMobileNumber = '';
+    let settings = {
+      activePhones: ['01000000000', '01100000000', '01200000000'],
+      challengeText: 'في انتظار نص التحدي من الأدمن...',
+      cashPrizeAmount: '500 جنيه',
+      foodPrizeImage: '',
+      voucherPrizeImage: '',
+      winPoints: 100,
+      lossPoints: 25
+    };
+
+    function showScreen(id) {
+      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = (s === id) ? 'block' : 'none';
+      });
+    }
+
+    let timeLeft = 30;
+    const timerEl = document.getElementById('countdownTimer');
+    const countdownInterval = setInterval(() => {
+      timeLeft = Math.max(0, timeLeft - 1);
+      if (timerEl) timerEl.textContent = timeLeft;
+      if (timeLeft === 0) {
+        clearInterval(countdownInterval);
+        if (!currentTeamId) showScreen('s2');
+      }
+    }, 1000);
+
+    function renderMembers() {
+      const wrap = document.getElementById('membersList');
+      wrap.innerHTML = '';
+      const count = (playMode === 'solo') ? 1 : memberCount;
+      for (let i = 0; i < count; i++) {
+        const box = document.createElement('div');
+        box.className = 'member-box';
+        box.innerHTML = `
+          <label style="margin-top:0;">عضو (${i + 1})</label>
+          <div class="row-2">
+            <input type="text" class="m-name" placeholder="الاسم">
+            <input type="tel" class="m-phone" placeholder="رقم الموبايل">
+          </div>
+        `;
+        wrap.appendChild(box);
+      }
+      document.getElementById('btnAddMember').style.display =
+        (playMode === 'team' && memberCount < 5) ? 'block' : 'none';
+    }
+
+    function setMode(mode) {
+      playMode = mode;
+      if (mode === 'solo') memberCount = 1;
+      renderMembers();
+    }
+
+    function addMember() {
+      if (playMode === 'team' && memberCount < 5) {
+        memberCount++;
+        renderMembers();
+      }
+    }
+
+    renderMembers();
+
+    function goStep3() {
+      const err = document.getElementById('err2');
+      const teamName = document.getElementById('teamName').value.trim();
+      const names = document.querySelectorAll('.m-name');
+      const phones = document.querySelectorAll('.m-phone');
+
+      if (!teamName) {
+        err.textContent = 'من فضلك اكتب اسم الفريق';
+        return;
+      }
+      if (!names[0].value.trim() || !phones[0].value.trim()) {
+        err.textContent = 'من فضلك اكتب اسم ورقم موبايل العضو الأول';
+        return;
+      }
+      err.textContent = '';
+      renderThreeMobileChoices();
+      showScreen('s3');
+    }
+
+    function renderThreeMobileChoices() {
+      const wrap = document.getElementById('payPhonesList');
+      const rawList = Array.isArray(settings.activePhones) && settings.activePhones.length
+        ? settings.activePhones.filter(Boolean)
+        : ['01000000000', '01100000000', '01200000000'];
+
+      const threePhones = rawList.slice(0, 3);
+      while (threePhones.length < 3) {
+        threePhones.push('01000000000');
+      }
+
+      if (!selectedMobileNumber || !threePhones.includes(selectedMobileNumber)) {
+        selectedMobileNumber = threePhones[0];
+      }
+
+      wrap.innerHTML = '';
+      threePhones.forEach((ph, idx) => {
+        const item = document.createElement('div');
+        item.className = 'phone-option' + (ph === selectedMobileNumber ? ' active' : '');
+        item.textContent = 'موبايل ' + (idx + 1) + ': ' + ph;
+        item.onclick = () => {
+          selectedMobileNumber = ph;
+          renderThreeMobileChoices();
+        };
+        wrap.appendChild(item);
+      });
+    }
+
+    renderThreeMobileChoices();
+
+    function handleReceiptSelection(file) {
+      if (!file) return;
+      document.getElementById('receiptFileName').textContent = 'الملف المختار: ' + file.name;
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const maxW = 800;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          receiptBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          const prev = document.getElementById('receiptPreview');
+          prev.src = receiptBase64;
+          prev.style.display = 'block';
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('galleryInput').addEventListener('change', function () {
+      handleReceiptSelection(this.files && this.files[0]);
+    });
+
+    document.getElementById('cameraInput').addEventListener('change', function () {
+      handleReceiptSelection(this.files && this.files[0]);
+    });
+
+    function submitRegistration() {
+      const err = document.getElementById('err3');
+      if (!selectedMobileNumber) {
+        err.textContent = 'من فضلك اختر رقم الموبايل الذي أرسلت إليه التحويل';
+        return;
+      }
+      if (!receiptBase64) {
+        err.textContent = 'من فضلك اختر صورة من الاستديو أو صوّر الإيصال بالكاميرا';
+        return;
+      }
+      if (!db) {
+        err.textContent = 'تعذر الاتصال بقاعدة البيانات';
+        return;
+      }
+
+      err.textContent = '';
+      document.getElementById('submitBtn').disabled = true;
+
+      const teamName = document.getElementById('teamName').value.trim();
+      const members = [];
+      const names = document.querySelectorAll('.m-name');
+      const phones = document.querySelectorAll('.m-phone');
+      for (let i = 0; i < names.length; i++) {
+        const n = names[i].value.trim();
+        const p = phones[i].value.trim();
+        if (n || p) members.push({ name: n, phone: p });
+      }
+
+      currentTeamId = teamName.replace(/[.#$/[\]]/g, '_') + '_' + Date.now();
+
+      db.ref('teams/' + currentTeamId).set({
+        id: currentTeamId,
+        name: teamName,
+        mode: playMode,
+        members: members,
+        amount: 100,
+        selectedPhone: selectedMobileNumber,
+        receiptImage: receiptBase64,
+        status: 'pending',
+        createdAt: Date.now()
+      }).then(() => {
+        document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + teamName;
+        showScreen('s4');
+        watchTeam();
+      }).catch(e => {
+        document.getElementById('submitBtn').disabled = false;
+        err.textContent = e.message;
+      });
+    }
+
+    function watchTeam() {
+      if (!db || !currentTeamId) return;
+      db.ref('teams/' + currentTeamId).on('value', snap => {
+        if (!snap.exists()) return;
+        const d = snap.val();
+        if (d.status === 'pending') {
+          showScreen('s4');
+        } else if (d.status === 'approved' || d.status === 'challenge') {
+          showScreen('s5');
+        } else if (d.status === 'won') {
+          showScreen('s6');
+          document.getElementById('winBox').style.display = 'block';
+          document.getElementById('lossBox').style.display = 'none';
+          if (d.rewardChoice) renderWinPrize(d.rewardChoice);
+        } else if (d.status === 'lost') {
+          showScreen('s6');
+          document.getElementById('winBox').style.display = 'none';
+          document.getElementById('lossBox').style.display = 'block';
+          if (d.rewardChoice) renderLossReward(d.rewardChoice);
+        }
+      });
+    }
+
+    function chooseWinPrize(type) {
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({
+          rewardChoice: type,
+          points: Number(settings.winPoints || 0)
+        });
+      }
+      renderWinPrize(type);
+    }
+
+    function renderWinPrize(type) {
+      const box = document.getElementById('winPrizeResult');
+      box.style.display = 'block';
+      const pts = settings.winPoints ? `<div class="muted" style="margin-top:8px;">النقاط: ${settings.winPoints}</div>` : '';
+
+      if (type === 'cash') {
+        box.innerHTML = `<h3>نقدي</h3><div style="font-size:20px;font-weight:bold;">${settings.cashPrizeAmount}</div>${pts}`;
+      } else if (type === 'food') {
+        box.innerHTML = `<h3>وجبات طعام</h3>${settings.foodPrizeImage ? `<img src="${settings.foodPrizeImage}" style="max-width:100%;border-radius:8px;">` : `<div class="muted">الصورة المحددة من الأدمن</div>`}${pts}`;
+      } else if (type === 'voucher') {
+        box.innerHTML = `<h3>كروت خصومات</h3>${settings.voucherPrizeImage ? `<img src="${settings.voucherPrizeImage}" style="max-width:100%;border-radius:8px;">` : `<div class="muted">الصورة المحددة من الأدمن</div>`}${pts}`;
+      }
+    }
+
+    function chooseLossReward(type) {
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({
+          rewardChoice: type,
+          points: Number(settings.lossPoints || 0)
+        });
+      }
+      renderLossReward(type);
+    }
+
+    function renderLossReward(type) {
+      const box = document.getElementById('lossRewardResult');
+      box.style.display = 'block';
+      if (type === 'half_food') {
+        box.innerHTML = `<h3>وجبات طعام بنصف الثمن</h3><div class="muted">تم تسجيل اختيارك</div>`;
+      } else if (type === 'points') {
+        box.innerHTML = `<h3>نقاط</h3><div style="font-size:20px;font-weight:bold;">${settings.lossPoints} نقطة</div>`;
+      }
+    }
+
+    if (db) {
+      db.ref('settings').on('value', snap => {
+        if (!snap.exists()) return;
+        settings = { ...settings, ...snap.val() };
+        renderThreeMobileChoices();
+        document.getElementById('challengeText').textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
+      });
+    }
+  </script>
+</body>
+</html>
