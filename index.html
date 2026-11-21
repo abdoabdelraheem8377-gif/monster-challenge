@@ -256,6 +256,18 @@
       border-radius: 8px;
       background: #000000;
     }
+    .leader-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: #1B1130;
+      border: 1px solid #3D2B68;
+      border-radius: 9px;
+      padding: 9px 11px;
+      margin-top: 7px;
+      font-size: 13px;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -265,35 +277,63 @@
 
     <div id="globalNoticeBox" class="banner-box" style="display:none;"></div>
 
-    <!-- الشاشة 1: تكوين الفريق -->
+    <!-- الشاشة 1: تكوين فريق جديد أو دخول فريق مسجل مسبقاً -->
     <div id="screenTeamSetup" class="card screen active">
       <h1>👾 صراع الوحوش</h1>
-      <h2>كون فريق من 1 إلى 5 أفراد</h2>
-      <div class="muted">اختر اللعب الفردي أو تكوين فريق حتى 5 أفراد، اكتب اسم الفريق وبيانات الأعضاء ثم اضغط التالي.</div>
+      <h2>تسجيل فريق جديد أو متابعة فريقك السابق</h2>
+      <div class="muted">كوّن فريقاً جديداً باسم غير مكرر، أو سجّل الدخول بفريقك السابق بنفس الاسم ورقم القائد لاستكمال نقاطك وتصنيفك في الجولات الجديدة.</div>
 
       <div class="mode-row" style="margin-top:12px;">
-        <button type="button" id="btnSoloMode" class="btn btn-gold" onclick="setTeamMode('solo')">لعب فردي (1)</button>
-        <button type="button" id="btnGroupMode" class="btn btn-dark" onclick="setTeamMode('group')">فريق (من 1 إلى 5)</button>
+        <button type="button" id="btnTabNewTeam" class="btn btn-gold" onclick="switchEntryTab('new')">✨ فريق جديد</button>
+        <button type="button" id="btnTabExistingTeam" class="btn btn-dark" onclick="switchEntryTab('existing')">🏆 دخول فريق مسجل (استكمال التصنيف)</button>
       </div>
 
-      <label>اسم الفريق</label>
-      <input type="text" id="teamNameInput" placeholder="مثال: النسور">
+      <!-- قسم إنشاء فريق جديد -->
+      <div id="newTeamEntrySection">
+        <div class="mode-row" style="margin-top:10px;">
+          <button type="button" id="btnSoloMode" class="btn btn-gold" onclick="setTeamMode('solo')">لعب فردي (1)</button>
+          <button type="button" id="btnGroupMode" class="btn btn-dark" onclick="setTeamMode('group')">فريق (من 1 إلى 5)</button>
+        </div>
 
-      <div id="memberCountBox" style="display:none;">
-        <label>عدد أفراد الفريق (من 1 إلى 5)</label>
-        <input type="number" id="memberCountInput" min="1" max="5" value="2" oninput="renderMemberInputs()">
+        <label>اسم الفريق (يجب ألا يكون مستخدماً من قبل)</label>
+        <input type="text" id="teamNameInput" placeholder="مثال: النسور">
+
+        <div id="memberCountBox" style="display:none;">
+          <label>عدد أفراد الفريق (من 1 إلى 5)</label>
+          <input type="number" id="memberCountInput" min="1" max="5" value="2" oninput="renderMemberInputs()">
+        </div>
+
+        <div id="membersContainer"></div>
+
+        <div id="teamSetupErr" class="msg-err"></div>
+        <button type="button" id="btnNextTeam" class="btn btn-gold" onclick="handleTeamNext()">التالي (Next)</button>
       </div>
 
-      <div id="membersContainer"></div>
+      <!-- قسم دخول فريق مسجل مسبقاً -->
+      <div id="existingTeamEntrySection" style="display:none;margin-top:10px;">
+        <div class="member-box">
+          <strong style="color:#FFD700;">استرجاع بيانات الفريق وتصنيفه</strong>
+          <label>اسم الفريق المسجل</label>
+          <input type="text" id="existingTeamNameInput" placeholder="اكتب اسم فريقك السابق بالضبط">
+          <label>رقم تلفون قائد الفريق</label>
+          <input type="tel" id="existingLeaderPhoneInput" placeholder="01xxxxxxxxx" dir="ltr">
+          <div id="existingTeamErr" class="msg-err"></div>
+          <button type="button" id="btnLoginExistingTeam" class="btn btn-gold" onclick="handleExistingTeamLogin()">دخول واستكمال النقاط والتصنيف</button>
+        </div>
+      </div>
 
-      <div id="teamSetupErr" class="msg-err"></div>
-      <button type="button" id="btnNextTeam" class="btn btn-gold" onclick="handleTeamNext()">التالي (Next)</button>
+      <!-- لوحة ترتيب وتصنيف الفرق -->
+      <div class="banner-box" style="margin-top:16px;margin-bottom:0;">
+        <strong style="color:#FFD700;">🏅 ترتيب وتصنيف الفرق (الأعلى نقاطاً)</strong>
+        <div id="leaderboardContainer" class="muted" style="margin-top:6px;">جاري تحميل تصنيف الفرق...</div>
+      </div>
     </div>
 
     <!-- الشاشة 2: الدفع ورفع إيصال الاشتراك -->
     <div id="screenPayment" class="card screen">
       <h2>تأكيد الاشتراك وإرسال الإيصال</h2>
       <div class="muted">الفريق: <strong id="payTeamTitle" style="color:#FFD700;">-</strong></div>
+      <div id="payExistingStats" class="muted" style="color:#6EE7A8;margin-top:4px;display:none;"></div>
 
       <label>قيمة الاشتراك (جنيه)</label>
       <input type="number" id="payAmountInput" value="100" min="1">
@@ -310,8 +350,8 @@
       <div id="paymentErr" class="msg-err"></div>
       <div id="paymentOk" class="msg-ok"></div>
 
-      <button type="button" class="btn btn-green" onclick="submitPaymentAndRegister()">إرسال الإيصال وتسجيل الفريق</button>
-      <button type="button" class="btn btn-dark" onclick="goToScreen('screenTeamSetup')">← تعديل بيانات الفريق</button>
+      <button type="button" class="btn btn-green" onclick="submitPaymentAndRegister()">إرسال الإيصال وتأكيد الاشتراك</button>
+      <button type="button" class="btn btn-dark" onclick="backFromPayment()">← رجوع</button>
     </div>
 
     <!-- الشاشة 3: انتظار مراجعة الأدمن أو عرض حالة الفريق -->
@@ -319,7 +359,7 @@
       <h2>حالة طلب الفريق</h2>
       <div id="waitingStatusBox" class="muted">جاري متابعة حالة الفريق مع الأدمن...</div>
       <div id="teamDirectMsgBox" class="banner-box" style="display:none;margin-top:12px;"></div>
-      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">تسجيل فريق جديد / تغيير الفريق</button>
+      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">تسجيل فريق جديد / تبديل الفريق</button>
     </div>
 
     <!-- الشاشة 4: شاشة التحدي وGPS Crypo والمفاتيح والصور -->
@@ -410,7 +450,8 @@
 
       <div id="lossRewardResult" style="display:none;margin-top:12px;"></div>
 
-      <button type="button" class="btn btn-dark" style="margin-top:16px;" onclick="resetLocalSession()">تسجيل فريق جديد</button>
+      <button type="button" class="btn btn-gold" style="margin-top:16px;" onclick="startNewRoundForSameTeam()">🔄 دخول تحدٍ جديد بنفس الفريق (الاحتفاظ بالنقاط والتصنيف)</button>
+      <button type="button" class="btn btn-dark" style="margin-top:8px;" onclick="resetLocalSession()">الخروج / تسجيل فريق آخر</button>
     </div>
 
   </div>
@@ -435,16 +476,26 @@
 
     let teamMode = 'solo';
     let draftTeam = null;
+    let returningTeamKey = '';
     let selectedPhone = '';
     let receiptDataUrl = '';
     let settings = {};
     let gpsCoinsMap = {};
+    let allTeamsCache = {};
     let currentTeamKey = localStorage.getItem(STORAGE_TEAM_KEY) || '';
     let currentTeamData = null;
     let lastPlayerCoords = null;
     let teamRefListener = null;
     let pendingChallengePhotos = [];
     let cameraStream = null;
+
+    function normalizeTeamName(name) {
+      return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function normalizePhone(phone) {
+      return String(phone || '').replace(/[^0-9]/g, '');
+    }
 
     function calcRank(points) {
       return Math.floor(Math.max(0, Number(points || 0)) / RANK_STEP) + 1;
@@ -461,6 +512,25 @@
       if (target) {
         target.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function switchEntryTab(tab) {
+      const btnNew = document.getElementById('btnTabNewTeam');
+      const btnEx = document.getElementById('btnTabExistingTeam');
+      const secNew = document.getElementById('newTeamEntrySection');
+      const secEx = document.getElementById('existingTeamEntrySection');
+
+      if (tab === 'existing') {
+        btnEx.className = 'btn btn-gold';
+        btnNew.className = 'btn btn-dark';
+        secNew.style.display = 'none';
+        secEx.style.display = 'block';
+      } else {
+        btnNew.className = 'btn btn-gold';
+        btnEx.className = 'btn btn-dark';
+        secNew.style.display = 'block';
+        secEx.style.display = 'none';
       }
     }
 
@@ -511,9 +581,10 @@
 
     function handleTeamNext() {
       const errEl = document.getElementById('teamSetupErr');
+      const btnNext = document.getElementById('btnNextTeam');
       errEl.textContent = '';
 
-      const teamName = document.getElementById('teamNameInput').value.trim();
+      const teamName = document.getElementById('teamNameInput').value.trim().replace(/\s+/g, ' ');
       if (!teamName) {
         errEl.textContent = 'من فضلك اكتب اسم الفريق أولاً.';
         return;
@@ -534,20 +605,133 @@
         members.push({ name, phone });
       }
 
-      draftTeam = {
-        name: teamName,
-        mode: teamMode,
-        members: members,
-        points: 0,
-        status: 'pending_payment',
-        createdAt: Date.now()
-      };
+      btnNext.disabled = true;
+      btnNext.textContent = 'جاري التحقق من اسم الفريق...';
 
-      alert('تم تجهيز فريق: ' + teamName + ' بنجاح!');
+      db.ref('teams').once('value').then(snap => {
+        const teamsObj = snap.exists() ? snap.val() : {};
+        const targetNorm = normalizeTeamName(teamName);
+        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm);
 
-      document.getElementById('payTeamTitle').textContent = teamName + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
+        btnNext.disabled = false;
+        btnNext.textContent = 'التالي (Next)';
+
+        if (isDuplicate) {
+          errEl.textContent = 'اسم الفريق «' + teamName + '» مستخدم بالفعل! من فضلك اكتب اسماً آخر أو ادخل من تبويب «دخول فريق مسجل» إذا كان فريقك.';
+          return;
+        }
+
+        returningTeamKey = '';
+        draftTeam = {
+          name: teamName,
+          mode: teamMode,
+          members: members,
+          points: 0,
+          status: 'pending_payment',
+          createdAt: Date.now()
+        };
+
+        alert('تم تجهيز فريق: ' + teamName + ' بنجاح!');
+
+        document.getElementById('payTeamTitle').textContent = teamName + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
+        const statsEl = document.getElementById('payExistingStats');
+        statsEl.style.display = 'none';
+        renderActivePhones();
+        goToScreen('screenPayment');
+      }).catch(() => {
+        btnNext.disabled = false;
+        btnNext.textContent = 'التالي (Next)';
+        errEl.textContent = 'تعذر التحقق من اسم الفريق حالياً، تأكد من الاتصال بالإنترنت.';
+      });
+    }
+
+    function handleExistingTeamLogin() {
+      const errEl = document.getElementById('existingTeamErr');
+      const btnLogin = document.getElementById('btnLoginExistingTeam');
+      errEl.textContent = '';
+
+      const rawName = document.getElementById('existingTeamNameInput').value.trim();
+      const rawPhone = document.getElementById('existingLeaderPhoneInput').value.trim();
+      if (!rawName || !rawPhone) {
+        errEl.textContent = 'من فضلك اكتب اسم الفريق ورقم تلفون القائد.';
+        return;
+      }
+
+      const normName = normalizeTeamName(rawName);
+      const normPhone = normalizePhone(rawPhone);
+
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'جاري البحث عن الفريق...';
+
+      db.ref('teams').once('value').then(snap => {
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'دخول واستكمال النقاط والتصنيف';
+
+        const teamsObj = snap.exists() ? snap.val() : {};
+        let matchedKey = '';
+        let matchedTeam = null;
+
+        Object.entries(teamsObj).forEach(([k, t]) => {
+          if (!t) return;
+          const sameName = normalizeTeamName(t.name) === normName;
+          const leaderPh = (Array.isArray(t.members) && t.members[0] && t.members[0].phone) || '';
+          const anyMemberMatch = Array.isArray(t.members) && t.members.some(m => normalizePhone(m && m.phone) === normPhone);
+          if (sameName && (normalizePhone(leaderPh) === normPhone || anyMemberMatch)) {
+            if (!matchedTeam || Number(t.points || 0) >= Number(matchedTeam.points || 0)) {
+              matchedKey = k;
+              matchedTeam = t;
+            }
+          }
+        });
+
+        if (!matchedKey || !matchedTeam) {
+          errEl.textContent = 'لم يتم العثور على فريق مطابق لهذا الاسم ورقم التلفون.';
+          return;
+        }
+
+        currentTeamKey = matchedKey;
+        localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
+        subscribeToCurrentTeam();
+      }).catch(() => {
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'دخول واستكمال النقاط والتصنيف';
+        errEl.textContent = 'حدث خطأ أثناء البحث عن الفريق، حاول مرة أخرى.';
+      });
+    }
+
+    function startNewRoundForSameTeam() {
+      if (!currentTeamKey || !currentTeamData) {
+        resetLocalSession();
+        return;
+      }
+      returningTeamKey = currentTeamKey;
+      draftTeam = null;
+      receiptDataUrl = '';
+      document.getElementById('receiptPreviewImg').style.display = 'none';
+      document.getElementById('receiptFileInput').value = '';
+      document.getElementById('paymentErr').textContent = '';
+      document.getElementById('paymentOk').textContent = '';
+
+      const pts = Number(currentTeamData.points || 0);
+      const rank = calcRank(pts);
+      const members = Array.isArray(currentTeamData.members) ? currentTeamData.members : [];
+      document.getElementById('payTeamTitle').textContent = (currentTeamData.name || '-') + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
+
+      const statsEl = document.getElementById('payExistingStats');
+      statsEl.style.display = 'block';
+      statsEl.textContent = 'رصيدك المحفوظ: ' + pts + ' نقطة | التصنيف الحالي: الدرجة ' + rank;
+
       renderActivePhones();
       goToScreen('screenPayment');
+    }
+
+    function backFromPayment() {
+      if (returningTeamKey && currentTeamData) {
+        returningTeamKey = '';
+        syncScreenWithTeamState();
+      } else {
+        goToScreen('screenTeamSetup');
+      }
     }
 
     function renderActivePhones() {
@@ -619,7 +803,7 @@
       errEl.textContent = '';
       okEl.textContent = '';
 
-      if (!draftTeam) {
+      if (!draftTeam && !returningTeamKey) {
         errEl.textContent = 'برجاء تجهيز بيانات الفريق أولاً.';
         goToScreen('screenTeamSetup');
         return;
@@ -632,6 +816,31 @@
       }
       if (!receiptDataUrl) {
         errEl.textContent = 'برجاء رفع صورة إيصال التحويل أولاً.';
+        return;
+      }
+
+      if (returningTeamKey) {
+        db.ref('teams/' + returningTeamKey).update({
+          amount: amount,
+          selectedPhone: selectedPhone,
+          receiptImage: receiptDataUrl,
+          status: 'pending',
+          rewardChoice: null,
+          halfFoodOrder: null,
+          cashTransferReceipt: null,
+          collectedKeys: null,
+          vaultOpened: null,
+          updatedAt: Date.now()
+        }).then(() => {
+          currentTeamKey = returningTeamKey;
+          returningTeamKey = '';
+          localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
+          okEl.textContent = 'تم إرسال إيصال الجولة الجديدة بنفس رصيدك وتصنيفك!';
+          subscribeToCurrentTeam();
+          goToScreen('screenWaiting');
+        }).catch(() => {
+          errEl.textContent = 'حدث خطأ أثناء تحديث بيانات الجولة الجديدة، حاول مرة أخرى.';
+        });
         return;
       }
 
@@ -672,7 +881,9 @@
           return;
         }
         currentTeamData = { key: snap.key, ...snap.val() };
-        syncScreenWithTeamState();
+        if (!returningTeamKey) {
+          syncScreenWithTeamState();
+        }
       };
 
       db.ref('teams/' + currentTeamKey).on('value', fn);
@@ -733,9 +944,12 @@
 
       const waitBox = document.getElementById('waitingStatusBox');
       if (st === 'rejected') {
-        waitBox.innerHTML = `<div class="msg-err" style="font-size:15px;">تم رفض طلب فريق <strong>${esc(currentTeamData.name || '')}</strong> لوجود خطأ في البيانات أو الإيصال. يمكنك تسجيل فريق جديد.</div>`;
+        waitBox.innerHTML = `<div class="msg-err" style="font-size:15px;">تم رفض طلب فريق <strong>${esc(currentTeamData.name || '')}</strong> لوجود خطأ في البيانات أو الإيصال. يمكنك إعادة رفع الإيصال أو تسجيل فريق جديد.</div>` +
+          `<button type="button" class="btn btn-gold" style="margin-top:10px;" onclick="startNewRoundForSameTeam()">إعادة رفع إيصال التحويل لنفس الفريق</button>`;
       } else {
-        waitBox.innerHTML = `<div>الفريق: <strong style="color:#FFD700;">${esc(currentTeamData.name || '-')}</strong></div><div style="margin-top:6px;">الحالة الحالية: <strong style="color:#FFD700;">قيد مراجعة الأدمن وتأكيد التحويل...</strong></div>`;
+        waitBox.innerHTML = `<div>الفريق: <strong style="color:#FFD700;">${esc(currentTeamData.name || '-')}</strong></div>` +
+          `<div style="margin-top:4px;">النقاط: <strong style="color:#6EE7A8;">${pts}</strong> | التصنيف: <strong>الدرجة ${rank}</strong></div>` +
+          `<div style="margin-top:6px;">الحالة الحالية: <strong style="color:#FFD700;">قيد مراجعة الأدمن وتأكيد التحويل...</strong></div>`;
       }
       goToScreen('screenWaiting');
     }
@@ -1203,6 +1417,28 @@
       });
     }
 
+    function renderLeaderboard() {
+      const box = document.getElementById('leaderboardContainer');
+      if (!box) return;
+      const list = Object.values(allTeamsCache || {})
+        .filter(t => t && t.name)
+        .sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+
+      if (!list.length) {
+        box.innerHTML = 'لا توجد فرق مسجلة بعد.';
+        return;
+      }
+
+      box.innerHTML = list.slice(0, 15).map((t, idx) => {
+        const pts = Number(t.points || 0);
+        const rank = calcRank(pts);
+        return `<div class="leader-row">
+          <span><strong style="color:#FFD700;">#${idx + 1}</strong> ${esc(t.name)}</span>
+          <span style="color:#6EE7A8;"><strong>${pts}</strong> نقطة (الدرجة ${rank})</span>
+        </div>`;
+      }).join('');
+    }
+
     function resetLocalSession() {
       closeLiveCamera();
       pendingChallengePhotos = [];
@@ -1215,6 +1451,7 @@
       currentTeamKey = '';
       currentTeamData = null;
       draftTeam = null;
+      returningTeamKey = '';
       receiptDataUrl = '';
       document.getElementById('receiptPreviewImg').style.display = 'none';
       goToScreen('screenTeamSetup');
@@ -1242,7 +1479,7 @@
       settings = snap.exists() ? snap.val() : {};
       renderGlobalNotice();
       renderActivePhones();
-      if (currentTeamData) {
+      if (currentTeamData && !returningTeamKey) {
         syncScreenWithTeamState();
       }
     });
@@ -1252,6 +1489,11 @@
       if (currentTeamData && (currentTeamData.status === 'approved' || currentTeamData.status === 'challenge')) {
         renderGpsCoinsForPlayer();
       }
+    });
+
+    db.ref('teams').on('value', snap => {
+      allTeamsCache = snap.exists() ? snap.val() : {};
+      renderLeaderboard();
     });
 
     function esc(str) {
