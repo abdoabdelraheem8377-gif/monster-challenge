@@ -674,7 +674,7 @@
         if (!AudioContextClass) return null;
         if (!audioCtx) audioCtx = new AudioContextClass();
         if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
+          audioCtx.resume().catch(function () {});
         }
         return audioCtx;
       } catch (e) {
@@ -742,14 +742,14 @@
         }
         return;
       }
-      Notification.requestPermission().then(perm => {
+      Notification.requestPermission().then(function (perm) {
         if (banner) {
           banner.innerHTML = perm === 'granted'
             ? '✅ تم تفعيل التنبيهات بنجاح!'
             : '⚠️ لم يتم منح إذن التنبيهات؛ ستظهر التنبيهات داخل الصفحة.';
           banner.style.display = 'block';
         }
-      }).catch(() => {});
+      }).catch(function () {});
     }
 
     function triggerBrowserNotification(title, body, ts) {
@@ -811,7 +811,7 @@
       }
 
       const directMsg = currentTeamData && currentTeamData.adminMessage && currentTeamData.adminMessage.text;
-      ['s4AdminMsg', 's5AdminMsg', 's6AdminMsg'].forEach(id => {
+      ['s4AdminMsg', 's5AdminMsg', 's6AdminMsg'].forEach(function (id) {
         const box = document.getElementById(id);
         if (!box) return;
         if (directMsg) {
@@ -837,7 +837,7 @@
 
     function showScreen(id) {
       if (id !== 's1') stopIntroCountdown();
-      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(s => {
+      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(function (s) {
         const el = document.getElementById(s);
         if (el) el.style.display = (s === id) ? 'block' : 'none';
       });
@@ -872,7 +872,7 @@
 
       if (countdownInterval) clearInterval(countdownInterval);
       countdownInterval = setInterval(function () {
-        if (introFinished || currentTeamId) {
+        if (introFinished) {
           stopIntroCountdown();
           return;
         }
@@ -882,22 +882,18 @@
 
         if (remaining <= 0) {
           stopIntroCountdown();
-          if (!currentTeamId) {
-            showScreen('s2');
-          }
+          showScreen('s2');
         }
       }, 250);
     }
 
-    if (!currentTeamId) {
-      startIntroCountdown();
-    }
+    startIntroCountdown();
 
     function renderMembers() {
       const wrap = document.getElementById('membersList');
       if (!wrap) return;
-      const existingNames = Array.from(document.querySelectorAll('.m-name')).map(el => el.value);
-      const existingPhones = Array.from(document.querySelectorAll('.m-phone')).map(el => el.value);
+      const existingNames = Array.from(document.querySelectorAll('.m-name')).map(function (el) { return el.value; });
+      const existingPhones = Array.from(document.querySelectorAll('.m-phone')).map(function (el) { return el.value; });
 
       wrap.innerHTML = '';
       const count = (playMode === 'solo') ? 1 : Math.min(5, Math.max(1, memberCount));
@@ -950,7 +946,7 @@
     function isTeamNameDuplicate(candidateName) {
       const norm = candidateName.trim().toLowerCase();
       if (!norm) return false;
-      return Object.keys(allTeamsMap || {}).some(k => {
+      return Object.keys(allTeamsMap || {}).some(function (k) {
         if (currentTeamId && k === currentTeamId) return false;
         const t = allTeamsMap[k];
         return t && String(t.name || '').trim().toLowerCase() === norm;
@@ -979,7 +975,7 @@
       info.innerHTML = `أنت حالياً في مجموعة <strong>${esc(currentTeamData.name || '-')}</strong> (نقاط المجموعة: <strong>${grpPts}</strong> ÷ ${members.length} أفراد = نصيب الفرد التقريبي: <strong style="color:#6EE7A8;">${share}</strong> نقطة).`;
 
       sel.innerHTML = '<option value="">اختر مجموعة أخرى للانضمام إليها...</option>';
-      Object.keys(allTeamsMap || {}).forEach(k => {
+      Object.keys(allTeamsMap || {}).forEach(function (k) {
         if (k === currentTeamId) return;
         const g = allTeamsMap[k];
         if (!g || !g.name) return;
@@ -1009,9 +1005,9 @@
       const share = Math.floor(oldPts / totalCount);
       const remPts = Math.max(0, oldPts - share);
 
-      const remainingMembers = members.filter(m =>
-        !activeMemberName || String(m.name || '').trim() !== activeMemberName.trim()
-      );
+      const remainingMembers = members.filter(function (m) {
+        return !activeMemberName || String(m.name || '').trim() !== activeMemberName.trim();
+      });
 
       setPersonalPoints(personalPoints + share);
 
@@ -1021,7 +1017,7 @@
         if (remainingMembers.length > 0) {
           updates['teams/' + oldTeamKey + '/members'] = remainingMembers;
         }
-        db.ref().update(updates).catch(() => {});
+        db.ref().update(updates).catch(function () {});
       }
 
       if (teamRefListener && listenedTeamId) {
@@ -1044,4 +1040,4 @@
       const errEl = document.getElementById('membershipErr');
       const sel = document.getElementById('otherGroupsSelect');
       msgEl.textContent = '';
-      errEl.textContent
+   
