@@ -65,6 +65,12 @@
       border-radius: 9px;
       border: 1px solid #3D2B68;
     }
+    .phone-slot-badge {
+      color: #FFD700;
+      font-weight: bold;
+      font-size: 13px;
+      min-width: 58px;
+    }
     .phone-row input[type="checkbox"] {
       width: 20px;
       height: 20px;
@@ -205,14 +211,50 @@
 
     <div class="header-box">
       <h1>👾 صراع الوحوش - لوحة الأدمن</h1>
-      <div class="muted">إدارة الأرقام، التحدي والصور المطلوبة، تنبيهات المواعيد، 7 أرقام توصيل، الجوائز، وإدارة الفرق</div>
+      <div class="muted">إدارة 7 أرقام استلام التحويلات، التحدي والصور المطلوبة، تنبيهات المواعيد، 7 أرقام توصيل، الجوائز، وإدارة الفرق</div>
     </div>
 
-    <!-- 1. أرقام التحويل (7 اختيارات واختيار 3) + نص التحدي + عدد الصور المطلوبة -->
+    <!-- 1. 7 خانات لأرقام استلام التحويلات + نص التحدي + عدد الصور المطلوبة -->
     <div class="card">
-      <h2>1. أرقام التحويل (7 اختيارات) والتحدي وعدد الصور المطلوبة</h2>
-      <div class="muted">أدخل حتى 7 أرقام تحويل يمكنك تغييرها في أي وقت، وحدد 3 أرقام فقط لتظهر للمستخدم:</div>
-      <div id="phonesList" style="margin-top:10px;"></div>
+      <h2>1. أرقام استلام التحويلات (7 خانات) والتحدي وعدد الصور المطلوبة</h2>
+      <div class="muted">أدخل حتى 7 أرقام لاستلام التحويلات ويمكنك تغييرها في أي وقت، وحدد علامة الصح أمام 3 أرقام لتظهر للمستخدم:</div>
+      <div id="phonesList" style="margin-top:10px;">
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 1</span>
+          <input type="checkbox" class="chk-3" data-i="0" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph0" placeholder="أدخل رقم استلام التحويل 1">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 2</span>
+          <input type="checkbox" class="chk-3" data-i="1" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph1" placeholder="أدخل رقم استلام التحويل 2">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 3</span>
+          <input type="checkbox" class="chk-3" data-i="2" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph2" placeholder="أدخل رقم استلام التحويل 3">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 4</span>
+          <input type="checkbox" class="chk-3" data-i="3" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph3" placeholder="أدخل رقم استلام التحويل 4">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 5</span>
+          <input type="checkbox" class="chk-3" data-i="4" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph4" placeholder="أدخل رقم استلام التحويل 5">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 6</span>
+          <input type="checkbox" class="chk-3" data-i="5" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph5" placeholder="أدخل رقم استلام التحويل 6">
+        </div>
+        <div class="phone-row">
+          <span class="phone-slot-badge">رقم 7</span>
+          <input type="checkbox" class="chk-3" data-i="6" onchange="checkThree(this)" title="إظهار للمستخدم">
+          <input type="tel" class="ph-7" id="ph6" placeholder="أدخل رقم استلام التحويل 7">
+        </div>
+      </div>
       <div id="phoneWarn" class="warn-msg"></div>
 
       <label>نص التحدي (يظهر لكل الفرق المقبولة)</label>
@@ -450,16 +492,6 @@
     function calcRank(points) {
       const p = Math.max(0, Number(points || 0));
       return Math.floor(p / RANK_STEP) + 1;
-    }
-
-    const phonesWrap = document.getElementById('phonesList');
-    for (let i = 0; i < 7; i++) {
-      const row = document.createElement('div');
-      row.className = 'phone-row';
-      row.innerHTML =
-        '<input type="checkbox" class="chk-3" data-i="' + i + '" onchange="checkThree(this)">' +
-        '<input type="tel" class="ph-7" id="ph' + i + '" placeholder="رقم تحويل ' + (i + 1) + '">';
-      phonesWrap.appendChild(row);
     }
 
     const deliveryWrap = document.getElementById('deliveryPhonesList');
@@ -982,4 +1014,136 @@
               return `<div style="margin-top:8px;"><div>من: <strong>${who}</strong> (${imgs.length} صورة)</div>` +
                 imgs.map(src => `<img src="${escAttr(src)}" class="sub-img" onclick="openModal(this.src)" alt="صورة التحدي">`).join('') +
                 `</div>`;
-            }).join(''
+            }).join('') +
+          '</div>';
+        }
+
+        let halfFoodHtml = '';
+        if (team.halfFoodOrder) {
+          const hf = team.halfFoodOrder;
+          halfFoodHtml = `
+            <div class="members-box" style="border:1px solid #FFD70066;">
+              <strong style="color:#FFD700;">🍽️ طلب وجبات نصف الثمن (خسارة):</strong>
+              <div>الاختيار: <strong>${esc(hf.choiceText || (Array.isArray(hf.items) ? hf.items.map(i => i.name).join('، ') : '-'))}</strong></div>
+              <div>العنوان: <strong>${esc(hf.address || '-')}</strong></div>
+              <div>رقم التلفون: <strong dir="ltr">${esc(hf.phone || '-')}</strong></div>
+            </div>
+          `;
+        }
+
+        let rewardDetailsHtml = '';
+        if (team.rewardDetails && team.rewardDetails.orderDetails) {
+          const rd = team.rewardDetails;
+          rewardDetailsHtml = `
+            <div class="members-box">
+              <strong style="color:#6EE7A8;">📦 تفاصيل طلب الجائزة:</strong>
+              <div>الطلب: <strong>${esc(rd.orderDetails)}</strong></div>
+              <div>مكان التوصيل: <strong>${esc(rd.deliveryArea || '-')}</strong></div>
+              <div>العنوان: <strong>${esc(rd.address || '-')}</strong></div>
+            </div>
+          `;
+        }
+
+        const safeKey = team.key.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const currentDirectMsg = (team.adminMessage && team.adminMessage.text) || '';
+
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML =
+          '<div class="team-top">' +
+            '<div><strong style="color:#FFD700;font-size:16px;">' + esc(team.name || 'فريق') + '</strong> <span class="muted">(' + (team.mode === 'solo' ? 'فردي' : 'جماعي') + ')</span></div>' +
+            '<span class="badge ' + bClass + '">' + bText + '</span>' +
+          '</div>' +
+          '<div class="muted">النقاط: <strong>' + pts + '</strong> | التصنيف: <strong>' + rank + '</strong></div>' +
+          '<div class="members-box">' + membersHtml + '</div>' +
+          '<div class="muted">الاشتراك: <strong>' + (team.amount || 100) + ' جنيه</strong> على رقم <span dir="ltr">' + esc(team.selectedPhone || '-') + '</span></div>' +
+          (team.receiptImage ? '<div><img src="' + escAttr(team.receiptImage) + '" class="receipt-img" onclick="openModal(this.src)" alt="إيصال الاشتراك"></div>' : '') +
+          subsHtml +
+          halfFoodHtml +
+          rewardDetailsHtml +
+          (team.rewardChoice ? '<div class="muted" style="margin-top:8px;color:#FFE99E;">نوع الهدية المختارة: <strong>' + esc(formatReward(team.rewardChoice)) + '</strong></div>' : '') +
+          '<div class="members-box">' +
+            '<label style="margin-top:0;">💵 إرسال إيصال تحويل نقدي للفائز:</label>' +
+            '<input type="file" accept="image/*" onchange="sendCashTransferReceipt(\'' + escAttr(team.key) + '\', this)">' +
+            (team.cashTransferReceipt ? `<div><img src="${escAttr(team.cashTransferReceipt)}" class="receipt-img" onclick="openModal(this.src)" alt="إيصال النقدي"></div>` : '') +
+            '<div id="cashReceiptStatus_' + safeKey + '" class="status-msg"></div>' +
+          '</div>' +
+          '<div class="members-box">' +
+            '<label style="margin-top:0;">✉️ إرسال رسالة خاصة لهذا الفريق:</label>' +
+            '<input type="text" id="directMsgInput_' + safeKey + '" placeholder="اكتب رسالتك للفريق..." value="' + escAttr(currentDirectMsg) + '">' +
+            '<button type="button" class="btn btn-blue" onclick="sendDirectMessageToTeam(\'' + escAttr(team.key) + '\')">إرسال الرسالة للفريق</button>' +
+            '<div id="directMsgStatus_' + safeKey + '" class="status-msg"></div>' +
+          '</div>' +
+          '<div class="actions-row">' +
+            '<button type="button" class="btn btn-blue" onclick="setStatus(\'' + escAttr(team.key) + '\', \'approved\')">قبول ودخول التحدي</button>' +
+            '<button type="button" class="btn btn-red" onclick="setStatus(\'' + escAttr(team.key) + '\', \'rejected\')">رفض (بيانات خاطئة)</button>' +
+            '<button type="button" class="btn btn-green" onclick="markTeamWon(\'' + escAttr(team.key) + '\')">فوز (+10 نقاط)</button>' +
+            '<button type="button" class="btn btn-dark" onclick="markTeamLost(\'' + escAttr(team.key) + '\')">خسارة (0 نقطة)</button>' +
+            '<button type="button" class="btn btn-blue" onclick="resetTeamToStageOne(\'' + escAttr(team.key) + '\')">🔄 إعادة للمرحلة الأولى وتحدٍ جديد</button>' +
+            '<button type="button" class="btn btn-dark" style="color:#FF8FA3;" onclick="delTeam(\'' + escAttr(team.key) + '\')">حذف</button>' +
+          '</div>';
+        wrap.appendChild(card);
+      });
+    });
+
+    function markTeamWon(key) {
+      db.ref('teams/' + key).once('value').then(snap => {
+        if (!snap.exists()) return;
+        const d = snap.val();
+        if (d.status === 'won' && d.winPointsAwardedAt) return;
+        const bonus = Number(latestSettings.winPoints !== undefined ? latestSettings.winPoints : WIN_POINTS);
+        const nextPts = Number(d.points || 0) + bonus;
+        db.ref('teams/' + key).update({
+          status: 'won',
+          points: nextPts,
+          winPointsAwardedAt: Date.now(),
+          updatedAt: Date.now()
+        });
+      });
+    }
+
+    function markTeamLost(key) {
+      db.ref('teams/' + key).once('value').then(snap => {
+        if (!snap.exists()) return;
+        db.ref('teams/' + key).update({
+          status: 'lost',
+          winPointsAwardedAt: null,
+          updatedAt: Date.now()
+        });
+      });
+    }
+
+    function setStatus(key, status) {
+      const patch = { status: status, updatedAt: Date.now() };
+      if (status !== 'won') patch.winPointsAwardedAt = null;
+      db.ref('teams/' + key).update(patch);
+    }
+
+    function delTeam(key) {
+      if (confirm('حذف هذا الفريق نهائياً؟')) db.ref('teams/' + key).remove();
+    }
+
+    function formatReward(code) {
+      if (code === 'cash') return 'نقدي';
+      if (code === 'food') return 'طعام';
+      if (code === 'goods') return 'سلع استهلاكية';
+      if (code === 'voucher') return 'كروت خصومات';
+      if (code === 'half_food') return 'وجبات بنصف الثمن';
+      return code || '';
+    }
+
+    function openModal(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imgModal').style.display = 'flex';
+    }
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function escAttr(str) {
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
