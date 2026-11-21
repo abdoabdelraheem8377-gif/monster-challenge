@@ -202,6 +202,60 @@
       font-size: 13px;
       color: #FFE99E;
     }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .photo-thumb-card {
+      position: relative;
+      background: #110A21;
+      border: 1px solid #483575;
+      border-radius: 10px;
+      overflow: hidden;
+      padding: 4px;
+    }
+    .photo-thumb-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 7px;
+      display: block;
+    }
+    .remove-photo-btn {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: #E11D48;
+      color: #FFFFFF;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+    .camera-box {
+      background: #110A21;
+      border: 1px solid #483575;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+    .camera-box video {
+      width: 100%;
+      max-height: 260px;
+      border-radius: 8px;
+      background: #000000;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -284,10 +338,30 @@
         <div id="chTextBox" class="muted" style="margin-top:6px;">-</div>
       </div>
 
-      <div id="challengePhotoSection" style="display:none;">
-        <label id="chPhotoLabel">إرسال صور التحدي</label>
-        <input type="file" id="chPhotosInput" accept="image/*" multiple>
-        <button type="button" class="btn btn-blue" onclick="uploadChallengePhotos()">📤 إرسال صور التحدي</button>
+      <!-- قسم الكاميرا والاستديو وصور التحدي -->
+      <div id="challengePhotoSection" class="banner-box">
+        <strong id="chPhotoLabel" style="color:#FFD700;">📸 صور التحدي (كاميرا / استديو)</strong>
+        <div class="muted" style="margin-top:4px;">يمكنك التقاط صورة بالكاميرا أو اختيار صورة أو أكثر من الاستديو، وحذف أي صورة بالضغط على علامة <strong>×</strong> قبل الإرسال.</div>
+
+        <input type="file" id="chPhotosInput" accept="image/*" multiple style="display:none;" onchange="handleGallerySelection(this)">
+
+        <div class="row-2" style="margin-top:8px;">
+          <button type="button" class="btn btn-blue" onclick="openLiveCamera()">📷 فتح الكاميرا</button>
+          <button type="button" class="btn btn-dark" onclick="document.getElementById('chPhotosInput').click()">🖼️ اختيار من الاستديو</button>
+        </div>
+
+        <div id="liveCameraBox" class="camera-box">
+          <video id="cameraVideo" autoplay playsinline></video>
+          <canvas id="cameraCanvas" style="display:none;"></canvas>
+          <div class="row-2">
+            <button type="button" class="btn btn-green" onclick="capturePhotoFromCamera()">📸 التقاط الصورة</button>
+            <button type="button" class="btn btn-dark" onclick="closeLiveCamera()">إغلاق الكاميرا</button>
+          </div>
+        </div>
+
+        <div id="pendingPhotosGrid" class="photo-grid"></div>
+
+        <button type="button" class="btn btn-gold" onclick="uploadChallengePhotos()">📤 إرسال الصور للأدمن</button>
         <div id="chPhotoMsg" class="msg-ok"></div>
         <div id="chPhotoErr" class="msg-err"></div>
       </div>
@@ -368,12 +442,17 @@
     let currentTeamData = null;
     let lastPlayerCoords = null;
     let teamRefListener = null;
+    let pendingChallengePhotos = [];
+    let cameraStream = null;
 
     function calcRank(points) {
       return Math.floor(Math.max(0, Number(points || 0)) / RANK_STEP) + 1;
     }
 
     function goToScreen(screenId) {
+      if (screenId !== 'screenChallenge') {
+        closeLiveCamera();
+      }
       document.querySelectorAll('.screen').forEach(el => {
         el.classList.remove('active');
       });
@@ -499,6 +578,21 @@
       renderActivePhones();
     }
 
+    function compressImageDataUrl(rawDataUrl, maxW, quality) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality || 0.7));
+        };
+        img.src = rawDataUrl;
+      });
+    }
+
     function handleReceiptFile(input) {
       const file = input.files && input.files[0];
       const img = document.getElementById('receiptPreviewImg');
@@ -509,19 +603,11 @@
       }
       const reader = new FileReader();
       reader.onload = ev => {
-        const image = new Image();
-        image.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxW = 800;
-          const scale = image.width > maxW ? maxW / image.width : 1;
-          canvas.width = image.width * scale;
-          canvas.height = image.height * scale;
-          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-          receiptDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        compressImageDataUrl(ev.target.result, 800, 0.7).then(dataUrl => {
+          receiptDataUrl = dataUrl;
           img.src = receiptDataUrl;
           img.style.display = 'block';
-        };
-        image.src = ev.target.result;
+        });
       };
       reader.readAsDataURL(file);
     }
@@ -617,14 +703,15 @@
         document.getElementById('chTextBox').textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
 
         const photoSec = document.getElementById('challengePhotoSection');
+        photoSec.style.display = 'block';
         if (settings.requireChallengePhotos) {
-          photoSec.style.display = 'block';
           const cnt = Math.max(1, Number(settings.challengePhotoCount || 1));
-          document.getElementById('chPhotoLabel').textContent = 'إرسال صور التحدي (المطلوب: ' + cnt + ' صورة)';
+          document.getElementById('chPhotoLabel').textContent = '📸 صور التحدي (المطلوب: ' + cnt + ' صورة أو أكثر)';
         } else {
-          photoSec.style.display = 'none';
+          document.getElementById('chPhotoLabel').textContent = '📸 إرسال صور التحدي (كاميرا / استديو)';
         }
 
+        renderPendingPhotos();
         renderGpsCoinsForPlayer();
         renderKeyVaultForPlayer();
         goToScreen('screenChallenge');
@@ -652,6 +739,94 @@
       goToScreen('screenWaiting');
     }
 
+    function openLiveCamera() {
+      const errEl = document.getElementById('chPhotoErr');
+      const box = document.getElementById('liveCameraBox');
+      const video = document.getElementById('cameraVideo');
+      errEl.textContent = '';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errEl.textContent = 'المتصفح أو التطبيق لا يدعم الكاميرا المباشرة، يمكنك الاختيار من الاستديو.';
+        return;
+      }
+
+      closeLiveCamera();
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+        .then(stream => {
+          cameraStream = stream;
+          video.srcObject = stream;
+          box.style.display = 'block';
+        })
+        .catch(() => {
+          errEl.textContent = 'يرجى السماح بصلاحية الكاميرا من إعدادات المتصفح أو التطبيق، أو استخدم «اختيار من الاستديو».';
+        });
+    }
+
+    function closeLiveCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      const box = document.getElementById('liveCameraBox');
+      const video = document.getElementById('cameraVideo');
+      if (video) video.srcObject = null;
+      if (box) box.style.display = 'none';
+    }
+
+    function capturePhotoFromCamera() {
+      const video = document.getElementById('cameraVideo');
+      const canvas = document.getElementById('cameraCanvas');
+      if (!video || !video.videoWidth) return;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      const rawDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      compressImageDataUrl(rawDataUrl, 750, 0.72).then(compressed => {
+        pendingChallengePhotos.push(compressed);
+        renderPendingPhotos();
+      });
+    }
+
+    function handleGallerySelection(input) {
+      const errEl = document.getElementById('chPhotoErr');
+      errEl.textContent = '';
+      const files = Array.from((input && input.files) || []);
+      if (!files.length) return;
+
+      Promise.all(files.map(file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          compressImageDataUrl(ev.target.result, 750, 0.72).then(resolve);
+        };
+        reader.readAsDataURL(file);
+      }))).then(compressedList => {
+        pendingChallengePhotos = pendingChallengePhotos.concat(compressedList);
+        input.value = '';
+        renderPendingPhotos();
+      });
+    }
+
+    function removePendingPhoto(index) {
+      pendingChallengePhotos.splice(index, 1);
+      renderPendingPhotos();
+    }
+
+    function renderPendingPhotos() {
+      const grid = document.getElementById('pendingPhotosGrid');
+      if (!grid) return;
+      if (!pendingChallengePhotos.length) {
+        grid.innerHTML = '';
+        return;
+      }
+      grid.innerHTML = pendingChallengePhotos.map((src, idx) => `
+        <div class="photo-thumb-card">
+          <img src="${escAttr(src)}" alt="صورة ${idx + 1}">
+          <button type="button" class="remove-photo-btn" title="حذف الصورة" onclick="removePendingPhoto(${idx})">×</button>
+        </div>
+      `).join('');
+    }
+
     function uploadChallengePhotos() {
       const errEl = document.getElementById('chPhotoErr');
       const okEl = document.getElementById('chPhotoMsg');
@@ -659,41 +834,33 @@
       okEl.textContent = '';
 
       if (!currentTeamKey) return;
-      const input = document.getElementById('chPhotosInput');
-      const files = Array.from((input && input.files) || []);
-      const requiredCount = Math.max(1, Number(settings.challengePhotoCount || 1));
-
-      if (files.length < requiredCount) {
-        errEl.textContent = 'مطلوب إرسال ' + requiredCount + ' صورة على الأقل.';
+      if (!pendingChallengePhotos.length) {
+        errEl.textContent = 'اختر أو التقط صورة واحدة على الأقل قبل الإرسال.';
         return;
       }
 
-      Promise.all(files.map(file => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const maxW = 750;
-            const scale = img.width > maxW ? maxW / img.width : 1;
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.7));
-          };
-          img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      }))).then(images => {
-        const leaderName = (currentTeamData && currentTeamData.members && currentTeamData.members[0] && currentTeamData.members[0].name) || currentTeamData.name || 'عضو';
-        return db.ref('teams/' + currentTeamKey + '/submissions').push({
-          memberName: leaderName,
-          images: images,
-          sentAt: Date.now()
-        });
+      if (settings.requireChallengePhotos) {
+        const requiredCount = Math.max(1, Number(settings.challengePhotoCount || 1));
+        if (pendingChallengePhotos.length < requiredCount) {
+          errEl.textContent = 'مطلوب إرسال ' + requiredCount + ' صورة على الأقل.';
+          return;
+        }
+      }
+
+      const leaderName = (currentTeamData && currentTeamData.members && currentTeamData.members[0] && currentTeamData.members[0].name) || currentTeamData.name || 'عضو';
+      const photosToSend = pendingChallengePhotos.slice();
+
+      db.ref('teams/' + currentTeamKey + '/submissions').push({
+        memberName: leaderName,
+        images: photosToSend,
+        sentAt: Date.now()
       }).then(() => {
-        okEl.textContent = 'تم إرسال صور التحدي للأدمن بنجاح!';
-        input.value = '';
+        pendingChallengePhotos = [];
+        renderPendingPhotos();
+        closeLiveCamera();
+        okEl.textContent = 'تم إرسال الصور (' + photosToSend.length + ') للأدمن بنجاح!';
+      }).catch(() => {
+        errEl.textContent = 'تعذر إرسال الصور، حاول مرة أخرى.';
       });
     }
 
@@ -1035,6 +1202,9 @@
     }
 
     function resetLocalSession() {
+      closeLiveCamera();
+      pendingChallengePhotos = [];
+      renderPendingPhotos();
       if (teamRefListener) {
         db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
         teamRefListener = null;
