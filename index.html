@@ -21,49 +21,23 @@
       background: #140D24;
       border: 1px solid #FFD70055;
       border-radius: 14px;
-      padding: 18px;
-      position: relative;
+      padding: 20px;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .gear-btn {
-      background: #291C47;
-      color: #FFD700;
-      border: 1px solid #FFD70066;
-      border-radius: 10px;
-      padding: 7px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
-    }
-    .gear-btn:active {
-      transform: scale(0.95);
-      filter: brightness(0.88);
-    }
-    .audio-panel {
-      display: none;
-      background: #1E1436;
-      border: 1px solid #FFD70077;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    h1, h2, h3 {
+    h1, h2 {
       text-align: center;
       color: #FFD700;
       margin-top: 0;
     }
-    .center { text-align: center; }
-    .muted { color: #C2B8D9; font-size: 14px; line-height: 1.6; }
+    .center {
+      text-align: center;
+    }
+    .muted {
+      color: #C2B8D9;
+      font-size: 14px;
+      line-height: 1.6;
+    }
     .timer-box {
-      font-size: 40px;
+      font-size: 42px;
       font-weight: bold;
       color: #FFD700;
       background: #1E1436;
@@ -71,19 +45,7 @@
       border-radius: 14px;
       padding: 12px 26px;
       display: inline-block;
-      margin: 14px auto;
-    }
-    .hourglass {
-      font-size: 46px;
-      display: inline-block;
-      animation: spinHourglass 2.2s linear infinite;
-    }
-    @keyframes spinHourglass {
-      0% { transform: rotate(0deg); }
-      45% { transform: rotate(180deg); }
-      50% { transform: rotate(180deg); }
-      95% { transform: rotate(360deg); }
-      100% { transform: rotate(360deg); }
+      margin: 16px auto;
     }
     label {
       display: block;
@@ -92,7 +54,7 @@
       color: #FFE99E;
       font-weight: bold;
     }
-    input[type="text"], input[type="tel"], select, textarea {
+    input[type="text"], input[type="tel"], select {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -102,63 +64,19 @@
       font-size: 15px;
       font-family: Tahoma, Arial, sans-serif;
     }
-    textarea {
-      min-height: 78px;
-      resize: vertical;
-    }
-    input[type="range"] {
-      width: 100%;
-      accent-color: #FFD700;
-      cursor: pointer;
-    }
     .row-2 {
       display: flex;
       gap: 8px;
     }
-    .row-2 > * { flex: 1; }
+    .row-2 > * {
+      flex: 1;
+    }
     .member-box {
       background: #1E1436;
       border: 1px solid #392861;
       border-radius: 10px;
       padding: 10px;
       margin-bottom: 8px;
-    }
-    .captain-tag {
-      display: inline-block;
-      background: #FFD70026;
-      color: #FFD700;
-      border: 1px solid #FFD70066;
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 11px;
-      margin-right: 6px;
-    }
-    .phones-3-box {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 10px 0;
-    }
-    .phone-option {
-      background: #1E1436;
-      border: 1px solid #493575;
-      border-radius: 9px;
-      padding: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #FFD700;
-      direction: ltr;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.08s ease, background 0.15s ease, color 0.15s ease;
-    }
-    .phone-option:active {
-      transform: scale(0.96);
-    }
-    .phone-option.active {
-      background: #FFD700;
-      color: #07040F;
-      border-color: #FFD700;
     }
     .btn {
       display: block;
@@ -170,88 +88,15 @@
       font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      user-select: none;
-      transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
-    }
-    .btn:active:not(:disabled) {
-      transform: scale(0.96);
-      filter: brightness(0.88);
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
     }
     .btn-gold {
       background: #FFD700;
       color: #07040F;
-      box-shadow: 0 3px 0 #B59500;
     }
     .btn-dark {
       background: #291C47;
       color: #FFFFFF;
       border: 1px solid #4B367A;
-      box-shadow: 0 3px 0 #150E26;
-    }
-    .btn-green {
-      background: #1FA855;
-      color: #FFFFFF;
-      box-shadow: 0 3px 0 #136B36;
-    }
-    .btn-red {
-      background: #C9364C;
-      color: #FFFFFF;
-      box-shadow: 0 3px 0 #7E1E2C;
-    }
-    .box-card {
-      background: #1D1333;
-      border: 1px solid #3A2961;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 10px 0;
-    }
-    .stats-bar {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      background: #1E1436;
-      border: 1px solid #FFD70055;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      flex-wrap: wrap;
-    }
-    .coin-item, .key-item, .menu-check-item, .photo-slot-box {
-      background: #140D24;
-      border: 1px solid #493575;
-      border-radius: 9px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-    .menu-check-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .menu-check-row input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: #FFD700;
-      cursor: pointer;
-    }
-    .call-chip {
-      display: inline-block;
-      background: #291C47;
-      border: 1px solid #FFD70066;
-      color: #FFD700;
-      padding: 5px 10px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 13px;
-      margin: 4px 2px;
-      direction: ltr;
     }
     .msg-err {
       color: #FF7A90;
@@ -259,103 +104,30 @@
       font-size: 13px;
       margin-top: 8px;
     }
-    .msg-ok {
-      color: #6EE7A8;
-      text-align: center;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-    .alert-banner {
-      background: #241642;
-      border: 1px solid #FFD70088;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      line-height: 1.6;
-      display: none;
-    }
-    img.preview {
-      max-width: 100%;
-      max-height: 220px;
-      border-radius: 10px;
-      margin-top: 8px;
-      display: none;
-    }
-    .order-form-box {
-      text-align: right;
-      margin-top: 12px;
-      background: #140D24;
-      border: 1px solid #493575;
-      border-radius: 10px;
-      padding: 12px;
-    }
-    .celebration-banner {
-      background: linear-gradient(135deg, #2A194E, #162B22);
-      border: 1px solid #FFD700;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-    .follow-phone {
-      font-size: 18px;
-      font-weight: bold;
-      color: #FFD700;
-      direction: ltr;
-      margin-top: 6px;
-    }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <div class="wrap">
-
-    <div class="top-bar">
-      <button type="button" class="gear-btn" onclick="requestNotificationPermission()">🔔 تفعيل التنبيهات</button>
-      <button type="button" class="gear-btn" onclick="toggleAudioPanel()">⚙️ إعدادات الصوت</button>
+    <!-- الشاشة 1: العد التنازلي 30 ثانية -->
+    <div id="s1" class="center" style="padding: 36px 10px;">
+      <div style="font-size:48px;">👾🔥</div>
+      <h1>مرحباً بكم في صراع الوحوش</h1>
+      <p class="muted">جاري تجهيز الدخول إلى صفحة تكوين الفريق...</p>
+      <div id="countdownTimer" class="timer-box">30</div>
+      <div class="muted">سيتم الانتقال تلقائياً إلى صفحة تكوين الفريق عند وصول العداد إلى 0</div>
+      <button type="button" class="btn btn-dark" onclick="openTeamScreen()">دخول مباشر لتكوين الفريق</button>
     </div>
 
-    <div id="localFileWarn" class="alert-banner" style="border-color:#FF7A90;color:#FFD4DC;"></div>
-    <div id="notifStatusBanner" class="alert-banner" style="border-color:#7CC6FE88;"></div>
-
-    <div id="audioPanel" class="audio-panel">
-      <h3 style="margin-bottom:8px;">🔊 صوت المفاتيح والأزرار</h3>
-      <label style="margin-top:4px;">مستوى صوت المفاتيح: <span id="sfxVolLabel">100%</span></label>
-      <input type="range" id="sfxVolRange" min="0" max="100" value="100" oninput="setSfxVolume(this.value)">
-      <button type="button" class="btn btn-gold" onclick="playKeySound()">🎹 تجربة صوت المفتاح</button>
-    </div>
-
-    <div id="scheduleBanner" class="alert-banner"></div>
-    <div id="broadcastBanner" class="alert-banner" style="border-color:#6EE7A888;"></div>
-
-    <!-- الشاشة 1: الدخول والعد التنازلي 30 ثانية -->
-    <div id="s1" style="display:block;">
-      <div class="center" style="padding: 36px 10px;">
-        <div style="font-size:48px;">👾🔥</div>
-        <h1>مرحباً بكم في صراع الوحوش</h1>
-        <p class="muted">جاري تجهيز الدخول إلى صفحة تكوين الفريق...</p>
-        <div id="countdownTimer" class="timer-box">30</div>
-        <div class="muted">سيتم الانتقال تلقائياً إلى صفحة تكوين الفريق عند وصول العداد إلى 0</div>
-      </div>
-    </div>
-
-    <!-- الشاشة 2: تكوين الفريق وإدارة العضوية والانتقال -->
+    <!-- الشاشة 2: تكوين الفريق -->
     <div id="s2" style="display:none;">
       <h2>كون فريق من 1 إلى 5 أفراد</h2>
-
-      <div class="stats-bar" id="s2PlayerStats" style="display:none;">
-        <div>نقاطك الشخصية: <strong id="s2PersonalPts" style="color:#6EE7A8;">0</strong></div>
-        <div>التصنيف: <strong id="s2PersonalRank" style="color:#FFD700;">1</strong></div>
-        <div>المجموعة الحالية: <strong id="s2CurrentGroupName" style="color:#7CC6FE;">-</strong></div>
-      </div>
 
       <div class="row-2">
         <button type="button" id="btnSolo" class="btn btn-dark" onclick="setMode('solo')">لعب فردي (1)</button>
         <button type="button" id="btnTeam" class="btn btn-gold" onclick="setMode('team')">فريق (من 1 إلى 5)</button>
       </div>
 
-      <label>اسم الفريق (يجب أن يكون فريداً وغير مكرر)</label>
+      <label>اسم الفريق</label>
       <input type="text" id="teamName" placeholder="اكتب اسم الفريق">
 
       <label>عدد أفراد المجموعة (من 1 إلى 5)</label>
@@ -367,563 +139,51 @@
         <option value="5" selected>5 أفراد</option>
       </select>
 
-      <div class="muted" style="margin-top:6px;">ملاحظة: قائد المجموعة هو أول اسم في قائمة الأسماء المشتركة في الفريق.</div>
-      <div id="membersList" style="margin-top:8px;"></div>
-      <button type="button" id="btnAddMember" class="btn btn-dark" onclick="addMember()">+ إضافة عضو (الحد الأقصى 5)</button>
-
-      <div id="groupMembershipBox" class="box-card" style="display:none;margin-top:14px;">
-        <h3 style="margin-bottom:6px;">🔄 إدارة الانتماء للمجموعة</h3>
-        <div id="membershipInfo" class="muted"></div>
-        <button type="button" class="btn btn-red" onclick="leaveCurrentGroup()">🚪 ترك المجموعة الحالية</button>
-        <label>الانضمام إلى مجموعة أخرى قائمة (وتُخصم حصتك من مجموعتك السابقة وتُضاف للجديدة):</label>
-        <select id="otherGroupsSelect">
-          <option value="">اختر مجموعة للانضمام إليها...</option>
-        </select>
-        <button type="button" class="btn btn-green" onclick="joinAnotherGroup()">🤝 الانضمام إلى المجموعة المختارة</button>
-        <div id="membershipMsg" class="msg-ok"></div>
-        <div id="membershipErr" class="msg-err"></div>
-      </div>
-
+      <div id="membersList" style="margin-top:10px;"></div>
       <div id="err2" class="msg-err"></div>
-      <button type="button" class="btn btn-gold" onclick="goStep3()">التالي</button>
+      <button type="button" class="btn btn-gold" onclick="validateTeam()">التالي</button>
     </div>
-
-    <!-- الشاشة 3: الاشتراك والإيصال -->
-    <div id="s3" style="display:none;">
-      <h2>الاشتراك في التحدي</h2>
-      <div class="box-card center">
-        <div>ابعت قيمة اشتراك في التحدى <strong>100</strong> جنيه على رقم:</div>
-        <div id="payPhonesList" class="phones-3-box"></div>
-        <div class="muted" style="margin-top:6px;">اختر أحد الأرقام الـ 3 المتاحة ثم صوّر أو اختر الإيصال</div>
-      </div>
-
-      <label>تصوير الإيصال (الاستديو أو الكاميرا)</label>
-      <input type="file" id="galleryInput" accept="image/*" style="display:none;">
-      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
-
-      <div class="row-2">
-        <button type="button" class="btn btn-gold" onclick="document.getElementById('galleryInput').click()">🖼️ الاستديو</button>
-        <button type="button" class="btn btn-dark" onclick="document.getElementById('cameraInput').click()">📷 الكاميرا</button>
-      </div>
-      <div id="receiptFileName" class="muted" style="margin-top:6px;text-align:center;"></div>
-      <img id="receiptPreview" class="preview" alt="صورة الإيصال">
-
-      <div id="err3" class="msg-err"></div>
-      <button type="button" id="submitBtn" class="btn btn-gold" onclick="submitRegistration()">إرسال</button>
-      <button type="button" class="btn btn-dark" onclick="showScreen('s2')">رجوع</button>
-    </div>
-
-    <!-- الشاشة 4: انتظار المراجعة أو رسالة الرفض -->
-    <div id="s4" style="display:none;">
-      <div class="center" style="padding: 28px 10px;">
-        <div class="hourglass">⏳</div>
-        <h2 id="s4Title" style="margin-top:10px;">جاري التحقق من البيانات</h2>
-        <p id="s4Subtitle" class="muted">برجاء الانتظار حتى يقوم الأدمن بمراجعة بيانات الفريق والاشتراك.</p>
-        <div id="s4TeamLabel" class="muted"></div>
-        <div id="s4RejectedBox" class="box-card" style="display:none;border-color:#C9364C;background:#2A1018;">
-          <strong style="color:#FF8FA3;font-size:16px;">بيانات خاطئة</strong>
-          <div class="muted" style="margin-top:4px;">يرجى مراجعة البيانات والإيصال وإعادة الإرسال بشكل صحيح.</div>
-          <button type="button" class="btn btn-gold" onclick="showScreen('s2')">تعديل البيانات وإعادة الإرسال</button>
-        </div>
-        <div id="s4AdminMsg" class="box-card" style="display:none;text-align:right;border-color:#FFD70088;"></div>
-        <button type="button" class="btn btn-dark" style="margin-top:12px;" onclick="showScreen('s2')">إعدادات الفريق / تغيير المجموعة</button>
-      </div>
-    </div>
-
-    <!-- الشاشة 5: صفحة التحدي والصور والـ GPS والخزنة -->
-    <div id="s5" style="display:none;">
-      <h2>صفحة التحدي</h2>
-
-      <div class="stats-bar">
-        <div>الفريق: <strong id="hudTeamName" style="color:#FFD700;">-</strong></div>
-        <div>نقاط الفريق: <strong id="hudPoints" style="color:#6EE7A8;">0</strong></div>
-        <div>نقاطك: <strong id="hudPersonalPoints" style="color:#7CC6FE;">0</strong></div>
-        <div>التصنيف: <strong id="hudRank" style="color:#FFD700;">1</strong></div>
-      </div>
-
-      <div id="s5AdminMsg" class="box-card" style="display:none;border-color:#FFD70088;"></div>
-
-      <div class="box-card">
-        <label style="margin-top:0;">اختر اسمك داخل الفريق (قائد المجموعة أولاً):</label>
-        <select id="activeMemberSelect" onchange="selectActiveMember(this.value)">
-          <option value="">اختر اسمك داخل الفريق</option>
-        </select>
-        <div id="teamMateCalls" style="margin-top:8px;"></div>
-        <button type="button" class="btn btn-dark" style="margin-top:8px;" onclick="showScreen('s2')">⚙️ إعدادات الفريق (ترك / انضمام لمجموعة)</button>
-      </div>
-
-      <div class="box-card">
-        <h3 style="text-align:right;margin-bottom:6px;">📜 رسالة التحدي</h3>
-        <div id="challengeText" style="font-size:16px;line-height:1.7;white-space:pre-wrap;">
-          في انتظار نص التحدي من الأدمن...
-        </div>
-      </div>
-
-      <div id="challengeImageBox" class="box-card" style="display:none;">
-        <h3 id="challengePhotosTitle">📷 إرسال صور التحدي المطلوبة</h3>
-        <div id="challengePhotosHint" class="muted" style="text-align:center;"></div>
-        <div id="challengePhotoSlots"></div>
-        <button type="button" id="sendImgBtn" class="btn btn-gold" onclick="sendChallengeImages()">إرسال الصور</button>
-        <div id="imgMsg" class="msg-ok"></div>
-        <div id="imgErr" class="msg-err"></div>
-      </div>
-
-      <div class="box-card">
-        <h3>🪙 رادار عملات Crypo (GPS)</h3>
-        <div id="gpsStatus" class="muted">جاري تحديد موقعك الجغرافي...</div>
-        <button type="button" class="btn btn-dark" onclick="startGpsRadar()">تحديث موقعي الآن</button>
-        <div id="crypoCoinsList"></div>
-      </div>
-
-      <div id="vaultChallengeBox" class="box-card" style="display:none;">
-        <h3>🔐 تحدي المفاتيح الـ 3 وفتح الخزنة</h3>
-        <div id="vaultStatusText" class="muted">ابحث عن المفاتيح الـ 3 بالـ GPS ثم افتح الخزنة.</div>
-        <div id="vaultEarthLinkWrap" style="margin-top:6px;"></div>
-        <div id="vaultKeysList"></div>
-        <button type="button" id="openVaultBtn" class="btn btn-green" disabled onclick="unlockVault()">🔓 فتح الخزنة</button>
-        <div id="vaultMsg" class="msg-ok"></div>
-        <div id="vaultErr" class="msg-err"></div>
-      </div>
-    </div>
-
-    <!-- الشاشة 6: الفوز والخسارة والجوائز -->
-    <div id="s6" style="display:none;">
-      <div id="s6AdminMsg" class="box-card" style="display:none;border-color:#FFD70088;"></div>
-
-      <div id="winBox" style="display:none;">
-        <div class="celebration-banner center">
-          <div style="font-size:38px;">🎉🎊🏆✨🎈</div>
-          <h2>مبروك لقد ربحت</h2>
-          <p class="muted" style="color:#FFE99E;">أحسنت! تم إضافة +10 نقاط فوز (كل 10,000 نقطة ترفع التصنيف درجة واحدة).</p>
-        </div>
-
-        <div class="box-card">
-          <h3>اختر هديتك:</h3>
-          <button type="button" class="btn btn-gold" onclick="chooseWinPrize('cash')">💵 نقدي</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('food')">🍽️ طعام</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('goods')">📦 سلع استهلاكية</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('voucher')">🎟️ كروت خصومات</button>
-        </div>
-
-        <div id="winPrizeResult" class="box-card center" style="display:none;"></div>
-      </div>
-
-      <div id="lossBox" style="display:none;">
-        <div class="box-card center">
-          <div style="font-size:36px;">🍽️👾</div>
-          <h2>لقد خسرت ولكنك ربحت وجبات بنصف الثمن</h2>
-          <p class="muted">نقاط الخسارة = 0 نقطة — اختر وجباتك من القائمة المرسلة من الأدمن:</p>
-        </div>
-        <div id="lossRewardResult" class="box-card center" style="display:none;"></div>
-      </div>
-    </div>
-
   </div>
 
   <script>
-    (function checkProtocol() {
-      try {
-        if (window.location && window.location.protocol === 'content:') {
-          var warn = document.getElementById('localFileWarn');
-          if (warn) {
-            warn.innerHTML = '⚠️ <strong>تنبيه:</strong> أنت تفتح الملف مباشرة من ذاكرة الهاتف (<code>content://</code>). لتشغيل Firebase والـ GPS بالكامل، افتح الصفحة عبر رابط <strong>GitHub Pages</strong>.';
-            warn.style.display = 'block';
-          }
-        }
-      } catch (e) {}
-    })();
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
-      authDomain: "monester-challenge.firebaseapp.com",
-      databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
-      projectId: "monester-challenge",
-      storageBucket: "monester-challenge.firebasestorage.app",
-      messagingSenderId: "258204342725",
-      appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
-      measurementId: "G-RW050GJMCZ"
-    };
-
-    let db = null;
-    try {
-      if (window.firebase) {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-      }
-    } catch (e) {}
-
-    const STORAGE_TEAM_KEY = 'monster_current_team_id';
-    const STORAGE_MEMBER_KEY = 'monster_active_member';
-    const STORAGE_LOCAL_TEAM = 'monster_local_team_data';
-    const STORAGE_PERSONAL_PTS = 'monster_personal_points';
-    const STORAGE_SFX_VOL = 'monster_sfx_vol';
-
-    function safeGetStorage(key, fallbackVal) {
-      try {
-        const v = localStorage.getItem(key);
-        return v !== null ? v : fallbackVal;
-      } catch (e) {
-        return fallbackVal;
-      }
-    }
-
-    function safeSetStorage(key, val) {
-      try {
-        localStorage.setItem(key, val);
-      } catch (e) {}
-    }
-
-    function safeRemoveStorage(key) {
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {}
-    }
-
-    const CRYPTO_VALUE = 10;
-    const WIN_POINTS = 10;
-    const LOSS_POINTS = 0;
-    const RANK_STEP = 10000;
-    const INTRO_SECONDS = 30;
-
+    let secondsLeft = 30;
     let playMode = 'team';
     let memberCount = 5;
-    let receiptBase64 = '';
-    let challengePhotosData = [];
-    let currentTeamId = safeGetStorage(STORAGE_TEAM_KEY, '');
-    let activeMemberName = safeGetStorage(STORAGE_MEMBER_KEY, '');
-    let personalPoints = Math.max(0, Number(safeGetStorage(STORAGE_PERSONAL_PTS, 0)));
-    let selectedMobileNumber = '';
-    let currentTeamData = null;
-    let allTeamsMap = {};
-    let userCoords = null;
-    let gpsCoinsData = {};
-    let winBonusAppliedForCurrentWin = false;
-    let teamRefListener = null;
-    let listenedTeamId = '';
-    let lastAlertTimestamp = 0;
 
-    try {
-      const savedLocal = safeGetStorage(STORAGE_LOCAL_TEAM, '');
-      if (savedLocal) currentTeamData = JSON.parse(savedLocal);
-    } catch (e) {}
+    function openTeamScreen() {
+      clearInterval(timer);
+      document.getElementById('s1').style.display = 'none';
+      document.getElementById('s2').style.display = 'block';
+    }
 
-    let sfxVolume = Number(safeGetStorage(STORAGE_SFX_VOL, 100));
-    let audioCtx = null;
-
-    let settings = {
-      activePhones: ['01000000000', '01100000000', '01200000000'],
-      challengeText: 'في انتظار نص التحدي من الأدمن...',
-      requireChallengePhotos: false,
-      challengePhotoCount: 1,
-      cashPrizeAmount: '500 جنيه',
-      foodPrizeImage: '',
-      goodsPrizeImage: '',
-      voucherPrizeImage: '',
-      winPoints: 10,
-      lossPoints: 0,
-      deliveryPhones: ['', '', '', '', '', '', ''],
-      halfPriceFoodMenu: [],
-      nextChallengeSchedule: null,
-      broadcastMessage: null,
-      keyVault: {
-        enabled: false,
-        radiusMeters: 30,
-        vaultLat: null,
-        vaultLng: null,
-        earthUrl: '',
-        keys: [
-          { label: 'المفتاح 1', lat: null, lng: null },
-          { label: 'المفتاح 2', lat: null, lng: null },
-          { label: 'المفتاح 3', lat: null, lng: null }
-        ]
+    const timer = setInterval(function () {
+      secondsLeft = secondsLeft - 1;
+      const el = document.getElementById('countdownTimer');
+      if (el) {
+        el.textContent = String(Math.max(0, secondsLeft));
       }
-    };
-
-    function setPersonalPoints(val) {
-      personalPoints = Math.max(0, Number(val || 0));
-      safeSetStorage(STORAGE_PERSONAL_PTS, String(personalPoints));
-      renderPersonalStats();
-    }
-
-    function renderPersonalStats() {
-      const s2Box = document.getElementById('s2PlayerStats');
-      const s2Pts = document.getElementById('s2PersonalPts');
-      const s2Rank = document.getElementById('s2PersonalRank');
-      const s2Grp = document.getElementById('s2CurrentGroupName');
-      if (s2Pts) s2Pts.textContent = personalPoints;
-      if (s2Rank) s2Rank.textContent = calcRank(personalPoints);
-      if (s2Grp) s2Grp.textContent = (currentTeamData && currentTeamData.name) ? currentTeamData.name : 'بدون مجموعة';
-      if (s2Box) {
-        s2Box.style.display = (personalPoints > 0 || currentTeamId) ? 'flex' : 'none';
+      if (secondsLeft <= 0) {
+        openTeamScreen();
       }
-      const hudP = document.getElementById('hudPersonalPoints');
-      if (hudP) hudP.textContent = personalPoints;
-    }
-
-    function persistLocalTeam(obj) {
-      currentTeamData = obj;
-      try {
-        safeSetStorage(STORAGE_LOCAL_TEAM, JSON.stringify(obj));
-      } catch (e) {}
-      renderPersonalStats();
-    }
-
-    function ensureAudioCtx() {
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return null;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(function () {});
-        }
-        return audioCtx;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function playKeySound() {
-      const volRatio = Math.max(0, Math.min(1, sfxVolume / 100));
-      if (volRatio <= 0) return;
-      try {
-        const ctx = ensureAudioCtx();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(620, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.04);
-        gain.gain.setValueAtTime(0.12 * volRatio, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.08);
-      } catch (e) {}
-    }
-
-    function toggleAudioPanel() {
-      const panel = document.getElementById('audioPanel');
-      if (panel) panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function setSfxVolume(val) {
-      sfxVolume = Number(val);
-      safeSetStorage(STORAGE_SFX_VOL, sfxVolume);
-      const lbl = document.getElementById('sfxVolLabel');
-      if (lbl) lbl.textContent = sfxVolume + '%';
-      playKeySound();
-    }
-
-    try {
-      document.getElementById('sfxVolRange').value = sfxVolume;
-      document.getElementById('sfxVolLabel').textContent = sfxVolume + '%';
-    } catch (e) {}
-
-    document.addEventListener('click', function (ev) {
-      if (ev.target && ev.target.closest('button, .phone-option, .gear-btn')) {
-        playKeySound();
-      }
-    });
-
-    function requestNotificationPermission() {
-      const banner = document.getElementById('notifStatusBanner');
-      if (!('Notification' in window)) {
-        if (banner) {
-          banner.innerHTML = '🔔 التنبيهات داخل الصفحة مفعّلة (المتصفح لا يدعم إشعارات النظام).';
-          banner.style.display = 'block';
-        }
-        return;
-      }
-      if (Notification.permission === 'granted') {
-        if (banner) {
-          banner.innerHTML = '🔔 التنبيهات مفعّلة بالفعل وسيصلك إشعار عند مواعيد التحديات.';
-          banner.style.display = 'block';
-        }
-        return;
-      }
-      Notification.requestPermission().then(function (perm) {
-        if (banner) {
-          banner.innerHTML = perm === 'granted'
-            ? '✅ تم تفعيل التنبيهات بنجاح!'
-            : '⚠️ لم يتم منح إذن التنبيهات؛ ستظهر التنبيهات داخل الصفحة.';
-          banner.style.display = 'block';
-        }
-      }).catch(function () {});
-    }
-
-    function triggerBrowserNotification(title, body, ts) {
-      if (!ts || ts <= lastAlertTimestamp) return;
-      lastAlertTimestamp = ts;
-      try {
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification(title, { body: body });
-        }
-      } catch (e) {}
-    }
-
-    function calcRank(points) {
-      const p = Math.max(0, Number(points || 0));
-      return Math.floor(p / RANK_STEP) + 1;
-    }
-
-    function getDeliveryPhoneForTeam() {
-      const phones = Array.isArray(settings.deliveryPhones) ? settings.deliveryPhones.filter(Boolean) : [];
-      if (!phones.length) return 'غير محدد من الأدمن';
-      const idx = currentTeamData && typeof currentTeamData.deliveryPhoneIndex === 'number'
-        ? Math.abs(currentTeamData.deliveryPhoneIndex) % phones.length
-        : 0;
-      return phones[idx] || phones[0];
-    }
-
-    function renderScheduleAndBroadcastBanners() {
-      const schedEl = document.getElementById('scheduleBanner');
-      const broadEl = document.getElementById('broadcastBanner');
-
-      const sched = settings.nextChallengeSchedule;
-      if (sched && (sched.scheduledAt || sched.note)) {
-        const dtStr = sched.scheduledAt
-          ? new Date(Number(sched.scheduledAt)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
-          : '';
-        schedEl.innerHTML = `⏰ <strong style="color:#FFD700;">تنبيه موعد التحدي:</strong> ${dtStr ? '<span>' + esc(dtStr) + '</span>' : ''} ${sched.note ? '<div style="margin-top:4px;">' + esc(sched.note) + '</div>' : ''}`;
-        schedEl.style.display = 'block';
-        if (sched.updatedAt) {
-          triggerBrowserNotification('موعد التحدي - صراع الوحوش', (dtStr ? dtStr + ' ' : '') + (sched.note || ''), Number(sched.updatedAt));
-        }
-      } else {
-        schedEl.style.display = 'none';
-      }
-
-      const teamBroadcast = currentTeamData && currentTeamData.broadcastMessage;
-      const globalBroadcast = settings.broadcastMessage;
-      const activeBroadcast = (teamBroadcast && (!globalBroadcast || (teamBroadcast.sentAt || 0) >= (globalBroadcast.sentAt || 0)))
-        ? teamBroadcast
-        : globalBroadcast;
-
-      if (activeBroadcast && activeBroadcast.text) {
-        broadEl.innerHTML = `📢 <strong style="color:#6EE7A8;">تنبيه من الأدمن:</strong> <div style="margin-top:4px;">${esc(activeBroadcast.text)}</div>`;
-        broadEl.style.display = 'block';
-        if (activeBroadcast.sentAt) {
-          triggerBrowserNotification('تنبيه من الأدمن - صراع الوحوش', activeBroadcast.text, Number(activeBroadcast.sentAt));
-        }
-      } else {
-        broadEl.style.display = 'none';
-      }
-
-      const directMsg = currentTeamData && currentTeamData.adminMessage && currentTeamData.adminMessage.text;
-      ['s4AdminMsg', 's5AdminMsg', 's6AdminMsg'].forEach(function (id) {
-        const box = document.getElementById(id);
-        if (!box) return;
-        if (directMsg) {
-          box.innerHTML = `✉️ <strong style="color:#FFD700;">رسالة خاصة من الأدمن:</strong><div style="margin-top:4px;white-space:pre-wrap;">${esc(directMsg)}</div>`;
-          box.style.display = 'block';
-        } else {
-          box.style.display = 'none';
-        }
-      });
-    }
-
-    let introFinished = false;
-    let introStartMs = Date.now();
-    let countdownInterval = null;
-
-    function stopIntroCountdown() {
-      introFinished = true;
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-      }
-    }
-
-    function showScreen(id) {
-      if (id !== 's1') stopIntroCountdown();
-      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(function (s) {
-        const el = document.getElementById(s);
-        if (el) el.style.display = (s === id) ? 'block' : 'none';
-      });
-      renderScheduleAndBroadcastBanners();
-      renderPersonalStats();
-      if (id === 's2') {
-        renderMembershipControls();
-      } else if (id === 's5') {
-        if (currentTeamData) updateHud(currentTeamData);
-        renderChallengePhotoSlots();
-        startGpsRadar();
-        renderCrypoCoinsList();
-        renderVaultChallenge();
-      } else if (id === 's6') {
-        if (currentTeamData && currentTeamData.status === 'won') {
-          document.getElementById('winBox').style.display = 'block';
-          document.getElementById('lossBox').style.display = 'none';
-          if (currentTeamData.rewardChoice) renderWinPrize(currentTeamData.rewardChoice);
-        } else if (currentTeamData && currentTeamData.status === 'lost') {
-          document.getElementById('winBox').style.display = 'none';
-          document.getElementById('lossBox').style.display = 'block';
-          renderLossReward('half_food');
-        }
-      }
-    }
-
-    function startIntroCountdown() {
-      introFinished = false;
-      introStartMs = Date.now();
-      const timerEl = document.getElementById('countdownTimer');
-      if (timerEl) timerEl.textContent = String(INTRO_SECONDS);
-
-      if (countdownInterval) clearInterval(countdownInterval);
-      countdownInterval = setInterval(function () {
-        if (introFinished) {
-          stopIntroCountdown();
-          return;
-        }
-        const elapsedSec = Math.floor((Date.now() - introStartMs) / 1000);
-        const remaining = Math.max(0, INTRO_SECONDS - elapsedSec);
-        if (timerEl) timerEl.textContent = String(remaining);
-
-        if (remaining <= 0) {
-          stopIntroCountdown();
-          showScreen('s2');
-        }
-      }, 250);
-    }
-
-    startIntroCountdown();
+    }, 1000);
 
     function renderMembers() {
       const wrap = document.getElementById('membersList');
-      if (!wrap) return;
-      const existingNames = Array.from(document.querySelectorAll('.m-name')).map(function (el) { return el.value; });
-      const existingPhones = Array.from(document.querySelectorAll('.m-phone')).map(function (el) { return el.value; });
-
+      const count = playMode === 'solo' ? 1 : memberCount;
       wrap.innerHTML = '';
-      const count = (playMode === 'solo') ? 1 : Math.min(5, Math.max(1, memberCount));
       for (let i = 0; i < count; i++) {
-        const box = document.createElement('div');
-        box.className = 'member-box';
-        const leaderBadge = (i === 0) ? '<span class="captain-tag">قائد المجموعة</span>' : '';
-        box.innerHTML = `
-          <label style="margin-top:0;">عضو (${i + 1}) ${leaderBadge}</label>
-          <div class="row-2">
-            <input type="text" class="m-name" placeholder="الاسم" value="${escAttr(existingNames[i] || (i === 0 ? activeMemberName : ''))}">
-            <input type="tel" class="m-phone" placeholder="رقم التلفون" value="${escAttr(existingPhones[i] || '')}">
-          </div>
-        `;
-        wrap.appendChild(box);
+        const div = document.createElement('div');
+        div.className = 'member-box';
+        div.innerHTML =
+          '<label style="margin-top:0;">عضو (' + (i + 1) + ')</label>' +
+          '<div class="row-2">' +
+            '<input type="text" class="m-name" placeholder="الاسم">' +
+            '<input type="tel" class="m-phone" placeholder="رقم التلفون">' +
+          '</div>';
+        wrap.appendChild(div);
       }
-
-      const sel = document.getElementById('memberCountSelect');
-      if (sel) {
-        sel.value = String(count);
-        sel.disabled = (playMode === 'solo');
-      }
-      const addBtn = document.getElementById('btnAddMember');
-      if (addBtn) addBtn.style.display = (playMode === 'team' && count < 5) ? 'block' : 'none';
-    }
-
-    function changeMemberCount(val) {
-      const n = Math.min(5, Math.max(1, Number(val || 1)));
-      memberCount = n;
-      renderMembers();
+      document.getElementById('memberCountSelect').value = String(count);
+      document.getElementById('memberCountSelect').disabled = playMode === 'solo';
     }
 
     function setMode(mode) {
@@ -934,110 +194,30 @@
       renderMembers();
     }
 
-    function addMember() {
-      if (playMode === 'team' && memberCount < 5) {
-        memberCount++;
-        renderMembers();
+    function changeMemberCount(val) {
+      memberCount = Math.min(5, Math.max(1, Number(val) || 1));
+      renderMembers();
+    }
+
+    function validateTeam() {
+      const err = document.getElementById('err2');
+      const name = document.getElementById('teamName').value.trim();
+      const firstMember = document.querySelector('.m-name');
+      const firstPhone = document.querySelector('.m-phone');
+
+      if (!name) {
+        err.textContent = 'من فضلك اكتب اسم الفريق.';
+        return;
       }
+      if (!firstMember.value.trim() || !firstPhone.value.trim()) {
+        err.textContent = 'من فضلك اكتب اسم ورقم تلفون العضو الأول.';
+        return;
+      }
+      err.textContent = '';
+      alert('تم تجهيز فريق: ' + name + ' بنجاح!');
     }
 
     renderMembers();
-
-    function isTeamNameDuplicate(candidateName) {
-      const norm = candidateName.trim().toLowerCase();
-      if (!norm) return false;
-      return Object.keys(allTeamsMap || {}).some(function (k) {
-        if (currentTeamId && k === currentTeamId) return false;
-        const t = allTeamsMap[k];
-        return t && String(t.name || '').trim().toLowerCase() === norm;
-      });
-    }
-
-    function renderMembershipControls() {
-      const box = document.getElementById('groupMembershipBox');
-      const info = document.getElementById('membershipInfo');
-      const sel = document.getElementById('otherGroupsSelect');
-      if (!box || !info || !sel) return;
-
-      const hasTeam = Boolean(currentTeamId && currentTeamData);
-      if (!hasTeam) {
-        box.style.display = 'none';
-        return;
-      }
-      box.style.display = 'block';
-
-      const members = Array.isArray(currentTeamData.members) && currentTeamData.members.length
-        ? currentTeamData.members
-        : [{ name: activeMemberName || 'عضو', phone: '' }];
-      const grpPts = Number(currentTeamData.points || 0);
-      const share = Math.floor(grpPts / members.length);
-
-      info.innerHTML = `أنت حالياً في مجموعة <strong>${esc(currentTeamData.name || '-')}</strong> (نقاط المجموعة: <strong>${grpPts}</strong> ÷ ${members.length} أفراد = نصيب الفرد التقريبي: <strong style="color:#6EE7A8;">${share}</strong> نقطة).`;
-
-      sel.innerHTML = '<option value="">اختر مجموعة أخرى للانضمام إليها...</option>';
-      Object.keys(allTeamsMap || {}).forEach(function (k) {
-        if (k === currentTeamId) return;
-        const g = allTeamsMap[k];
-        if (!g || !g.name) return;
-        const opt = document.createElement('option');
-        opt.value = k;
-        opt.textContent = `${g.name} (نقاطها: ${Number(g.points || 0)})`;
-        sel.appendChild(opt);
-      });
-    }
-
-    function leaveCurrentGroup() {
-      const msgEl = document.getElementById('membershipMsg');
-      const errEl = document.getElementById('membershipErr');
-      msgEl.textContent = '';
-      errEl.textContent = '';
-
-      if (!currentTeamId || !currentTeamData) {
-        errEl.textContent = 'أنت غير منتمٍ لمجموعة حالياً.';
-        return;
-      }
-
-      const oldTeamKey = currentTeamId;
-      const oldTeam = Object.assign({}, currentTeamData);
-      const members = Array.isArray(oldTeam.members) ? oldTeam.members.slice() : [];
-      const totalCount = Math.max(1, members.length);
-      const oldPts = Number(oldTeam.points || 0);
-      const share = Math.floor(oldPts / totalCount);
-      const remPts = Math.max(0, oldPts - share);
-
-      const remainingMembers = members.filter(function (m) {
-        return !activeMemberName || String(m.name || '').trim() !== activeMemberName.trim();
-      });
-
-      setPersonalPoints(personalPoints + share);
-
-      if (db) {
-        const updates = {};
-        updates['teams/' + oldTeamKey + '/points'] = remPts;
-        if (remainingMembers.length > 0) {
-          updates['teams/' + oldTeamKey + '/members'] = remainingMembers;
-        }
-        db.ref().update(updates).catch(function () {});
-      }
-
-      if (teamRefListener && listenedTeamId) {
-        db.ref('teams/' + listenedTeamId).off('value', teamRefListener);
-        teamRefListener = null;
-        listenedTeamId = '';
-      }
-
-      currentTeamId = '';
-      currentTeamData = null;
-      safeRemoveStorage(STORAGE_TEAM_KEY);
-      safeRemoveStorage(STORAGE_LOCAL_TEAM);
-      renderMembershipControls();
-      renderPersonalStats();
-      msgEl.textContent = `تم ترك المجموعة بنجاح وأُضيفت حصتك (${share} نقطة) إلى رصيدك.`;
-    }
-
-    function joinAnotherGroup() {
-      const msgEl = document.getElementById('membershipMsg');
-      const errEl = document.getElementById('membershipErr');
-      const sel = document.getElementById('otherGroupsSelect');
-      msgEl.textContent = '';
-   
+  </script>
+</body>
+</html>
