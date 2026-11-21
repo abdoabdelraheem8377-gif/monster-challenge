@@ -55,32 +55,21 @@
       min-height: 80px;
       resize: vertical;
     }
-    .ph-box {
+    .phone-row {
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-bottom: 8px;
       background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 9px;
       padding: 8px;
-      margin-top: 8px;
+      border-radius: 9px;
+      border: 1px solid #3D2B68;
     }
-    .ph-num {
-      color: #FFD700;
-      font-weight: bold;
-      min-width: 56px;
-      font-size: 13px;
-    }
-    .ph-box input[type="checkbox"] {
+    .phone-row input[type="checkbox"] {
       width: 20px;
       height: 20px;
       accent-color: #FFD700;
       cursor: pointer;
-    }
-    .ph-box input[type="tel"] {
-      flex: 1;
-      direction: ltr;
-      font-size: 15px;
     }
     .row-2 {
       display: flex;
@@ -125,8 +114,8 @@
       min-height: 18px;
     }
     .img-thumb {
-      max-width: 180px;
-      max-height: 130px;
+      max-width: 150px;
+      max-height: 110px;
       border-radius: 8px;
       margin-top: 8px;
       display: none;
@@ -167,6 +156,7 @@
     .b-rejected { background: #5C1422; color: #FF8FA3; }
     .b-won { background: #0E4A26; color: #7EF9AE; }
     .b-lost { background: #521723; color: #FF9EB0; }
+    .b-returning { background: #2D1A54; color: #E2C8FF; }
     .muted { color: #C2B8D9; font-size: 13px; line-height: 1.6; }
     .members-box {
       background: #110A21;
@@ -192,6 +182,18 @@
       flex: 1;
       min-width: 115px;
     }
+    .leader-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: #1B1130;
+      border: 1px solid #3D2B68;
+      border-radius: 9px;
+      padding: 9px 11px;
+      margin-top: 7px;
+      font-size: 13px;
+    }
     .modal-bg {
       position: fixed;
       inset: 0;
@@ -215,24 +217,15 @@
   <div class="wrap">
 
     <div class="header-box">
-      <h1>👾 لوحة الأدمن</h1>
-      <div class="muted">إدارة 7 أرقام استلام التحويلات، التحدي والصور المطلوبة، تنبيهات المواعيد، 7 أرقام توصيل، الجوائز، وإدارة الفرق</div>
+      <h1>👾 صراع الوحوش - لوحة الأدمن</h1>
+      <div class="muted">إدارة الأرقام، التحدي والصور المطلوبة، تنبيهات المواعيد، 7 أرقام توصيل، الجوائز، وإدارة الفرق</div>
     </div>
 
-    <!-- 1. 7 خانات لأرقام استلام التحويلات + نص التحدي + عدد الصور المطلوبة -->
+    <!-- 1. أرقام التحويل (7 اختيارات واختيار 3) + نص التحدي + عدد الصور المطلوبة -->
     <div class="card">
-      <h2>1. أرقام استلام التحويلات (7 خانات) والتحدي وعدد الصور المطلوبة</h2>
-      <div class="muted">أدخل 7 أرقام لاستلام التحويلات، وحدد علامة الصح أمام 3 أرقام لتظهر للاعبين:</div>
-
-      <div id="sevenPhonesBox">
-        <div class="ph-box"><span class="ph-num">رقم 1</span><input type="checkbox" class="pick3" data-i="0" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph0" placeholder="اكتب رقم التحويل 1"></div>
-        <div class="ph-box"><span class="ph-num">رقم 2</span><input type="checkbox" class="pick3" data-i="1" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph1" placeholder="اكتب رقم التحويل 2"></div>
-        <div class="ph-box"><span class="ph-num">رقم 3</span><input type="checkbox" class="pick3" data-i="2" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph2" placeholder="اكتب رقم التحويل 3"></div>
-        <div class="ph-box"><span class="ph-num">رقم 4</span><input type="checkbox" class="pick3" data-i="3" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph3" placeholder="اكتب رقم التحويل 4"></div>
-        <div class="ph-box"><span class="ph-num">رقم 5</span><input type="checkbox" class="pick3" data-i="4" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph4" placeholder="اكتب رقم التحويل 5"></div>
-        <div class="ph-box"><span class="ph-num">رقم 6</span><input type="checkbox" class="pick3" data-i="5" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph5" placeholder="اكتب رقم التحويل 6"></div>
-        <div class="ph-box"><span class="ph-num">رقم 7</span><input type="checkbox" class="pick3" data-i="6" onchange="limitThree(this)"><input type="tel" class="inp7" id="ph6" placeholder="اكتب رقم التحويل 7"></div>
-      </div>
+      <h2>1. أرقام التحويل (7 اختيارات) والتحدي وعدد الصور المطلوبة</h2>
+      <div class="muted">أدخل حتى 7 أرقام تحويل يمكنك تغييرها في أي وقت، وحدد 3 أرقام فقط لتظهر للمستخدم:</div>
+      <div id="phonesList" style="margin-top:10px;"></div>
       <div id="phoneWarn" class="warn-msg"></div>
 
       <label>نص التحدي (يظهر لكل الفرق المقبولة)</label>
@@ -249,7 +242,7 @@
         <input type="number" id="cfgPhotoCount" min="1" max="10" value="1">
       </div>
 
-      <button type="button" class="btn btn-gold" onclick="saveAllSettings()">حفظ الـ 7 أرقام والتحدي والصور</button>
+      <button type="button" class="btn btn-gold" onclick="saveAllSettings()">حفظ الأرقام والتحدي والصور</button>
       <div id="msg1" class="status-msg"></div>
     </div>
 
@@ -284,16 +277,10 @@
       <div id="msgDelivery" class="status-msg"></div>
     </div>
 
-    <!-- 4. قائمة وجبات الطعام بنصف الثمن وصورتها (للفريق الخاسر) -->
+    <!-- 4. قائمة وجبات الطعام بنصف الثمن (للفريق الخاسر) -->
     <div class="card">
       <h2>4. قائمة طعام نصف الثمن (للفرق الخاسرة)</h2>
-      <div class="muted">أضف صورة قائمة طعام نصف الثمن وأصناف الوجبات التي تظهر للفرق الخاسرة (الخسارة = 0 نقطة):</div>
-
-      <label>صورة قائمة طعام نصف الثمن</label>
-      <input type="file" id="halfFoodFileInput" accept="image/*" style="display:none;" onchange="readPrizeImg('halfFood', this)">
-      <button type="button" class="btn btn-blue" onclick="document.getElementById('halfFoodFileInput').click()">🖼️ إضافة صورة قائمة طعام بنصف الثمن</button>
-      <input type="text" id="cfgHalfFoodUrl" placeholder="رابط أو صورة قائمة طعام نصف الثمن" oninput="showThumb('halfFood', this.value)" style="margin-top:8px;">
-      <img id="thumbHalfFood" class="img-thumb" alt="صورة قائمة طعام نصف الثمن">
+      <div class="muted">أضف الأصناف التي تظهر للفرق الخاسرة (الخسارة = 0 نقطة):</div>
 
       <div class="row-2">
         <div>
@@ -408,16 +395,14 @@
       <div class="row-2">
         <div>
           <label>صورة قائمة الطعام للفائزين</label>
-          <input type="file" id="winnerFoodFileInput" accept="image/*" style="display:none;" onchange="readPrizeImg('food', this)">
-          <button type="button" class="btn btn-blue" onclick="document.getElementById('winnerFoodFileInput').click()">🖼️ إضافة صورة قائمة الطعام للفائزين</button>
-          <input type="text" id="cfgFoodUrl" placeholder="رابط أو صورة قائمة الطعام" oninput="showThumb('food', this.value)" style="margin-top:8px;">
+          <input type="text" id="cfgFoodUrl" placeholder="رابط أو صورة قائمة الطعام" oninput="showThumb('food', this.value)">
+          <input type="file" accept="image/*" style="margin-top:6px;" onchange="readPrizeImg('food', this)">
           <img id="thumbFood" class="img-thumb" alt="قائمة الطعام">
         </div>
         <div>
           <label>صورة كروت الخصومات</label>
-          <input type="file" id="voucherFileInput" accept="image/*" style="display:none;" onchange="readPrizeImg('voucher', this)">
-          <button type="button" class="btn btn-blue" onclick="document.getElementById('voucherFileInput').click()">🖼️ إضافة صورة كروت الخصومات</button>
-          <input type="text" id="cfgVoucherUrl" placeholder="رابط أو صورة كروت الخصومات" oninput="showThumb('voucher', this.value)" style="margin-top:8px;">
+          <input type="text" id="cfgVoucherUrl" placeholder="رابط أو صورة كروت الخصومات" oninput="showThumb('voucher', this.value)">
+          <input type="file" accept="image/*" style="margin-top:6px;" onchange="readPrizeImg('voucher', this)">
           <img id="thumbVoucher" class="img-thumb" alt="كروت الخصومات">
         </div>
       </div>
@@ -437,9 +422,15 @@
       <div id="msg2" class="status-msg"></div>
     </div>
 
-    <!-- 8. إدارة الفرق والطلبات وإيصالات النقدي وإعادة الجولة -->
+    <!-- 8. ترتيب الفرق والطلبات وإيصالات النقدي وإعادة الجولة -->
     <div class="card">
-      <h2>8. إدارة الفرق والطلبات وإيصالات النقدي</h2>
+      <h2>8. ترتيب الفرق وإدارة الطلبات وإيصالات النقدي</h2>
+
+      <div class="members-box" style="border:1px solid #FFD70066;margin-bottom:14px;">
+        <strong style="color:#FFD700;">🏅 ترتيب وتصنيف الفرق حسب النقاط</strong>
+        <div id="adminLeaderboardWrap" class="muted" style="margin-top:6px;">جاري تحميل الترتيب...</div>
+      </div>
+
       <div id="teamsWrap" class="muted">جاري تحميل الفرق...</div>
     </div>
 
@@ -469,7 +460,6 @@
     const LOSS_POINTS = 0;
     const RANK_STEP = 10000;
 
-    let halfFoodImg = '';
     let foodImg = '';
     let voucherImg = '';
     let halfPriceFoodMenu = [];
@@ -481,12 +471,22 @@
       return Math.floor(p / RANK_STEP) + 1;
     }
 
+    const phonesWrap = document.getElementById('phonesList');
+    for (let i = 0; i < 7; i++) {
+      const row = document.createElement('div');
+      row.className = 'phone-row';
+      row.innerHTML =
+        '<input type="checkbox" class="chk-3" data-i="' + i + '" onchange="checkThree(this)">' +
+        '<input type="tel" class="ph-7" id="ph' + i + '" placeholder="رقم تحويل ' + (i + 1) + '">';
+      phonesWrap.appendChild(row);
+    }
+
     const deliveryWrap = document.getElementById('deliveryPhonesList');
     for (let d = 0; d < 7; d++) {
       const row = document.createElement('div');
-      row.className = 'ph-box';
+      row.className = 'phone-row';
       row.innerHTML =
-        '<span class="ph-num">رقم ' + (d + 1) + '</span>' +
+        '<span style="color:#FFD700;font-weight:bold;min-width:65px;">رقم ' + (d + 1) + ':</span>' +
         '<input type="tel" class="deliv-7" id="delivPh' + d + '" placeholder="رقم تلفون التوصيل / المتابعة ' + (d + 1) + '">';
       deliveryWrap.appendChild(row);
     }
@@ -500,12 +500,12 @@
     }
     togglePhotoCountField();
 
-    function limitThree(el) {
+    function checkThree(el) {
       const warn = document.getElementById('phoneWarn');
-      const checked = Array.from(document.querySelectorAll('.pick3')).filter(c => c.checked);
+      const checked = Array.from(document.querySelectorAll('.chk-3')).filter(c => c.checked);
       if (checked.length > 3) {
         el.checked = false;
-        warn.textContent = 'مسموح باختيار 3 أرقام فقط لتظهر للاعبين.';
+        warn.textContent = 'مسموح باختيار 3 أرقام فقط لتظهر للمستخدم.';
         setTimeout(() => { warn.textContent = ''; }, 2500);
       } else {
         warn.textContent = '';
@@ -631,7 +631,7 @@
 
       for (let i = 0; i < 7; i++) {
         const inp = document.getElementById('ph' + i);
-        const chk = document.querySelector('.pick3[data-i="' + i + '"]');
+        const chk = document.querySelector('.chk-3[data-i="' + i + '"]');
         const val = pool[i] || '';
         if (inp && document.activeElement !== inp && !settingsLoadedOnce) inp.value = val;
         if (chk && document.activeElement !== chk && !settingsLoadedOnce) chk.checked = val ? active.includes(val) : false;
@@ -649,7 +649,6 @@
         document.getElementById('cfgRequirePhotos').value = s.requireChallengePhotos ? 'yes' : 'no';
         document.getElementById('cfgPhotoCount').value = s.challengePhotoCount || 1;
         togglePhotoCountField();
-        document.getElementById('cfgHalfFoodUrl').value = s.halfPriceFoodImage || '';
         document.getElementById('cfgCash').value = s.cashPrizeAmount || '';
         document.getElementById('cfgFoodUrl').value = s.foodPrizeImage || '';
         document.getElementById('cfgVoucherUrl').value = s.voucherPrizeImage || '';
@@ -690,10 +689,8 @@
         }
       }
 
-      halfFoodImg = s.halfPriceFoodImage || '';
       foodImg = s.foodPrizeImage || '';
       voucherImg = s.voucherPrizeImage || '';
-      showThumb('halfFood', halfFoodImg);
       showThumb('food', foodImg);
       showThumb('voucher', voucherImg);
       settingsLoadedOnce = true;
@@ -702,13 +699,7 @@
     renderHalfFoodMenuAdmin();
 
     function showThumb(kind, src) {
-      const idMap = {
-        halfFood: 'thumbHalfFood',
-        food: 'thumbFood',
-        voucher: 'thumbVoucher'
-      };
-      const img = document.getElementById(idMap[kind] || 'thumbVoucher');
-      if (!img) return;
+      const img = document.getElementById(kind === 'food' ? 'thumbFood' : 'thumbVoucher');
       if (src) {
         img.src = src;
         img.style.display = 'block';
@@ -731,11 +722,7 @@
           canvas.height = img.height * scale;
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          if (kind === 'halfFood') {
-            halfFoodImg = dataUrl;
-            document.getElementById('cfgHalfFoodUrl').value = dataUrl;
-            showThumb('halfFood', dataUrl);
-          } else if (kind === 'food') {
+          if (kind === 'food') {
             foodImg = dataUrl;
             document.getElementById('cfgFoodUrl').value = dataUrl;
             showThumb('food', dataUrl);
@@ -756,7 +743,7 @@
 
       for (let i = 0; i < 7; i++) {
         const val = document.getElementById('ph' + i).value.trim();
-        const chk = document.querySelector('.pick3[data-i="' + i + '"]');
+        const chk = document.querySelector('.chk-3[data-i="' + i + '"]');
         phonePool.push(val);
         if (val && chk && chk.checked && activePhones.length < 3) {
           activePhones.push(val);
@@ -775,7 +762,6 @@
       const challengeText = document.getElementById('cfgChallenge').value.trim() || 'في انتظار نص التحدي من الأدمن...';
       const requireChallengePhotos = document.getElementById('cfgRequirePhotos').value === 'yes';
       const challengePhotoCount = Math.max(1, Math.min(10, Number(document.getElementById('cfgPhotoCount').value || 1)));
-      const halfPriceFoodImage = document.getElementById('cfgHalfFoodUrl').value.trim() || halfFoodImg || '';
       const cashPrizeAmount = document.getElementById('cfgCash').value.trim() || '500 جنيه';
       const foodPrizeImage = document.getElementById('cfgFoodUrl').value.trim() || foodImg || '';
       const voucherPrizeImage = document.getElementById('cfgVoucherUrl').value.trim() || voucherImg || '';
@@ -803,7 +789,6 @@
         challengeText,
         requireChallengePhotos,
         challengePhotoCount,
-        halfPriceFoodImage,
         cashPrizeAmount,
         foodPrizeImage,
         voucherPrizeImage,
@@ -976,15 +961,51 @@
       }
     }
 
+    function updateTeamPointsManual(key) {
+      const safeKey = key.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const inp = document.getElementById('manualPtsInput_' + safeKey);
+      if (!inp) return;
+      const val = Math.max(0, Number(inp.value || 0));
+      db.ref('teams/' + key).update({
+        points: val,
+        updatedAt: Date.now()
+      });
+    }
+
+    function renderAdminLeaderboard(list) {
+      const box = document.getElementById('adminLeaderboardWrap');
+      if (!box) return;
+      const sorted = list
+        .filter(t => t && t.name)
+        .slice()
+        .sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+
+      if (!sorted.length) {
+        box.innerHTML = 'لا توجد فرق مسجلة بعد.';
+        return;
+      }
+
+      box.innerHTML = sorted.slice(0, 15).map((t, idx) => {
+        const pts = Number(t.points || 0);
+        const rank = calcRank(pts);
+        return `<div class="leader-row">
+          <span><strong style="color:#FFD700;">#${idx + 1}</strong> ${esc(t.name)}</span>
+          <span style="color:#6EE7A8;"><strong>${pts}</strong> نقطة (الدرجة ${rank})</span>
+        </div>`;
+      }).join('');
+    }
+
     db.ref('teams').on('value', snap => {
       const wrap = document.getElementById('teamsWrap');
       if (!snap.exists()) {
+        renderAdminLeaderboard([]);
         wrap.innerHTML = '<div class="muted" style="text-align:center;">لا توجد فرق مسجلة بعد.</div>';
         return;
       }
 
       const data = snap.val();
-      const list = Object.keys(data).map(k => ({ key: k, ...data[k] })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const list = Object.keys(data).map(k => ({ key: k, ...data[k] })).sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+      renderAdminLeaderboard(list);
       wrap.innerHTML = '';
 
       list.forEach(team => {
@@ -995,6 +1016,9 @@
         else if (st === 'rejected') { bClass = 'b-rejected'; bText = 'مرفوض (بيانات خاطئة)'; }
         else if (st === 'won') { bClass = 'b-won'; bText = 'فائز'; }
         else if (st === 'lost') { bClass = 'b-lost'; bText = 'خاسر'; }
+
+        const isReturningRound = Boolean(team.updatedAt && team.createdAt && (Number(team.updatedAt) - Number(team.createdAt) > 5000));
+        const returningBadge = isReturningRound ? '<span class="badge b-returning">جولة جديدة</span>' : '';
 
         const pts = Number(team.points || 0);
         const rank = calcRank(pts);
@@ -1054,9 +1078,13 @@
         card.innerHTML =
           '<div class="team-top">' +
             '<div><strong style="color:#FFD700;font-size:16px;">' + esc(team.name || 'فريق') + '</strong> <span class="muted">(' + (team.mode === 'solo' ? 'فردي' : 'جماعي') + ')</span></div>' +
-            '<span class="badge ' + bClass + '">' + bText + '</span>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + returningBadge + '<span class="badge ' + bClass + '">' + bText + '</span></div>' +
           '</div>' +
-          '<div class="muted">النقاط: <strong>' + pts + '</strong> | التصنيف: <strong>' + rank + '</strong></div>' +
+          '<div class="muted">النقاط: <strong>' + pts + '</strong> | التصنيف: <strong>الدرجة ' + rank + '</strong></div>' +
+          '<div class="row-2" style="align-items:center;margin-top:6px;">' +
+            '<input type="number" id="manualPtsInput_' + safeKey + '" min="0" value="' + pts + '" placeholder="تعديل النقاط">' +
+            '<button type="button" class="btn btn-dark" style="margin-top:0;" onclick="updateTeamPointsManual(\'' + escAttr(team.key) + '\')">حفظ النقاط يدوياً</button>' +
+          '</div>' +
           '<div class="members-box">' + membersHtml + '</div>' +
           '<div class="muted">الاشتراك: <strong>' + (team.amount || 100) + ' جنيه</strong> على رقم <span dir="ltr">' + esc(team.selectedPhone || '-') + '</span></div>' +
           (team.receiptImage ? '<div><img src="' + escAttr(team.receiptImage) + '" class="receipt-img" onclick="openModal(this.src)" alt="إيصال الاشتراك"></div>' : '') +
