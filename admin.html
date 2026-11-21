@@ -38,7 +38,7 @@
       color: #FFE99E;
       font-weight: bold;
     }
-    input[type="text"], input[type="tel"], input[type="number"], textarea, select {
+    input[type="text"], input[type="tel"], input[type="number"], input[type="datetime-local"], textarea, select {
       width: 100%;
       box-sizing: border-box;
       padding: 10px;
@@ -118,12 +118,20 @@
       margin-top: 8px;
       display: none;
     }
-    .team-card, .coin-card {
+    .team-card, .coin-card, .menu-row-card {
       background: #1B1130;
       border: 1px solid #3D2B68;
       border-radius: 12px;
       padding: 14px;
       margin-bottom: 12px;
+    }
+    .menu-row-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
     }
     .team-top {
       display: flex;
@@ -193,7 +201,7 @@
 
     <div class="header-box">
       <h1>👾 تحدي الوحوش - لوحة الأدمن</h1>
-      <div class="muted">إدارة الأرقام، التحدي، الصور، عملات Crypo، المفاتيح والخزنة، والفرق</div>
+      <div class="muted">إدارة الأرقام، التحدي، الصور، عملات Crypo، المفاتيح والخزنة، قائمة نصف الثمن، وجدولة التحديات</div>
     </div>
 
     <div class="card">
@@ -216,7 +224,49 @@
     </div>
 
     <div class="card">
-      <h2>2. رمي عملات Crypo بالـ GPS (قيمة العملة = 10 نقاط)</h2>
+      <h2>2. جدولة التحدي القائم وإرسال رسالة لكل المشاركين</h2>
+      <div class="muted">حدد متى سيكون التحدي القائم وأرسل رسالة جماعية لكل المشاركين (مثال: سيكون هناك تحدى آخر بعد ساعة):</div>
+
+      <label>موعد التحدي القائم (التاريخ والوقت)</label>
+      <input type="datetime-local" id="nextChallengeDt">
+
+      <div class="row-2">
+        <button type="button" class="btn btn-dark" onclick="setQuickNextChallenge(1)">⏰ بعد ساعة</button>
+        <button type="button" class="btn btn-dark" onclick="setQuickNextChallenge(2)">⏰ بعد ساعتين</button>
+        <button type="button" class="btn btn-dark" onclick="setQuickNextChallenge(24)">⏰ بعد 24 ساعة</button>
+      </div>
+
+      <label>رسالة لكل المشاركين</label>
+      <textarea id="broadcastMsgInput" placeholder="مثال: سيكون هناك تحدى آخر بعد ساعة"></textarea>
+
+      <button type="button" class="btn btn-gold" onclick="publishScheduleAndBroadcast()">📢 حفظ موعد التحدي وإرسال الرسالة لكل المشاركين</button>
+      <div id="msgSchedule" class="status-msg"></div>
+      <div id="currentSchedulePreview" class="muted" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. قائمة وجبات الطعام بنصف الثمن (للفريق الخاسر)</h2>
+      <div class="muted">أضف أصناف الطعام التي ستظهر للمتسابق الخاسر ليختار منها مع إدخال العنوان ورقم الموبايل:</div>
+
+      <div class="row-2">
+        <div>
+          <label>اسم الوجبة</label>
+          <input type="text" id="halfFoodItemName" placeholder="مثال: وجبة برجر دبل">
+        </div>
+        <div>
+          <label>السعر بعد الخصم (اختياري)</label>
+          <input type="text" id="halfFoodItemPrice" placeholder="مثال: 60 جنيه">
+        </div>
+      </div>
+      <button type="button" class="btn btn-blue" onclick="addHalfFoodMenuItem()">+ إضافة وجبة للقائمة</button>
+      <div id="halfFoodMenuList" style="margin-top:10px;"></div>
+
+      <button type="button" class="btn btn-gold" onclick="saveAllSettings()">حفظ قائمة الطعام بنصف الثمن</button>
+      <div id="msgHalfFood" class="status-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>4. رمي عملات Crypo بالـ GPS (قيمة العملة = 10 نقاط)</h2>
       <div class="muted">يمكنك التقاط موقعك الحالي بالـ GPS أو إدخال أي إحداثيات (lat, lng) لرمي عملة Crypo للمتسابقين:</div>
 
       <button type="button" class="btn btn-blue" onclick="fillGpsField('coinLat', 'coinLng', 'adminGpsMsg')">📍 تحديد موقعي الحالي بالـ GPS</button>
@@ -251,7 +301,7 @@
     </div>
 
     <div class="card">
-      <h2>3. تحدي المفاتيح الـ 3 والخزنة (GPS / Google Earth)</h2>
+      <h2>5. تحدي المفاتيح الـ 3 والخزنة (GPS / Google Earth)</h2>
       <div class="muted">حدد موقع الخزنة وإحداثيات 3 مفاتيح بالـ GPS أو من Google Earth، وعند التقاط المفاتيح الـ 3 يتمكن اللاعب من فتح الخزنة:</div>
 
       <label>تفعيل تحدي المفاتيح الـ 3 والخزنة؟</label>
@@ -305,7 +355,7 @@
     </div>
 
     <div class="card">
-      <h2>4. إعدادات الجوائز والنقاط (الفائز +10 نقاط | كل 10,000 نقطة = درجة جديدة)</h2>
+      <h2>6. إعدادات الجوائز والنقاط (الفائز +10 نقاط | كل 10,000 نقطة = درجة جديدة)</h2>
 
       <label>الجائزة النقدية عند الفوز</label>
       <input type="text" id="cfgCash" placeholder="مثال: 1000 جنيه">
@@ -341,7 +391,7 @@
     </div>
 
     <div class="card">
-      <h2>5. الفرق المسجلة وصور التحدي والخزنة</h2>
+      <h2>7. الفرق المسجلة وصور التحدي والخزنة وطلبات نصف الثمن والرسائل</h2>
       <div id="teamsWrap" class="muted">جاري تحميل الفرق...</div>
     </div>
 
@@ -372,6 +422,8 @@
 
     let foodImg = '';
     let voucherImg = '';
+    let halfPriceFoodMenu = [];
+    let latestSettings = {};
 
     function calcRank(points) {
       const p = Math.max(0, Number(points || 0));
@@ -407,9 +459,112 @@
       return isNaN(n) ? null : n;
     }
 
+    function renderHalfFoodMenuAdmin() {
+      const wrap = document.getElementById('halfFoodMenuList');
+      if (!wrap) return;
+      if (!halfPriceFoodMenu.length) {
+        wrap.innerHTML = '<div class="muted">لا توجد وجبات مضافة في قائمة نصف الثمن حالياً.</div>';
+        return;
+      }
+      wrap.innerHTML = halfPriceFoodMenu.map((item, idx) => `
+        <div class="menu-row-card">
+          <div>
+            <strong style="color:#FFD700;">🍽️ ${esc(item.name || '')}</strong>
+            ${item.price ? `<span style="color:#6EE7A8;"> — ${esc(item.price)}</span>` : ''}
+          </div>
+          <button type="button" class="btn btn-red" style="margin-top:0;" onclick="removeHalfFoodMenuItem(${idx})">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function addHalfFoodMenuItem() {
+      const nameEl = document.getElementById('halfFoodItemName');
+      const priceEl = document.getElementById('halfFoodItemPrice');
+      const name = nameEl ? nameEl.value.trim() : '';
+      const price = priceEl ? priceEl.value.trim() : '';
+      if (!name) {
+        alert('من فضلك اكتب اسم الوجبة أولاً.');
+        return;
+      }
+      halfPriceFoodMenu.push({ name, price });
+      nameEl.value = '';
+      priceEl.value = '';
+      renderHalfFoodMenuAdmin();
+    }
+
+    function removeHalfFoodMenuItem(idx) {
+      halfPriceFoodMenu.splice(idx, 1);
+      renderHalfFoodMenuAdmin();
+    }
+
+    function setQuickNextChallenge(hoursAhead) {
+      const target = new Date(Date.now() + hoursAhead * 3600 * 1000);
+      const pad = n => String(n).padStart(2, '0');
+      const localVal = `${target.getFullYear()}-${pad(target.getMonth() + 1)}-${pad(target.getDate())}T${pad(target.getHours())}:${pad(target.getMinutes())}`;
+      document.getElementById('nextChallengeDt').value = localVal;
+      const msgEl = document.getElementById('broadcastMsgInput');
+      if (msgEl && !msgEl.value.trim()) {
+        msgEl.value = hoursAhead === 1
+          ? 'سيكون هناك تحدى آخر بعد ساعة'
+          : `سيكون هناك تحدى آخر بعد ${hoursAhead} ساعات`;
+      }
+    }
+
+    function publishScheduleAndBroadcast() {
+      const dtVal = document.getElementById('nextChallengeDt').value;
+      const msgText = document.getElementById('broadcastMsgInput').value.trim();
+      const scheduledAt = dtVal ? new Date(dtVal).getTime() : null;
+
+      if (!scheduledAt && !msgText) {
+        alert('من فضلك حدد موعد التحدي القائم أو اكتب رسالة للمشاركين.');
+        return;
+      }
+
+      const now = Date.now();
+      const updates = {};
+      if (scheduledAt) {
+        updates['settings/nextChallengeSchedule'] = {
+          scheduledAt: scheduledAt,
+          note: msgText || '',
+          updatedAt: now
+        };
+      }
+      if (msgText) {
+        updates['settings/broadcastMessage'] = {
+          text: msgText,
+          sentAt: now
+        };
+      }
+
+      db.ref('teams').once('value').then(snap => {
+        if (snap.exists()) {
+          const teamsObj = snap.val();
+          Object.keys(teamsObj).forEach(tKey => {
+            if (msgText) {
+              updates[`teams/${tKey}/broadcastMessage`] = {
+                text: msgText,
+                sentAt: now
+              };
+            }
+            if (scheduledAt) {
+              updates[`teams/${tKey}/nextChallengeAt`] = scheduledAt;
+            }
+          });
+        }
+        return db.ref().update(updates);
+      }).then(() => {
+        const el = document.getElementById('msgSchedule');
+        if (el) {
+          el.textContent = 'تم حفظ موعد التحدي وإرسال الرسالة لكل المشاركين بنجاح!';
+          setTimeout(() => { el.textContent = ''; }, 3000);
+        }
+      });
+    }
+
     db.ref('settings').on('value', snap => {
       if (!snap.exists()) return;
       const s = snap.val();
+      latestSettings = s;
       const pool = Array.isArray(s.phonePool) ? s.phonePool : [];
       const active = Array.isArray(s.activePhones) ? s.activePhones : [];
 
@@ -428,6 +583,22 @@
       if (document.activeElement.id !== 'cfgVoucherUrl') document.getElementById('cfgVoucherUrl').value = s.voucherPrizeImage || '';
       if (document.activeElement.id !== 'cfgWinPoints') document.getElementById('cfgWinPoints').value = (s.winPoints !== undefined) ? s.winPoints : WIN_POINTS;
       document.getElementById('cfgLossPoints').value = 0;
+
+      if (Array.isArray(s.halfPriceFoodMenu)) {
+        halfPriceFoodMenu = s.halfPriceFoodMenu.slice();
+        renderHalfFoodMenuAdmin();
+      }
+
+      const prevEl = document.getElementById('currentSchedulePreview');
+      if (prevEl) {
+        const sched = s.nextChallengeSchedule;
+        const broad = s.broadcastMessage;
+        const dtTxt = (sched && sched.scheduledAt)
+          ? new Date(Number(sched.scheduledAt)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
+          : 'غير محدد';
+        const brTxt = (broad && broad.text) ? broad.text : 'لا توجد رسالة مرسلة حالياً';
+        prevEl.innerHTML = `<div>📅 موعد التحدي القائم الحالي: <strong style="color:#FFD700;">${esc(dtTxt)}</strong></div><div>📢 آخر رسالة للمشاركين: <strong style="color:#6EE7A8;">${esc(brTxt)}</strong></div>`;
+      }
 
       const kv = s.keyVault || {};
       const keys = Array.isArray(kv.keys) ? kv.keys : [];
@@ -450,6 +621,8 @@
       showThumb('food', foodImg);
       showThumb('voucher', voucherImg);
     });
+
+    renderHalfFoodMenuAdmin();
 
     function showThumb(kind, src) {
       const img = document.getElementById(kind === 'food' ? 'thumbFood' : 'thumbVoucher');
@@ -528,7 +701,7 @@
         }))
       };
 
-      db.ref('settings').set({
+      const payload = {
         phonePool,
         activePhones,
         transferPhone: activePhones[0] || '',
@@ -539,15 +712,25 @@
         voucherPrizeImage,
         winPoints,
         lossPoints,
+        halfPriceFoodMenu,
         keyVault,
         updatedAt: Date.now()
-      }).then(() => {
-        ['msg1', 'msg2', 'msgVault'].forEach(id => {
+      };
+
+      if (latestSettings.nextChallengeSchedule) {
+        payload.nextChallengeSchedule = latestSettings.nextChallengeSchedule;
+      }
+      if (latestSettings.broadcastMessage) {
+        payload.broadcastMessage = latestSettings.broadcastMessage;
+      }
+
+      db.ref('settings').set(payload).then(() => {
+        ['msg1', 'msg2', 'msgVault', 'msgHalfFood'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.textContent = 'تم الحفظ بنجاح!';
         });
         setTimeout(() => {
-          ['msg1', 'msg2', 'msgVault'].forEach(id => {
+          ['msg1', 'msg2', 'msgVault', 'msgHalfFood'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = '';
           });
@@ -627,6 +810,26 @@
       db.ref('gpsCoins/' + id).remove();
     }
 
+    function sendDirectMessageToTeam(key) {
+      const safeKey = key.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const inp = document.getElementById('directMsgInput_' + safeKey);
+      const statusEl = document.getElementById('directMsgStatus_' + safeKey);
+      const text = inp ? inp.value.trim() : '';
+      if (!text) {
+        if (statusEl) statusEl.textContent = 'اكتب نص الرسالة أولاً.';
+        return;
+      }
+      db.ref('teams/' + key + '/adminMessage').set({
+        text: text,
+        sentAt: Date.now()
+      }).then(() => {
+        if (statusEl) {
+          statusEl.textContent = 'تم إرسال الرسالة للفريق بنجاح!';
+          setTimeout(() => { statusEl.textContent = ''; }, 2500);
+        }
+      });
+    }
+
     db.ref('teams').on('value', snap => {
       const wrap = document.getElementById('teamsWrap');
       if (!snap.exists()) {
@@ -669,6 +872,38 @@
           '</div>';
         }
 
+        let halfFoodHtml = '';
+        if (team.halfFoodOrder) {
+          const hf = team.halfFoodOrder;
+          const itemsStr = Array.isArray(hf.items) && hf.items.length
+            ? hf.items.map(it => esc(it.name || '') + (it.price ? ' (' + esc(it.price) + ')' : '')).join('، ')
+            : 'بدون أصناف محددة';
+          halfFoodHtml = `
+            <div class="members-box" style="border:1px solid #FFD70066;">
+              <strong style="color:#FFD700;">🍽️ طلب وجبات نصف الثمن:</strong>
+              <div>الأصناف المختارة: <strong>${itemsStr}</strong></div>
+              <div>رقم الموبايل: <strong dir="ltr">${esc(hf.phone || '-')}</strong></div>
+              <div>العنوان: <strong>${esc(hf.address || '-')}</strong></div>
+            </div>
+          `;
+        }
+
+        let rewardDetailsHtml = '';
+        if (team.rewardDetails && team.rewardDetails.orderDetails) {
+          const rd = team.rewardDetails;
+          rewardDetailsHtml = `
+            <div class="members-box">
+              <strong style="color:#6EE7A8;">📦 تفاصيل طلب الجائزة:</strong>
+              <div>الطلب: <strong>${esc(rd.orderDetails)}</strong></div>
+              <div>رقم التلفون: <strong dir="ltr">${esc(rd.phone || '-')}</strong></div>
+              <div>العنوان: <strong>${esc(rd.address || '-')}</strong></div>
+            </div>
+          `;
+        }
+
+        const safeKey = team.key.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const currentDirectMsg = (team.adminMessage && team.adminMessage.text) || '';
+
         const card = document.createElement('div');
         card.className = 'team-card';
         card.innerHTML =
@@ -681,65 +916,18 @@
           '<div class="muted">الاشتراك: <strong>' + (team.amount || 100) + ' جنيه</strong> على رقم <span dir="ltr">' + esc(team.selectedPhone || team.transferPhone || '-') + '</span></div>' +
           (team.receiptImage ? '<div><img src="' + escAttr(team.receiptImage) + '" class="receipt-img" onclick="openModal(this.src)" alt="إيصال"></div>' : '') +
           subsHtml +
+          halfFoodHtml +
+          rewardDetailsHtml +
           (team.rewardChoice ? '<div class="muted" style="margin-top:8px;color:#FFE99E;">الاختيار: <strong>' + esc(formatReward(team.rewardChoice)) + '</strong> | النقاط: <strong>' + pts + '</strong></div>' : '') +
+          '<div class="members-box">' +
+            '<label style="margin-top:0;">✉️ إرسال رسالة خاصة لهذا الفريق:</label>' +
+            '<input type="text" id="directMsgInput_' + safeKey + '" placeholder="اكتب رسالتك للفريق..." value="' + escAttr(currentDirectMsg) + '">' +
+            '<button type="button" class="btn btn-blue" onclick="sendDirectMessageToTeam(\'' + escAttr(team.key) + '\')">إرسال الرسالة للفريق</button>' +
+            '<div id="directMsgStatus_' + safeKey + '" class="status-msg"></div>' +
+          '</div>' +
           '<div class="actions-row">' +
             '<button type="button" class="btn btn-blue" onclick="setStatus(\'' + escAttr(team.key) + '\', \'approved\')">موافقة ودخول التحدي</button>' +
             '<button type="button" class="btn btn-green" onclick="markTeamWon(\'' + escAttr(team.key) + '\')">فوز (+10 نقاط)</button>' +
             '<button type="button" class="btn btn-red" onclick="setStatus(\'' + escAttr(team.key) + '\', \'lost\')">خسارة (0 نقطة)</button>' +
             '<button type="button" class="btn btn-dark" onclick="setStatus(\'' + escAttr(team.key) + '\', \'pending\')">مراجعة</button>' +
-            '<button type="button" class="btn btn-dark" style="color:#FF8FA3;" onclick="delTeam(\'' + escAttr(team.key) + '\')">حذف</button>' +
-          '</div>';
-        wrap.appendChild(card);
-      });
-    });
-
-    function markTeamWon(key) {
-      db.ref('teams/' + key).once('value').then(snap => {
-        if (!snap.exists()) return;
-        const d = snap.val();
-        const nextPts = Number(d.points || 0) + WIN_POINTS;
-        db.ref('teams/' + key).update({
-          status: 'won',
-          points: nextPts,
-          winPointsAwardedAt: Date.now(),
-          updatedAt: Date.now()
-        });
-      });
-    }
-
-    function setStatus(key, status) {
-      const patch = { status: status, updatedAt: Date.now() };
-      if (status !== 'won') {
-        patch.winPointsAwardedAt = null;
-      }
-      db.ref('teams/' + key).update(patch);
-    }
-
-    function delTeam(key) {
-      if (confirm('حذف هذا الفريق؟')) db.ref('teams/' + key).remove();
-    }
-
-    function formatReward(code) {
-      if (code === 'cash') return 'نقدي';
-      if (code === 'food') return 'وجبات طعام';
-      if (code === 'voucher') return 'كروت خصومات';
-      if (code === 'half_food') return 'وجبات طعام بنصف الثمن';
-      if (code === 'points') return 'نقاط';
-      return code || '';
-    }
-
-    function openModal(src) {
-      document.getElementById('modalImg').src = src;
-      document.getElementById('imgModal').style.display = 'flex';
-    }
-
-    function esc(str) {
-      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-    }
-
-    function escAttr(str) {
-      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-  </script>
-</body>
-</html>
+            '<button type="button" class="btn btn-dark" style="color:#FF8FA3;" onclick="delTeam(\'' + escAttr(team.key) + '\'
