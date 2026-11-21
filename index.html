@@ -218,6 +218,20 @@
       border-radius: 10px;
       padding: 12px;
     }
+    .test-bar {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px dashed #3A2961;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .test-bar button {
+      flex: 1 1 30%;
+      padding: 7px 8px;
+      font-size: 12px;
+      margin-top: 0;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -240,22 +254,24 @@
       <button type="button" class="btn btn-gold" onclick="toggleHypeMusic()">🎵 تشغيل / إيقاف الموسيقى الحماسية</button>
     </div>
 
-    <div id="s1">
+    <!-- الشاشة 1: الدخول والعد التنازلي -->
+    <div id="s1" style="display:block;">
       <div class="center" style="padding: 35px 10px;">
         <div style="font-size:48px;">👾🔥</div>
         <h1>تحدي الوحوش</h1>
         <p class="muted">جاري الدخول...</p>
         <div id="countdownTimer" class="timer-box">30</div>
         <div class="muted">ستبدأ اللعبة تلقائياً عندما يصل المؤقت إلى 0</div>
-        <button type="button" class="btn btn-dark" onclick="showScreen('s2')">دخول مباشر للإعدادات</button>
+        <button type="button" class="btn btn-gold" onclick="showScreen('s2')">دخول مباشر للإعدادات</button>
       </div>
     </div>
 
+    <!-- الشاشة 2: الإعدادات والفريق -->
     <div id="s2" style="display:none;">
       <h2>الإعدادات</h2>
       <div class="row-2">
-        <button type="button" id="btnSolo" class="btn btn-gold" onclick="setMode('solo')">لعب فردي</button>
-        <button type="button" id="btnTeam" class="btn btn-dark" onclick="setMode('team')">فريق (حتى 5)</button>
+        <button type="button" id="btnSolo" class="btn btn-dark" onclick="setMode('solo')">لعب فردي</button>
+        <button type="button" id="btnTeam" class="btn btn-gold" onclick="setMode('team')">فريق (حتى 5)</button>
       </div>
 
       <label>اسم الفريق</label>
@@ -268,6 +284,7 @@
       <button type="button" class="btn btn-gold" onclick="goStep3()">التالي</button>
     </div>
 
+    <!-- الشاشة 3: الاشتراك والإيصال -->
     <div id="s3" style="display:none;">
       <h2>الاشتراك في التحدي</h2>
       <div class="box-card center">
@@ -292,16 +309,19 @@
       <button type="button" class="btn btn-dark" onclick="showScreen('s2')">رجوع</button>
     </div>
 
+    <!-- الشاشة 4: انتظار المراجعة -->
     <div id="s4" style="display:none;">
       <div class="center" style="padding: 30px 10px;">
         <div style="font-size:44px;">⏳</div>
         <h2>جاري مراجعة البيانات</h2>
         <p class="muted">برجاء الانتظار حتى يقوم الأدمن بالموافقة على اشتراك الفريق في التحدي.</p>
         <div id="s4TeamLabel" class="muted"></div>
-        <button type="button" class="btn btn-dark" style="margin-top:18px;" onclick="resetLocalSession()">تسجيل فريق جديد</button>
+        <button type="button" class="btn btn-green" style="margin-top:14px;" onclick="simulateApproveToChallenge()">دخول التحدي الآن (تجربة)</button>
+        <button type="button" class="btn btn-dark" style="margin-top:10px;" onclick="resetLocalSession()">تسجيل فريق جديد</button>
       </div>
     </div>
 
+    <!-- الشاشة 5: صفحة التحدي والصور والـ GPS والخزنة -->
     <div id="s5" style="display:none;">
       <h2>صفحة التحدي</h2>
 
@@ -357,8 +377,11 @@
         <div id="vaultMsg" class="msg-ok"></div>
         <div id="vaultErr" class="msg-err"></div>
       </div>
+
+      <button type="button" class="btn btn-gold" onclick="openWinScreenForTest()">تجربة شاشة الفوز والجوائز</button>
     </div>
 
+    <!-- الشاشة 6: الفوز والخسارة والجوائز -->
     <div id="s6" style="display:none;">
       <div id="winBox" style="display:none;">
         <div class="box-card center" style="border-color:#FFD700;">
@@ -383,6 +406,18 @@
         <button type="button" class="btn btn-dark" onclick="chooseLossReward('points')">نقاط (0 نقطة)</button>
         <div id="lossRewardResult" class="box-card center" style="display:none;"></div>
       </div>
+
+      <button type="button" class="btn btn-dark" onclick="showScreen('s5')">رجوع لصفحة التحدي</button>
+    </div>
+
+    <!-- شريط تنقل سريع للتجربة -->
+    <div class="test-bar">
+      <button type="button" class="btn btn-dark" onclick="showScreen('s1')">1: الدخول</button>
+      <button type="button" class="btn btn-dark" onclick="showScreen('s2')">2: الإعدادات</button>
+      <button type="button" class="btn btn-dark" onclick="showScreen('s3')">3: الاشتراك</button>
+      <button type="button" class="btn btn-dark" onclick="showScreen('s4')">4: المراجعة</button>
+      <button type="button" class="btn btn-dark" onclick="showScreen('s5')">5: التحدي</button>
+      <button type="button" class="btn btn-dark" onclick="openWinScreenForTest()">6: الفوز</button>
     </div>
 
   </div>
@@ -409,6 +444,7 @@
 
     const STORAGE_TEAM_KEY = 'monster_current_team_id';
     const STORAGE_MEMBER_KEY = 'monster_active_member';
+    const STORAGE_LOCAL_TEAM = 'monster_local_team_data';
     const STORAGE_MUSIC_VOL = 'monster_music_vol';
     const STORAGE_SFX_VOL = 'monster_sfx_vol';
 
@@ -420,13 +456,20 @@
     let memberCount = 1;
     let receiptBase64 = '';
     let challengeImageBase64 = '';
-    let currentTeamId = localStorage.getItem(STORAGE_TEAM_KEY) || '';
-    let activeMemberName = localStorage.getItem(STORAGE_MEMBER_KEY) || '';
+    let currentTeamId = '';
+    let activeMemberName = '';
     let selectedMobileNumber = '';
     let currentTeamData = null;
     let userCoords = null;
     let gpsCoinsData = {};
     let winBonusAppliedForCurrentWin = false;
+
+    try {
+      currentTeamId = localStorage.getItem(STORAGE_TEAM_KEY) || '';
+      activeMemberName = localStorage.getItem(STORAGE_MEMBER_KEY) || '';
+      const savedLocal = localStorage.getItem(STORAGE_LOCAL_TEAM);
+      if (savedLocal) currentTeamData = JSON.parse(savedLocal);
+    } catch (e) {}
 
     let musicVolume = Number(localStorage.getItem(STORAGE_MUSIC_VOL) ?? 100);
     let sfxVolume = Number(localStorage.getItem(STORAGE_SFX_VOL) ?? 100);
@@ -437,7 +480,7 @@
     let settings = {
       activePhones: ['01000000000', '01100000000', '01200000000'],
       challengeText: 'في انتظار نص التحدي من الأدمن...',
-      allowChallengeImage: false,
+      allowChallengeImage: true,
       cashPrizeAmount: '500 جنيه',
       foodPrizeImage: '',
       goodsPrizeImage: '',
@@ -458,14 +501,25 @@
       }
     };
 
+    function persistLocalTeam(obj) {
+      currentTeamData = obj;
+      try {
+        localStorage.setItem(STORAGE_LOCAL_TEAM, JSON.stringify(obj));
+      } catch (e) {}
+    }
+
     function ensureAudioCtx() {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) return null;
-      if (!audioCtx) audioCtx = new AudioContextClass();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      } catch (e) {
+        return null;
       }
-      return audioCtx;
     }
 
     function playKeySound() {
@@ -521,26 +575,30 @@
 
     function toggleAudioPanel() {
       const panel = document.getElementById('audioPanel');
-      panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+      if (panel) panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
     function setMusicVolume(val) {
       musicVolume = Number(val);
-      localStorage.setItem(STORAGE_MUSIC_VOL, musicVolume);
-      document.getElementById('musicVolLabel').textContent = musicVolume + '%';
+      try { localStorage.setItem(STORAGE_MUSIC_VOL, musicVolume); } catch (e) {}
+      const lbl = document.getElementById('musicVolLabel');
+      if (lbl) lbl.textContent = musicVolume + '%';
     }
 
     function setSfxVolume(val) {
       sfxVolume = Number(val);
-      localStorage.setItem(STORAGE_SFX_VOL, sfxVolume);
-      document.getElementById('sfxVolLabel').textContent = sfxVolume + '%';
+      try { localStorage.setItem(STORAGE_SFX_VOL, sfxVolume); } catch (e) {}
+      const lbl = document.getElementById('sfxVolLabel');
+      if (lbl) lbl.textContent = sfxVolume + '%';
       playKeySound();
     }
 
-    document.getElementById('musicVolRange').value = musicVolume;
-    document.getElementById('sfxVolRange').value = sfxVolume;
-    document.getElementById('musicVolLabel').textContent = musicVolume + '%';
-    document.getElementById('sfxVolLabel').textContent = sfxVolume + '%';
+    try {
+      document.getElementById('musicVolRange').value = musicVolume;
+      document.getElementById('sfxVolRange').value = sfxVolume;
+      document.getElementById('musicVolLabel').textContent = musicVolume + '%';
+      document.getElementById('sfxVolLabel').textContent = sfxVolume + '%';
+    } catch (e) {}
 
     document.addEventListener('click', function (ev) {
       if (ev.target && ev.target.closest('button, .phone-option')) {
@@ -559,6 +617,8 @@
         if (el) el.style.display = (s === id) ? 'block' : 'none';
       });
       if (id === 's5') {
+        if (currentTeamData) updateHud(currentTeamData);
+        syncChallengeImagePermission();
         startGpsRadar();
         renderCrypoCoinsList();
         renderVaultChallenge();
@@ -581,15 +641,60 @@
     }, 1000);
 
     function resetLocalSession() {
-      localStorage.removeItem(STORAGE_TEAM_KEY);
-      localStorage.removeItem(STORAGE_MEMBER_KEY);
+      try {
+        localStorage.removeItem(STORAGE_TEAM_KEY);
+        localStorage.removeItem(STORAGE_MEMBER_KEY);
+        localStorage.removeItem(STORAGE_LOCAL_TEAM);
+      } catch (e) {}
       currentTeamId = '';
       activeMemberName = '';
+      currentTeamData = null;
       showScreen('s2');
+    }
+
+    function simulateApproveToChallenge() {
+      const base = currentTeamData || {
+        id: currentTeamId || ('team_' + Date.now()),
+        name: (document.getElementById('teamName').value || 'فريق تجريبي').trim(),
+        mode: playMode,
+        members: [{ name: 'لاعب 1', phone: '01000000000' }],
+        points: 0,
+        crypoCoins: 0,
+        status: 'approved'
+      };
+      base.status = 'approved';
+      persistLocalTeam(base);
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({ status: 'approved' }).catch(() => {});
+      }
+      showScreen('s5');
+    }
+
+    function openWinScreenForTest() {
+      if (!currentTeamData) {
+        persistLocalTeam({
+          id: currentTeamId || ('team_' + Date.now()),
+          name: (document.getElementById('teamName').value || 'فريق تجريبي').trim(),
+          mode: playMode,
+          members: [{ name: 'لاعب 1', phone: '01000000000' }],
+          points: WIN_POINTS,
+          crypoCoins: 0,
+          status: 'won',
+          winPointsAwardedAt: Date.now()
+        });
+      } else if (!currentTeamData.winPointsAwardedAt) {
+        currentTeamData.points = Number(currentTeamData.points || 0) + WIN_POINTS;
+        currentTeamData.winPointsAwardedAt = Date.now();
+        persistLocalTeam(currentTeamData);
+      }
+      showScreen('s6');
+      document.getElementById('winBox').style.display = 'block';
+      document.getElementById('lossBox').style.display = 'none';
     }
 
     function renderMembers() {
       const wrap = document.getElementById('membersList');
+      if (!wrap) return;
       wrap.innerHTML = '';
       const count = (playMode === 'solo') ? 1 : memberCount;
       for (let i = 0; i < count; i++) {
@@ -604,8 +709,8 @@
         `;
         wrap.appendChild(box);
       }
-      document.getElementById('btnAddMember').style.display =
-        (playMode === 'team' && memberCount < 5) ? 'block' : 'none';
+      const addBtn = document.getElementById('btnAddMember');
+      if (addBtn) addBtn.style.display = (playMode === 'team' && memberCount < 5) ? 'block' : 'none';
     }
 
     function setMode(mode) {
@@ -646,6 +751,7 @@
 
     function renderThreeMobileChoices() {
       const wrap = document.getElementById('payPhonesList');
+      if (!wrap) return;
       const rawList = Array.isArray(settings.activePhones) && settings.activePhones.length
         ? settings.activePhones.filter(Boolean)
         : ['01000000000', '01100000000', '01200000000'];
@@ -721,10 +827,6 @@
         err.textContent = 'من فضلك اختر صورة من الاستديو أو صوّر الإيصال بالكاميرا';
         return;
       }
-      if (!db) {
-        err.textContent = 'تعذر الاتصال بقاعدة البيانات';
-        return;
-      }
 
       err.textContent = '';
       document.getElementById('submitBtn').disabled = true;
@@ -740,13 +842,15 @@
       }
 
       currentTeamId = teamName.replace(/[.#$/[\]]/g, '_') + '_' + Date.now();
-      localStorage.setItem(STORAGE_TEAM_KEY, currentTeamId);
-      if (members[0] && members[0].name) {
-        activeMemberName = members[0].name;
-        localStorage.setItem(STORAGE_MEMBER_KEY, activeMemberName);
-      }
+      try {
+        localStorage.setItem(STORAGE_TEAM_KEY, currentTeamId);
+        if (members[0] && members[0].name) {
+          activeMemberName = members[0].name;
+          localStorage.setItem(STORAGE_MEMBER_KEY, activeMemberName);
+        }
+      } catch (e) {}
 
-      db.ref('teams/' + currentTeamId).set({
+      const teamPayload = {
         id: currentTeamId,
         name: teamName,
         mode: playMode,
@@ -758,15 +862,24 @@
         points: 0,
         crypoCoins: 0,
         createdAt: Date.now()
-      }).then(() => {
-        clearInterval(countdownInterval);
-        document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + teamName;
-        showScreen('s4');
-        watchTeam();
-      }).catch(e => {
+      };
+
+      persistLocalTeam(teamPayload);
+      clearInterval(countdownInterval);
+      document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + teamName;
+      showScreen('s4');
+
+      if (db) {
+        db.ref('teams/' + currentTeamId).set(teamPayload).then(() => {
+          document.getElementById('submitBtn').disabled = false;
+          watchTeam();
+        }).catch(e => {
+          document.getElementById('submitBtn').disabled = false;
+          err.textContent = 'تم الحفظ محلياً، ولم يكتمل الحفظ السحابي: ' + e.message;
+        });
+      } else {
         document.getElementById('submitBtn').disabled = false;
-        err.textContent = e.message;
-      });
+      }
     }
 
     function updateHud(d) {
@@ -804,23 +917,19 @@
 
     function selectActiveMember(name) {
       activeMemberName = name || '';
-      if (activeMemberName) {
-        localStorage.setItem(STORAGE_MEMBER_KEY, activeMemberName);
-      } else {
-        localStorage.removeItem(STORAGE_MEMBER_KEY);
-      }
+      try {
+        if (activeMemberName) localStorage.setItem(STORAGE_MEMBER_KEY, activeMemberName);
+        else localStorage.removeItem(STORAGE_MEMBER_KEY);
+      } catch (e) {}
     }
 
     function watchTeam() {
       if (!db || !currentTeamId) return;
       clearInterval(countdownInterval);
       db.ref('teams/' + currentTeamId).on('value', snap => {
-        if (!snap.exists()) {
-          resetLocalSession();
-          return;
-        }
+        if (!snap.exists()) return;
         const d = snap.val();
-        currentTeamData = d;
+        persistLocalTeam(d);
         updateHud(d);
         renderVaultChallenge();
 
@@ -843,7 +952,7 @@
             db.ref('teams/' + currentTeamId).update({
               points: nextPts,
               winPointsAwardedAt: Date.now()
-            });
+            }).catch(() => {});
           }
           if (d.rewardChoice) renderWinPrize(d.rewardChoice);
         } else if (d.status === 'lost') {
@@ -857,7 +966,7 @@
 
     function syncChallengeImagePermission() {
       const box = document.getElementById('challengeImageBox');
-      box.style.display = settings.allowChallengeImage ? 'block' : 'none';
+      if (box) box.style.display = settings.allowChallengeImage ? 'block' : 'none';
     }
 
     function handleChallengeImageFile(file) {
@@ -890,10 +999,6 @@
         err.textContent = 'إرسال الصور غير مطلوب أو متوقف حالياً من الأدمن.';
         return;
       }
-      if (!db || !currentTeamId) {
-        err.textContent = 'يلزم تسجيل الفريق أولاً';
-        return;
-      }
       if (!challengeImageBase64) {
         err.textContent = 'اختر صورة من الاستديو أو صوّر بالكاميرا أولاً';
         return;
@@ -902,21 +1007,35 @@
       const btn = document.getElementById('sendImgBtn');
       btn.disabled = true;
 
-      db.ref('teams/' + currentTeamId + '/submissions').push({
+      const subPayload = {
         type: 'image',
         data: challengeImageBase64,
         memberName: activeMemberName || (currentTeamData && currentTeamData.name) || 'عضو',
         sentAt: Date.now()
-      }).then(() => {
+      };
+
+      const nextTeam = Object.assign({}, currentTeamData || { id: currentTeamId || 'local', name: 'فريق', points: 0, crypoCoins: 0 });
+      nextTeam.submissions = Object.assign({}, nextTeam.submissions || {}, { ['sub_' + Date.now()]: subPayload });
+      persistLocalTeam(nextTeam);
+
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId + '/submissions').push(subPayload).then(() => {
+          btn.disabled = false;
+          ok.textContent = 'تم إرسال صورة التحدي إلى الأدمن بنجاح!';
+          challengeImageBase64 = '';
+          document.getElementById('challengeImgName').textContent = '';
+          document.getElementById('challengeImgPreview').style.display = 'none';
+        }).catch(e => {
+          btn.disabled = false;
+          ok.textContent = 'تم حفظ الصورة محلياً (تعذر الإرسال السحابي: ' + e.message + ')';
+        });
+      } else {
         btn.disabled = false;
-        ok.textContent = 'تم إرسال صورة التحدي إلى الأدمن بنجاح!';
+        ok.textContent = 'تم تجهيز وحفظ صورة التحدي محلياً بنجاح!';
         challengeImageBase64 = '';
         document.getElementById('challengeImgName').textContent = '';
         document.getElementById('challengeImgPreview').style.display = 'none';
-      }).catch(e => {
-        btn.disabled = false;
-        err.textContent = 'تعذر الإرسال: ' + e.message;
-      });
+      }
     }
 
     function distanceMeters(lat1, lon1, lat2, lon2) {
@@ -931,6 +1050,7 @@
 
     function startGpsRadar() {
       const st = document.getElementById('gpsStatus');
+      if (!st) return;
       if (!navigator.geolocation) {
         st.textContent = 'المتصفح لا يدعم خدمة الموقع الجغرافي GPS.';
         return;
@@ -939,7 +1059,7 @@
       navigator.geolocation.getCurrentPosition(
         pos => {
           userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          st.textContent = `موقعك نشط (${userCoords.lat.toFixed(5)},${userCoords.lng.toFixed(5)})`;
+          st.textContent = `موقعك نشط (${userCoords.lat.toFixed(5)}, ${userCoords.lng.toFixed(5)})`;
           renderCrypoCoinsList();
           renderVaultChallenge();
         },
@@ -978,4 +1098,336 @@
         box.innerHTML = `
           <div><strong style="color:#FFD700;">🪙 ${esc(coin.label || 'Crypo Coin')}</strong> — <span style="color:#6EE7A8;">+${CRYPTO_VALUE} نقاط</span></div>
           <div class="muted">${distText}</div>
-          <button type="button" class="btn ${canClaim ?
+          <button type="button" class="btn ${canClaim ? 'btn-green' : 'btn-dark'}" ${canClaim ? '' : 'disabled'} onclick="claimCrypoCoin('${escAttr(coin.id)}')">
+            ${canClaim ? 'التقاط عملة Crypo (+10 نقاط)' : 'اقترب أكثر لالتقاط Crypo'}
+          </button>
+        `;
+        wrap.appendChild(box);
+      });
+    }
+
+    function claimCrypoCoin(coinId) {
+      if (!coinId) return;
+      const coin = gpsCoinsData[coinId];
+      if (!coin || coin.claimedBy) return;
+
+      const coinPts = Number(coin.pointsValue || CRYPTO_VALUE);
+      const currentPts = Number((currentTeamData && currentTeamData.points) || 0);
+      const currentCoins = Number((currentTeamData && currentTeamData.crypoCoins) || 0);
+
+      const nextTeam = Object.assign({}, currentTeamData || {}, {
+        points: currentPts + coinPts,
+        crypoCoins: currentCoins + 1
+      });
+      persistLocalTeam(nextTeam);
+      updateHud(nextTeam);
+
+      if (db && currentTeamId) {
+        db.ref('gpsCoins/' + coinId).update({
+          claimedBy: currentTeamId,
+          claimedByTeamName: nextTeam.name || 'فريق',
+          claimedByMember: activeMemberName || '',
+          claimedAt: Date.now()
+        }).then(() => {
+          return db.ref('teams/' + currentTeamId).update({
+            points: nextTeam.points,
+            crypoCoins: nextTeam.crypoCoins
+          });
+        }).catch(() => {});
+      }
+    }
+
+    function renderVaultChallenge() {
+      const box = document.getElementById('vaultChallengeBox');
+      if (!box) return;
+      const kv = settings.keyVault || {};
+      if (!kv.enabled) {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+
+      const radius = Number(kv.radiusMeters || 30);
+      const collectedKeys = (currentTeamData && currentTeamData.collectedKeys) || {};
+      const keysArr = Array.isArray(kv.keys) ? kv.keys.slice(0, 3) : [];
+      const earthWrap = document.getElementById('vaultEarthLinkWrap');
+
+      if (kv.earthUrl) {
+        earthWrap.innerHTML = `<a href="${escAttr(kv.earthUrl)}" target="_blank" style="color:#7CC6FE;font-size:13px;">🌍 فتح موقع الخزنة على Google Earth</a>`;
+      } else if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number') {
+        earthWrap.innerHTML = `<a href="https://earth.google.com/web/@${kv.vaultLat},${kv.vaultLng},150a" target="_blank" style="color:#7CC6FE;font-size:13px;">🌍 معاينة إحداثيات الخزنة على Google Earth</a>`;
+      } else {
+        earthWrap.innerHTML = '';
+      }
+
+      const listEl = document.getElementById('vaultKeysList');
+      listEl.innerHTML = '';
+      let foundCount = 0;
+
+      for (let i = 0; i < 3; i++) {
+        const keyCfg = keysArr[i] || { label: 'مفتاح ' + (i + 1), lat: null, lng: null };
+        const keyId = 'key_' + i;
+        const alreadyFound = Boolean(collectedKeys[keyId]);
+        if (alreadyFound) foundCount++;
+
+        let distText = 'بانتظار GPS';
+        let nearEnough = false;
+
+        if (!alreadyFound && userCoords && typeof keyCfg.lat === 'number' && typeof keyCfg.lng === 'number') {
+          const d = Math.round(distanceMeters(userCoords.lat, userCoords.lng, keyCfg.lat, keyCfg.lng));
+          distText = `المسافة: ${d} متر (النطاق: ${radius} م)`;
+          if (d <= radius) nearEnough = true;
+        } else if (alreadyFound) {
+          distText = 'تم العثور على المفتاح ✅';
+        }
+
+        const item = document.createElement('div');
+        item.className = 'key-item';
+        item.innerHTML = `
+          <div><strong style="color:#FFD700;">🔑 ${esc(keyCfg.label || ('مفتاح ' + (i + 1)))}</strong></div>
+          <div class="muted">${distText}</div>
+          <button type="button" class="btn ${alreadyFound ? 'btn-dark' : (nearEnough ? 'btn-green' : 'btn-dark')}" ${alreadyFound || !nearEnough ? 'disabled' : ''} onclick="collectVaultKey(${i})">
+            ${alreadyFound ? 'تم التقاط المفتاح' : (nearEnough ? 'التقاط المفتاح الآن' : 'اقترب أكثر لالتقاط المفتاح')}
+          </button>
+        `;
+        listEl.appendChild(item);
+      }
+
+      const openBtn = document.getElementById('openVaultBtn');
+      const vaultOpened = Boolean(currentTeamData && currentTeamData.vaultOpened);
+      let nearVault = false;
+      let vaultDistMsg = '';
+
+      if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number' && userCoords) {
+        const vd = Math.round(distanceMeters(userCoords.lat, userCoords.lng, kv.vaultLat, kv.vaultLng));
+        vaultDistMsg = ` — المسافة للخزنة: ${vd} متر`;
+        if (vd <= radius) nearVault = true;
+      }
+
+      document.getElementById('vaultStatusText').textContent =
+        `المفاتيح المجمعة: ${foundCount} من 3${vaultDistMsg}`;
+
+      if (vaultOpened) {
+        openBtn.disabled = true;
+        openBtn.textContent = '✅ تم فتح الخزنة بنجاح';
+      } else if (foundCount >= 3 && nearVault) {
+        openBtn.disabled = false;
+        openBtn.textContent = '🔓 فتح الخزنة الآن';
+      } else {
+        openBtn.disabled = true;
+        openBtn.textContent = foundCount < 3 ? `اجمع المفاتيح الـ 3 أولاً (${foundCount}/3)` : 'اقترب من موقع الخزنة لفتحها';
+      }
+    }
+
+    function collectVaultKey(idx) {
+      const keyData = {
+        foundBy: activeMemberName || ((currentTeamData && currentTeamData.name) || 'عضو'),
+        foundAt: Date.now()
+      };
+      const nextTeam = Object.assign({}, currentTeamData || {});
+      nextTeam.collectedKeys = Object.assign({}, nextTeam.collectedKeys || {}, { ['key_' + idx]: keyData });
+      persistLocalTeam(nextTeam);
+      renderVaultChallenge();
+
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId + '/collectedKeys/key_' + idx).set(keyData).catch(() => {});
+      }
+    }
+
+    function unlockVault() {
+      const err = document.getElementById('vaultErr');
+      const ok = document.getElementById('vaultMsg');
+      err.textContent = '';
+      ok.textContent = '';
+
+      const vaultPayload = {
+        vaultOpened: true,
+        vaultOpenedBy: activeMemberName || ((currentTeamData && currentTeamData.name) || 'فريق'),
+        vaultOpenedAt: Date.now()
+      };
+      persistLocalTeam(Object.assign({}, currentTeamData || {}, vaultPayload));
+      renderVaultChallenge();
+      ok.textContent = '🎉 مبروك! تم فتح الخزنة بنجاح!';
+
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update(vaultPayload).catch(e => {
+          err.textContent = e.message;
+        });
+      }
+    }
+
+    function chooseWinPrize(type) {
+      const basePts = Number((currentTeamData && currentTeamData.points) || 0);
+      const alreadyGotWin = Boolean(currentTeamData && currentTeamData.winPointsAwardedAt);
+      const finalPts = alreadyGotWin ? basePts : (basePts + WIN_POINTS);
+      const awardedAt = (currentTeamData && currentTeamData.winPointsAwardedAt) || Date.now();
+
+      const nextTeam = Object.assign({}, currentTeamData || { id: currentTeamId || 'local', name: 'فريق', crypoCoins: 0 }, {
+        rewardChoice: type,
+        points: finalPts,
+        winPointsAwardedAt: awardedAt
+      });
+      persistLocalTeam(nextTeam);
+
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({
+          rewardChoice: type,
+          points: finalPts,
+          winPointsAwardedAt: awardedAt
+        }).catch(() => {});
+      }
+      renderWinPrize(type);
+    }
+
+    function submitPrizeOrderDetails(type) {
+      const orderInput = document.getElementById('prizeOrderInput');
+      const phoneInput = document.getElementById('prizePhoneInput');
+      const addressInput = document.getElementById('prizeAddressInput');
+      const errEl = document.getElementById('prizeOrderErr');
+      const okEl = document.getElementById('prizeOrderOk');
+
+      const orderText = orderInput ? orderInput.value.trim() : '';
+      const phoneText = phoneInput ? phoneInput.value.trim() : '';
+      const addressText = addressInput ? addressInput.value.trim() : '';
+
+      if (!orderText) {
+        if (errEl) errEl.textContent = 'من فضلك اكتب تفاصيل الطلب أولاً.';
+        return;
+      }
+      if (!phoneText) {
+        if (errEl) errEl.textContent = 'من فضلك اكتب رقم التلفون.';
+        return;
+      }
+      if (!addressText) {
+        if (errEl) errEl.textContent = 'من فضلك اكتب عنوان المكان.';
+        return;
+      }
+
+      if (errEl) errEl.textContent = '';
+      if (okEl) okEl.textContent = '';
+
+      const detailsPayload = {
+        prizeType: type,
+        orderDetails: orderText,
+        phone: phoneText,
+        address: addressText,
+        updatedAt: Date.now()
+      };
+
+      const nextTeam = Object.assign({}, currentTeamData || {}, {
+        rewardChoice: type,
+        rewardDetails: detailsPayload
+      });
+      persistLocalTeam(nextTeam);
+
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({
+          rewardChoice: type,
+          rewardDetails: detailsPayload
+        }).then(() => {
+          if (okEl) okEl.textContent = 'تم حفظ الطلب ورقم التلفون والعنوان بنجاح: ' + orderText + ' | ' + phoneText + ' | ' + addressText;
+        }).catch(e => {
+          if (okEl) okEl.textContent = 'تم الحفظ محلياً (تعذر الحفظ السحابي: ' + e.message + ')';
+        });
+      } else if (okEl) {
+        okEl.textContent = 'تم حفظ الطلب ورقم التلفون والعنوان بنجاح: ' + orderText + ' | ' + phoneText + ' | ' + addressText;
+      }
+    }
+
+    function renderWinPrize(type) {
+      const box = document.getElementById('winPrizeResult');
+      box.style.display = 'block';
+      const ptsVal = Number((currentTeamData && currentTeamData.points) || WIN_POINTS);
+      const pts = `<div class="muted" style="margin-top:8px;">إجمالي النقاط: ${ptsVal} | الدرجة: ${calcRank(ptsVal)}</div>`;
+      const saved = (currentTeamData && currentTeamData.rewardDetails) || {};
+
+      if (type === 'cash') {
+        box.innerHTML = `<h3>نقدي</h3><div style="font-size:20px;font-weight:bold;">${esc(settings.cashPrizeAmount)}</div>${pts}`;
+      } else if (type === 'food' || type === 'goods') {
+        const title = type === 'food' ? 'وجبات طعام' : 'سلع استهلاكية';
+        const imgSrc = type === 'food' ? (settings.foodPrizeImage || '') : (settings.goodsPrizeImage || '');
+        const orderPlaceholder = type === 'food'
+          ? 'اكتب الوجبات أو الأصناف المطلوبة...'
+          : 'اكتب السلع الاستهلاكية المطلوبة...';
+        const defaultPhone = saved.phone || ((currentTeamData && Array.isArray(currentTeamData.members) && currentTeamData.members[0] && currentTeamData.members[0].phone) || '');
+
+        box.innerHTML = `
+          <h3>${title}</h3>
+          ${imgSrc ? `<img src="${escAttr(imgSrc)}" style="max-width:100%;border-radius:8px;margin-bottom:8px;" alt="${escAttr(title)}">` : `<div class="muted">الصورة المحددة من الأدمن</div>`}
+          <div class="order-form-box">
+            <label style="margin-top:0;">تفاصيل الطلب:</label>
+            <textarea id="prizeOrderInput" placeholder="${orderPlaceholder}">${esc(saved.orderDetails || '')}</textarea>
+
+            <label>رقم التلفون:</label>
+            <input type="tel" id="prizePhoneInput" placeholder="اكتب رقم التلفون" value="${escAttr(defaultPhone)}">
+
+            <label>عنوان المكان:</label>
+            <input type="text" id="prizeAddressInput" placeholder="اكتب عنوان المكان بالتفصيل" value="${escAttr(saved.address || '')}">
+
+            <button type="button" class="btn btn-gold" onclick="submitPrizeOrderDetails('${type}')">تأكيد الطلب والبيانات</button>
+            <div id="prizeOrderOk" class="msg-ok">${saved.orderDetails ? 'البيانات المحفوظة: ' + esc(saved.orderDetails) + ' | ' + esc(saved.phone || '') + ' | ' + esc(saved.address || '') : ''}</div>
+            <div id="prizeOrderErr" class="msg-err"></div>
+          </div>
+          ${pts}
+        `;
+      } else if (type === 'voucher') {
+        box.innerHTML = `<h3>كروت خصومات</h3>${settings.voucherPrizeImage ? `<img src="${escAttr(settings.voucherPrizeImage)}" style="max-width:100%;border-radius:8px;">` : `<div class="muted">الصورة المحددة من الأدمن</div>`}${pts}`;
+      }
+    }
+
+    function chooseLossReward(type) {
+      const currentPts = Number((currentTeamData && currentTeamData.points) || 0);
+      persistLocalTeam(Object.assign({}, currentTeamData || {}, {
+        rewardChoice: type,
+        points: currentPts
+      }));
+      if (db && currentTeamId) {
+        db.ref('teams/' + currentTeamId).update({
+          rewardChoice: type,
+          points: currentPts
+        }).catch(() => {});
+      }
+      renderLossReward(type);
+    }
+
+    function renderLossReward(type) {
+      const box = document.getElementById('lossRewardResult');
+      box.style.display = 'block';
+      if (type === 'half_food') {
+        box.innerHTML = `<h3>وجبات طعام بنصف الثمن</h3><div class="muted">تم تسجيل اختيارك (0 نقطة إضافية للخسارة)</div>`;
+      } else if (type === 'points') {
+        box.innerHTML = `<h3>نقاط</h3><div style="font-size:20px;font-weight:bold;">0 نقطة</div>`;
+      }
+    }
+
+    if (db) {
+      db.ref('settings').on('value', snap => {
+        if (!snap.exists()) return;
+        settings = { ...settings, ...snap.val() };
+        renderThreeMobileChoices();
+        syncChallengeImagePermission();
+        renderVaultChallenge();
+        const chEl = document.getElementById('challengeText');
+        if (chEl) chEl.textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
+      });
+
+      db.ref('gpsCoins').on('value', snap => {
+        gpsCoinsData = snap.exists() ? snap.val() : {};
+        renderCrypoCoinsList();
+      });
+
+      if (currentTeamId) {
+        watchTeam();
+      }
+    }
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function escAttr(str) {
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
