@@ -338,16 +338,17 @@
         <div id="chTextBox" class="muted" style="margin-top:6px;">-</div>
       </div>
 
-      <!-- قسم الكاميرا والاستديو وصور التحدي -->
+      <!-- نافذة كاميرا واستديو وصور التحدي أسفل نص التحدي مباشرة -->
       <div id="challengePhotoSection" class="banner-box">
-        <strong id="chPhotoLabel" style="color:#FFD700;">📸 صور التحدي (كاميرا / استديو)</strong>
-        <div class="muted" style="margin-top:4px;">يمكنك التقاط صورة بالكاميرا أو اختيار صورة أو أكثر من الاستديو، وحذف أي صورة بالضغط على علامة <strong>×</strong> قبل الإرسال.</div>
+        <strong id="chPhotoLabel" style="color:#FFD700;">📸 نافذة تصوير ورفع صور التحدي (كاميرا / استديو)</strong>
+        <div class="muted" style="margin-top:4px;">صور صورة بالكاميرا أو اختر صورة أو أكثر من الاستديو، واحذف أي صورة بعلامة <strong>×</strong> لو لم تعجبك ثم اضغط إرسال.</div>
 
         <input type="file" id="chPhotosInput" accept="image/*" multiple style="display:none;" onchange="handleGallerySelection(this)">
+        <input type="file" id="chCameraFallbackInput" accept="image/*" capture="environment" style="display:none;" onchange="handleGallerySelection(this)">
 
         <div class="row-2" style="margin-top:8px;">
-          <button type="button" class="btn btn-blue" onclick="openLiveCamera()">📷 فتح الكاميرا</button>
-          <button type="button" class="btn btn-dark" onclick="document.getElementById('chPhotosInput').click()">🖼️ اختيار من الاستديو</button>
+          <button type="button" class="btn btn-blue" onclick="openLiveCamera()">📷 تصوير بالكاميرا</button>
+          <button type="button" class="btn btn-dark" onclick="document.getElementById('chPhotosInput').click()">🖼️ رفع من الاستديو</button>
         </div>
 
         <div id="liveCameraBox" class="camera-box">
@@ -361,7 +362,7 @@
 
         <div id="pendingPhotosGrid" class="photo-grid"></div>
 
-        <button type="button" class="btn btn-gold" onclick="uploadChallengePhotos()">📤 إرسال الصور للأدمن</button>
+        <button type="button" class="btn btn-gold" onclick="uploadChallengePhotos()">📤 إرسال</button>
         <div id="chPhotoMsg" class="msg-ok"></div>
         <div id="chPhotoErr" class="msg-err"></div>
       </div>
@@ -706,9 +707,9 @@
         photoSec.style.display = 'block';
         if (settings.requireChallengePhotos) {
           const cnt = Math.max(1, Number(settings.challengePhotoCount || 1));
-          document.getElementById('chPhotoLabel').textContent = '📸 صور التحدي (المطلوب: ' + cnt + ' صورة أو أكثر)';
+          document.getElementById('chPhotoLabel').textContent = '📸 نافذة تصوير ورفع صور التحدي (المطلوب: ' + cnt + ' صورة أو أكثر)';
         } else {
-          document.getElementById('chPhotoLabel').textContent = '📸 إرسال صور التحدي (كاميرا / استديو)';
+          document.getElementById('chPhotoLabel').textContent = '📸 نافذة تصوير ورفع صور التحدي (كاميرا / استديو)';
         }
 
         renderPendingPhotos();
@@ -746,7 +747,7 @@
       errEl.textContent = '';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        errEl.textContent = 'المتصفح أو التطبيق لا يدعم الكاميرا المباشرة، يمكنك الاختيار من الاستديو.';
+        document.getElementById('chCameraFallbackInput').click();
         return;
       }
 
@@ -758,7 +759,8 @@
           box.style.display = 'block';
         })
         .catch(() => {
-          errEl.textContent = 'يرجى السماح بصلاحية الكاميرا من إعدادات المتصفح أو التطبيق، أو استخدم «اختيار من الاستديو».';
+          errEl.textContent = 'تعذر فتح الكاميرا المباشرة، تم فتح كاميرا الهاتف أو تأكد من صلاحية الكاميرا.';
+          document.getElementById('chCameraFallbackInput').click();
         });
     }
 
