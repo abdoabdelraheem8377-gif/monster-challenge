@@ -482,7 +482,7 @@
     let settings = {};
     let gpsCoinsMap = {};
     let allTeamsCache = {};
-    let currentTeamKey = localStorage.getItem(STORAGE_TEAM_KEY) || '';
+    let currentTeamKey = '';
     let currentTeamData = null;
     let lastPlayerCoords = null;
     let teamRefListener = null;
@@ -611,7 +611,7 @@
       db.ref('teams').once('value').then(snap => {
         const teamsObj = snap.exists() ? snap.val() : {};
         const targetNorm = normalizeTeamName(teamName);
-        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm);
+        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm && (t.status || 'pending') !== 'pending');
 
         btnNext.disabled = false;
         btnNext.textContent = 'التالي (Next)';
@@ -689,6 +689,10 @@
           return;
         }
 
+        if ((matchedTeam.status || 'pending') === 'pending') {
+          errEl.textContent = 'يرجى تأكيد اسم الفريق وأرقام التلفونات من تبويب «فريق جديد» للمتابعة.';
+          return;
+        }
         currentTeamKey = matchedKey;
         localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
         subscribeToCurrentTeam();
@@ -895,6 +899,21 @@
       const st = currentTeamData.status || 'pending';
       const pts = Number(currentTeamData.points || 0);
       const rank = calcRank(pts);
+
+      if (st === 'pending') {
+        if (teamRefListener) {
+          db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
+          teamRefListener = null;
+        }
+        localStorage.removeItem(STORAGE_TEAM_KEY);
+        currentTeamKey = '';
+        currentTeamData = null;
+        draftTeam = null;
+        returningTeamKey = '';
+        switchEntryTab('new');
+        goToScreen('screenTeamSetup');
+        return;
+      }
 
       const directMsg = (currentTeamData.adminMessage && currentTeamData.adminMessage.text) || '';
       ['teamDirectMsgBox', 'chDirectMsgBox'].forEach(id => {
@@ -1454,6 +1473,10 @@
       returningTeamKey = '';
       receiptDataUrl = '';
       document.getElementById('receiptPreviewImg').style.display = 'none';
+      const nameInp = document.getElementById('teamNameInput');
+      if (nameInp) nameInp.value = '';
+      setTeamMode('solo');
+      switchEntryTab('new');
       goToScreen('screenTeamSetup');
     }
 
@@ -1505,9 +1528,7 @@
     }
 
     renderMemberInputs();
-    if (currentTeamKey) {
-      subscribeToCurrentTeam();
-    }
+    // Always open start screen cleanly so player confirms team name & phones from scratch
   </script>
 </body>
 </html>
