@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>صراع الوحوش</title>
+  <meta name="theme-color" content="#07040F">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="صراع الوحوش">
+  <title>صراع الوحوش - Monster Challenge</title>
   <style>
     * {
       box-sizing: border-box;
@@ -16,293 +21,186 @@
       font-family: Tahoma, Arial, sans-serif;
     }
     .wrap {
-      max-width: 490px;
+      max-width: 680px;
       margin: 0 auto;
+    }
+    .card {
       background: #140D24;
-      border: 1px solid #FFD70055;
+      border: 1px solid #392861;
       border-radius: 14px;
       padding: 18px;
-      position: relative;
+      margin-bottom: 16px;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .gear-btn {
-      background: #291C47;
-      color: #FFD700;
-      border: 1px solid #FFD70066;
-      border-radius: 10px;
-      padding: 7px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
-    }
-    .gear-btn:active {
-      transform: scale(0.95);
-      filter: brightness(0.88);
-    }
-    .audio-panel {
+    .screen {
       display: none;
-      background: #1E1436;
-      border: 1px solid #FFD70077;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
+    }
+    .screen.active {
+      display: block;
     }
     h1, h2, h3 {
-      text-align: center;
       color: #FFD700;
       margin-top: 0;
     }
-    .center { text-align: center; }
-    .muted { color: #C2B8D9; font-size: 14px; line-height: 1.6; }
-    .timer-box {
-      font-size: 40px;
-      font-weight: bold;
-      color: #FFD700;
-      background: #1E1436;
-      border: 1px solid #FFD70088;
-      border-radius: 14px;
-      padding: 12px 26px;
-      display: inline-block;
-      margin: 14px auto;
-    }
-    .hourglass {
-      font-size: 46px;
-      display: inline-block;
-      animation: spinHourglass 2.2s linear infinite;
-    }
-    @keyframes spinHourglass {
-      0% { transform: rotate(0deg); }
-      45% { transform: rotate(180deg); }
-      50% { transform: rotate(180deg); }
-      95% { transform: rotate(360deg); }
-      100% { transform: rotate(360deg); }
+    .muted {
+      color: #C2B8D9;
+      font-size: 13px;
+      line-height: 1.65;
     }
     label {
       display: block;
-      margin: 10px 0 5px;
+      margin: 12px 0 6px;
       font-size: 14px;
       color: #FFE99E;
       font-weight: bold;
     }
-    input[type="text"], input[type="tel"], select, textarea {
+    input[type="text"], input[type="tel"], input[type="number"], textarea {
       width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #433269;
+      padding: 11px;
+      border-radius: 9px;
+      border: 1px solid #483575;
       background: #090512;
       color: #FFFFFF;
-      font-size: 15px;
+      font-size: 14px;
       font-family: Tahoma, Arial, sans-serif;
     }
     textarea {
-      min-height: 78px;
+      min-height: 85px;
       resize: vertical;
     }
-    input[type="range"] {
-      width: 100%;
-      accent-color: #FFD700;
-      cursor: pointer;
-    }
-    .row-2 {
+    .mode-row, .row-2 {
       display: flex;
-      gap: 8px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .row-2 > * { flex: 1; }
+    .mode-row > *, .row-2 > * {
+      flex: 1;
+      min-width: 160px;
+    }
     .member-box {
-      background: #1E1436;
-      border: 1px solid #392861;
+      background: #1B1130;
+      border: 1px solid #3D2B68;
       border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 8px;
-    }
-    .captain-tag {
-      display: inline-block;
-      background: #FFD70026;
-      color: #FFD700;
-      border: 1px solid #FFD70066;
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 11px;
-      margin-right: 6px;
-    }
-    .phones-3-box {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 10px 0;
-    }
-    .phone-option {
-      background: #1E1436;
-      border: 1px solid #493575;
-      border-radius: 9px;
-      padding: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #FFD700;
-      direction: ltr;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.08s ease, background 0.15s ease, color 0.15s ease;
-    }
-    .phone-option:active {
-      transform: scale(0.96);
-    }
-    .phone-option.active {
-      background: #FFD700;
-      color: #07040F;
-      border-color: #FFD700;
-    }
-    .btn {
-      display: block;
-      width: 100%;
       padding: 12px;
       margin-top: 10px;
+    }
+    .btn {
+      padding: 11px 14px;
       border: none;
       border-radius: 10px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-      user-select: none;
-      transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
+      margin-top: 10px;
+      transition: transform 0.08s ease, filter 0.15s ease;
     }
-    .btn:active:not(:disabled) {
+    .btn:active {
       transform: scale(0.96);
-      filter: brightness(0.88);
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+      filter: brightness(0.9);
     }
     .btn-gold {
       background: #FFD700;
       color: #07040F;
+      width: 100%;
       box-shadow: 0 3px 0 #B59500;
     }
-    .btn-dark {
-      background: #291C47;
+    .btn-blue {
+      background: #2A6FD6;
       color: #FFFFFF;
-      border: 1px solid #4B367A;
-      box-shadow: 0 3px 0 #150E26;
+      box-shadow: 0 3px 0 #184384;
     }
     .btn-green {
       background: #1FA855;
       color: #FFFFFF;
       box-shadow: 0 3px 0 #136B36;
     }
-    .btn-red {
-      background: #C9364C;
+    .btn-dark {
+      background: #261942;
       color: #FFFFFF;
-      box-shadow: 0 3px 0 #7E1E2C;
+      border: 1px solid #493575;
+      box-shadow: 0 3px 0 #130C22;
     }
-    .box-card {
-      background: #1D1333;
-      border: 1px solid #3A2961;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 10px 0;
-    }
-    .stats-bar {
+    .phone-chip {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      background: #1E1436;
-      border: 1px solid #FFD70055;
+      align-items: center;
+      gap: 10px;
+      background: #1B1130;
+      border: 1px solid #3D2B68;
       border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      flex-wrap: wrap;
+      padding: 10px 12px;
+      margin-top: 8px;
+      cursor: pointer;
     }
-    .coin-item, .key-item, .menu-check-item, .photo-slot-box {
-      background: #140D24;
-      border: 1px solid #493575;
+    .phone-chip.selected {
+      border-color: #FFD700;
+      background: #251742;
+    }
+    .msg-err {
+      color: #FF8FA3;
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .msg-ok {
+      color: #6EE7A8;
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .banner-box {
+      background: #1E1338;
+      border: 1px solid #FFD70066;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .coin-item {
+      background: #1B1130;
+      border: 1px solid #3D2B68;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .menu-check-item {
+      background: #1B1130;
+      border: 1px solid #3D2B68;
       border-radius: 9px;
-      padding: 10px;
+      padding: 9px 12px;
       margin-top: 8px;
     }
     .menu-check-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 10px;
       cursor: pointer;
     }
-    .menu-check-row input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: #FFD700;
-      cursor: pointer;
-    }
-    .call-chip {
-      display: inline-block;
-      background: #291C47;
-      border: 1px solid #FFD70066;
+    .follow-phone {
       color: #FFD700;
-      padding: 5px 10px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 13px;
-      margin: 4px 2px;
+      font-size: 17px;
+      font-weight: bold;
       direction: ltr;
-    }
-    .msg-err {
-      color: #FF7A90;
       text-align: center;
-      font-size: 13px;
-      margin-top: 8px;
+      margin-top: 6px;
     }
-    .msg-ok {
-      color: #6EE7A8;
-      text-align: center;
-      font-size: 13px;
-      margin-top: 8px;
+    .preview-img {
+      max-width: 220px;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
     }
-    .alert-banner {
-      background: #241642;
-      border: 1px solid #FFD70088;
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #1B1130;
       border-radius: 10px;
       padding: 10px 12px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-size: 13px;
-      line-height: 1.6;
-      display: none;
-    }
-    img.preview {
-      max-width: 100%;
-      max-height: 220px;
-      border-radius: 10px;
-      margin-top: 8px;
-      display: none;
-    }
-    .order-form-box {
-      text-align: right;
-      margin-top: 12px;
-      background: #140D24;
-      border: 1px solid #493575;
-      border-radius: 10px;
-      padding: 12px;
-    }
-    .celebration-banner {
-      background: linear-gradient(135deg, #2A194E, #162B22);
-      border: 1px solid #FFD700;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-    .follow-phone {
-      font-size: 18px;
-      font-weight: bold;
-      color: #FFD700;
-      direction: ltr;
-      margin-top: 6px;
+      color: #FFE99E;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -311,228 +209,138 @@
 <body>
   <div class="wrap">
 
-    <div class="top-bar">
-      <button type="button" class="gear-btn" onclick="requestNotificationPermission()">🔔 تفعيل التنبيهات</button>
-      <button type="button" class="gear-btn" onclick="toggleAudioPanel()">⚙️ إعدادات الصوت</button>
-    </div>
+    <div id="globalNoticeBox" class="banner-box" style="display:none;"></div>
 
-    <div id="localFileWarn" class="alert-banner" style="border-color:#FF7A90;color:#FFD4DC;"></div>
-    <div id="notifStatusBanner" class="alert-banner" style="border-color:#7CC6FE88;"></div>
-
-    <div id="audioPanel" class="audio-panel">
-      <h3 style="margin-bottom:8px;">🔊 صوت المفاتيح والأزرار</h3>
-      <label style="margin-top:4px;">مستوى صوت المفاتيح: <span id="sfxVolLabel">100%</span></label>
-      <input type="range" id="sfxVolRange" min="0" max="100" value="100" oninput="setSfxVolume(this.value)">
-      <button type="button" class="btn btn-gold" onclick="playKeySound()">🎹 تجربة صوت المفتاح</button>
-    </div>
-
-    <div id="scheduleBanner" class="alert-banner"></div>
-    <div id="broadcastBanner" class="alert-banner" style="border-color:#6EE7A888;"></div>
-
-    <!-- الشاشة 1: الدخول والعد التنازلي 30 ثانية -->
-    <div id="s1" style="display:block;">
-      <div class="center" style="padding: 36px 10px;">
-        <div style="font-size:48px;">👾🔥</div>
-        <h1>مرحباً بكم في صراع الوحوش</h1>
-        <p class="muted">جاري تجهيز الدخول إلى صفحة تكوين الفريق...</p>
-        <div id="countdownTimer" class="timer-box">30</div>
-        <div class="muted">سيتم الانتقال تلقائياً إلى صفحة تكوين الفريق عند وصول العداد إلى 0</div>
-      </div>
-    </div>
-
-    <!-- الشاشة 2: تكوين الفريق وإدارة العضوية والانتقال -->
-    <div id="s2" style="display:none;">
+    <!-- الشاشة 1: تكوين الفريق -->
+    <div id="screenTeamSetup" class="card screen active">
+      <h1>👾 صراع الوحوش</h1>
       <h2>كون فريق من 1 إلى 5 أفراد</h2>
+      <div class="muted">اختر اللعب الفردي أو تكوين فريق حتى 5 أفراد، اكتب اسم الفريق وبيانات الأعضاء ثم اضغط التالي.</div>
 
-      <div class="stats-bar" id="s2PlayerStats" style="display:none;">
-        <div>نقاطك الشخصية: <strong id="s2PersonalPts" style="color:#6EE7A8;">0</strong></div>
-        <div>التصنيف: <strong id="s2PersonalRank" style="color:#FFD700;">1</strong></div>
-        <div>المجموعة الحالية: <strong id="s2CurrentGroupName" style="color:#7CC6FE;">-</strong></div>
+      <div class="mode-row" style="margin-top:12px;">
+        <button type="button" id="btnSoloMode" class="btn btn-gold" onclick="setTeamMode('solo')">لعب فردي (1)</button>
+        <button type="button" id="btnGroupMode" class="btn btn-dark" onclick="setTeamMode('group')">فريق (من 1 إلى 5)</button>
       </div>
 
-      <div class="row-2">
-        <button type="button" id="btnSolo" class="btn btn-dark" onclick="setMode('solo')">لعب فردي (1)</button>
-        <button type="button" id="btnTeam" class="btn btn-gold" onclick="setMode('team')">فريق (من 1 إلى 5)</button>
+      <label>اسم الفريق</label>
+      <input type="text" id="teamNameInput" placeholder="مثال: النسور">
+
+      <div id="memberCountBox" style="display:none;">
+        <label>عدد أفراد الفريق (من 1 إلى 5)</label>
+        <input type="number" id="memberCountInput" min="1" max="5" value="2" oninput="renderMemberInputs()">
       </div>
 
-      <label>اسم الفريق (يجب أن يكون فريداً وغير مكرر)</label>
-      <input type="text" id="teamName" placeholder="اكتب اسم الفريق">
+      <div id="membersContainer"></div>
 
-      <label>عدد أفراد المجموعة (من 1 إلى 5)</label>
-      <select id="memberCountSelect" onchange="changeMemberCount(this.value)">
-        <option value="1">1 فرد</option>
-        <option value="2">2 أفراد</option>
-        <option value="3">3 أفراد</option>
-        <option value="4">4 أفراد</option>
-        <option value="5" selected>5 أفراد</option>
-      </select>
-
-      <div class="muted" style="margin-top:6px;">ملاحظة: قائد المجموعة هو أول اسم في قائمة الأسماء المشتركة في الفريق.</div>
-      <div id="membersList" style="margin-top:8px;"></div>
-      <button type="button" id="btnAddMember" class="btn btn-dark" onclick="addMember()">+ إضافة عضو (الحد الأقصى 5)</button>
-
-      <div id="groupMembershipBox" class="box-card" style="display:none;margin-top:14px;">
-        <h3 style="margin-bottom:6px;">🔄 إدارة الانتماء للمجموعة</h3>
-        <div id="membershipInfo" class="muted"></div>
-        <button type="button" class="btn btn-red" onclick="leaveCurrentGroup()">🚪 ترك المجموعة الحالية</button>
-        <label>الانضمام إلى مجموعة أخرى قائمة (وتُخصم حصتك من مجموعتك السابقة وتُضاف للجديدة):</label>
-        <select id="otherGroupsSelect">
-          <option value="">اختر مجموعة للانضمام إليها...</option>
-        </select>
-        <button type="button" class="btn btn-green" onclick="joinAnotherGroup()">🤝 الانضمام إلى المجموعة المختارة</button>
-        <div id="membershipMsg" class="msg-ok"></div>
-        <div id="membershipErr" class="msg-err"></div>
-      </div>
-
-      <div id="err2" class="msg-err"></div>
-      <button type="button" class="btn btn-gold" onclick="goStep3()">التالي</button>
+      <div id="teamSetupErr" class="msg-err"></div>
+      <button type="button" id="btnNextTeam" class="btn btn-gold" onclick="handleTeamNext()">التالي (Next)</button>
     </div>
 
-    <!-- الشاشة 3: الاشتراك والإيصال -->
-    <div id="s3" style="display:none;">
-      <h2>الاشتراك في التحدي</h2>
-      <div class="box-card center">
-        <div>ابعت قيمة اشتراك في التحدى <strong>100</strong> جنيه على رقم:</div>
-        <div id="payPhonesList" class="phones-3-box"></div>
-        <div class="muted" style="margin-top:6px;">اختر أحد الأرقام الـ 3 المتاحة ثم صوّر أو اختر الإيصال</div>
+    <!-- الشاشة 2: الدفع ورفع إيصال الاشتراك -->
+    <div id="screenPayment" class="card screen">
+      <h2>تأكيد الاشتراك وإرسال الإيصال</h2>
+      <div class="muted">الفريق: <strong id="payTeamTitle" style="color:#FFD700;">-</strong></div>
+
+      <label>قيمة الاشتراك (جنيه)</label>
+      <input type="number" id="payAmountInput" value="100" min="1">
+
+      <label>اختر رقم التحويل المعتمد من الأدمن</label>
+      <div id="activePhonesContainer">
+        <div class="muted">جاري تحميل أرقام التحويل...</div>
       </div>
 
-      <label>تصوير الإيصال (الاستديو أو الكاميرا)</label>
-      <input type="file" id="galleryInput" accept="image/*" style="display:none;">
-      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+      <label>صورة إيصال التحويل</label>
+      <input type="file" id="receiptFileInput" accept="image/*" onchange="handleReceiptFile(this)">
+      <img id="receiptPreviewImg" class="preview-img" alt="معاينة الإيصال">
 
-      <div class="row-2">
-        <button type="button" class="btn btn-gold" onclick="document.getElementById('galleryInput').click()">🖼️ الاستديو</button>
-        <button type="button" class="btn btn-dark" onclick="document.getElementById('cameraInput').click()">📷 الكاميرا</button>
-      </div>
-      <div id="receiptFileName" class="muted" style="margin-top:6px;text-align:center;"></div>
-      <img id="receiptPreview" class="preview" alt="صورة الإيصال">
+      <div id="paymentErr" class="msg-err"></div>
+      <div id="paymentOk" class="msg-ok"></div>
 
-      <div id="err3" class="msg-err"></div>
-      <button type="button" id="submitBtn" class="btn btn-gold" onclick="submitRegistration()">إرسال</button>
-      <button type="button" class="btn btn-dark" onclick="showScreen('s2')">رجوع</button>
+      <button type="button" class="btn btn-green" onclick="submitPaymentAndRegister()">إرسال الإيصال وتسجيل الفريق</button>
+      <button type="button" class="btn btn-dark" onclick="goToScreen('screenTeamSetup')">← تعديل بيانات الفريق</button>
     </div>
 
-    <!-- الشاشة 4: انتظار المراجعة أو رسالة الرفض -->
-    <div id="s4" style="display:none;">
-      <div class="center" style="padding: 28px 10px;">
-        <div class="hourglass">⏳</div>
-        <h2 id="s4Title" style="margin-top:10px;">جاري التحقق من البيانات</h2>
-        <p id="s4Subtitle" class="muted">برجاء الانتظار حتى يقوم الأدمن بمراجعة بيانات الفريق والاشتراك.</p>
-        <div id="s4TeamLabel" class="muted"></div>
-        <div id="s4RejectedBox" class="box-card" style="display:none;border-color:#C9364C;background:#2A1018;">
-          <strong style="color:#FF8FA3;font-size:16px;">بيانات خاطئة</strong>
-          <div class="muted" style="margin-top:4px;">يرجى مراجعة البيانات والإيصال وإعادة الإرسال بشكل صحيح.</div>
-          <button type="button" class="btn btn-gold" onclick="showScreen('s2')">تعديل البيانات وإعادة الإرسال</button>
-        </div>
-        <div id="s4AdminMsg" class="box-card" style="display:none;text-align:right;border-color:#FFD70088;"></div>
-        <button type="button" class="btn btn-dark" style="margin-top:12px;" onclick="showScreen('s2')">إعدادات الفريق / تغيير المجموعة</button>
-      </div>
+    <!-- الشاشة 3: انتظار مراجعة الأدمن أو عرض حالة الفريق -->
+    <div id="screenWaiting" class="card screen">
+      <h2>حالة طلب الفريق</h2>
+      <div id="waitingStatusBox" class="muted">جاري متابعة حالة الفريق مع الأدمن...</div>
+      <div id="teamDirectMsgBox" class="banner-box" style="display:none;margin-top:12px;"></div>
+      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">تسجيل فريق جديد / تغيير الفريق</button>
     </div>
 
-    <!-- الشاشة 5: صفحة التحدي والصور والـ GPS والخزنة -->
-    <div id="s5" style="display:none;">
-      <h2>صفحة التحدي</h2>
-
+    <!-- الشاشة 4: شاشة التحدي وGPS Crypo والمفاتيح والصور -->
+    <div id="screenChallenge" class="card screen">
+      <h2>🔥 التحدي نشط</h2>
       <div class="stats-bar">
-        <div>الفريق: <strong id="hudTeamName" style="color:#FFD700;">-</strong></div>
-        <div>نقاط الفريق: <strong id="hudPoints" style="color:#6EE7A8;">0</strong></div>
-        <div>نقاطك: <strong id="hudPersonalPoints" style="color:#7CC6FE;">0</strong></div>
-        <div>التصنيف: <strong id="hudRank" style="color:#FFD700;">1</strong></div>
+        <span>الفريق: <strong id="chTeamName">-</strong></span>
+        <span>النقاط: <strong id="chPoints">0</strong></span>
+        <span>الدرجة: <strong id="chRank">1</strong></span>
       </div>
 
-      <div id="s5AdminMsg" class="box-card" style="display:none;border-color:#FFD70088;"></div>
+      <div id="chDirectMsgBox" class="banner-box" style="display:none;"></div>
 
-      <div class="box-card">
-        <label style="margin-top:0;">اختر اسمك داخل الفريق (قائد المجموعة أولاً):</label>
-        <select id="activeMemberSelect" onchange="selectActiveMember(this.value)">
-          <option value="">اختر اسمك داخل الفريق</option>
-        </select>
-        <div id="teamMateCalls" style="margin-top:8px;"></div>
-        <button type="button" class="btn btn-dark" style="margin-top:8px;" onclick="showScreen('s2')">⚙️ إعدادات الفريق (ترك / انضمام لمجموعة)</button>
+      <div class="banner-box">
+        <strong style="color:#FFD700;">نص التحدي:</strong>
+        <div id="chTextBox" class="muted" style="margin-top:6px;">-</div>
       </div>
 
-      <div class="box-card">
-        <h3 style="text-align:right;margin-bottom:6px;">📜 رسالة التحدي</h3>
-        <div id="challengeText" style="font-size:16px;line-height:1.7;white-space:pre-wrap;">
-          في انتظار نص التحدي من الأدمن...
+      <div id="challengePhotoSection" style="display:none;">
+        <label id="chPhotoLabel">إرسال صور التحدي</label>
+        <input type="file" id="chPhotosInput" accept="image/*" multiple>
+        <button type="button" class="btn btn-blue" onclick="uploadChallengePhotos()">📤 إرسال صور التحدي</button>
+        <div id="chPhotoMsg" class="msg-ok"></div>
+        <div id="chPhotoErr" class="msg-err"></div>
+      </div>
+
+      <div class="banner-box" style="margin-top:14px;">
+        <strong style="color:#FFD700;">🪙 عملات Crypo بالـ GPS (+10 نقاط)</strong>
+        <div class="muted">حدّث موقعك لالتقاط العملات القريبة منك ضمن النطاق المحدد:</div>
+        <button type="button" class="btn btn-blue" onclick="refreshPlayerLocation()">📍 تحديث موقعي الآن</button>
+        <div id="playerGpsStatus" class="msg-ok"></div>
+        <div id="gpsCoinsContainer"></div>
+      </div>
+
+      <div id="vaultSection" class="banner-box" style="display:none;margin-top:14px;">
+        <strong style="color:#FFD700;">🗝️ تحدي المفاتيح الـ 3 والخزنة</strong>
+        <div id="vaultStatusText" class="muted" style="margin-top:6px;"></div>
+        <div id="vaultEarthLinkBox" style="margin-top:6px;"></div>
+        <div class="row-2" style="margin-top:8px;">
+          <button type="button" class="btn btn-blue" onclick="tryCollectKey(0)">التقاط المفتاح 1</button>
+          <button type="button" class="btn btn-blue" onclick="tryCollectKey(1)">التقاط المفتاح 2</button>
+          <button type="button" class="btn btn-blue" onclick="tryCollectKey(2)">التقاط المفتاح 3</button>
         </div>
+        <button type="button" class="btn btn-green" onclick="tryOpenVault()">🔓 فتح الخزنة</button>
+        <div id="vaultActionMsg" class="msg-ok"></div>
       </div>
 
-      <div id="challengeImageBox" class="box-card" style="display:none;">
-        <h3 id="challengePhotosTitle">📷 إرسال صور التحدي المطلوبة</h3>
-        <div id="challengePhotosHint" class="muted" style="text-align:center;"></div>
-        <div id="challengePhotoSlots"></div>
-        <button type="button" id="sendImgBtn" class="btn btn-gold" onclick="sendChallengeImages()">إرسال الصور</button>
-        <div id="imgMsg" class="msg-ok"></div>
-        <div id="imgErr" class="msg-err"></div>
-      </div>
-
-      <div class="box-card">
-        <h3>🪙 رادار عملات Crypo (GPS)</h3>
-        <div id="gpsStatus" class="muted">جاري تحديد موقعك الجغرافي...</div>
-        <button type="button" class="btn btn-dark" onclick="startGpsRadar()">تحديث موقعي الآن</button>
-        <div id="crypoCoinsList"></div>
-      </div>
-
-      <div id="vaultChallengeBox" class="box-card" style="display:none;">
-        <h3>🔐 تحدي المفاتيح الـ 3 وفتح الخزنة</h3>
-        <div id="vaultStatusText" class="muted">ابحث عن المفاتيح الـ 3 بالـ GPS ثم افتح الخزنة.</div>
-        <div id="vaultEarthLinkWrap" style="margin-top:6px;"></div>
-        <div id="vaultKeysList"></div>
-        <button type="button" id="openVaultBtn" class="btn btn-green" disabled onclick="unlockVault()">🔓 فتح الخزنة</button>
-        <div id="vaultMsg" class="msg-ok"></div>
-        <div id="vaultErr" class="msg-err"></div>
-      </div>
+      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">الخروج من جلسة الفريق</button>
     </div>
 
-    <!-- الشاشة 6: الفوز والخسارة والجوائز -->
-    <div id="s6" style="display:none;">
-      <div id="s6AdminMsg" class="box-card" style="display:none;border-color:#FFD70088;"></div>
+    <!-- الشاشة 5: شاشة الفوز أو الخسارة والجوائز -->
+    <div id="screenResult" class="card screen">
+      <h2 id="resultHeading">نتيجة التحدي</h2>
+      <div id="resultSummaryBox" class="muted"></div>
+      <div id="cashReceiptPreviewBox" style="margin-top:10px;"></div>
 
-      <div id="winBox" style="display:none;">
-        <div class="celebration-banner center">
-          <div style="font-size:38px;">🎉🎊🏆✨🎈</div>
-          <h2>مبروك لقد ربحت</h2>
-          <p class="muted" style="color:#FFE99E;">أحسنت! تم إضافة +10 نقاط فوز (كل 10,000 نقطة ترفع التصنيف درجة واحدة).</p>
+      <div id="winRewardControls" style="display:none;margin-top:12px;">
+        <label>اختر جائزتك:</label>
+        <div class="row-2">
+          <button type="button" class="btn btn-gold" onclick="selectWinReward('cash')">💵 نقدي</button>
+          <button type="button" class="btn btn-blue" onclick="selectWinReward('food')">🍽️ طعام</button>
+          <button type="button" class="btn btn-blue" onclick="selectWinReward('voucher')">🎟️ كروت خصومات</button>
+          <button type="button" class="btn btn-dark" onclick="selectWinReward('goods')">📦 سلع استهلاكية</button>
         </div>
-
-        <div class="box-card">
-          <h3>اختر هديتك:</h3>
-          <button type="button" class="btn btn-gold" onclick="chooseWinPrize('cash')">💵 نقدي</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('food')">🍽️ طعام</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('goods')">📦 سلع استهلاكية</button>
-          <button type="button" class="btn btn-dark" onclick="chooseWinPrize('voucher')">🎟️ كروت خصومات</button>
-        </div>
-
-        <div id="winPrizeResult" class="box-card center" style="display:none;"></div>
+        <div id="winRewardDetailsBox" style="margin-top:12px;"></div>
       </div>
 
-      <div id="lossBox" style="display:none;">
-        <div class="box-card center">
-          <div style="font-size:36px;">🍽️👾</div>
-          <h2>لقد خسرت ولكنك ربحت وجبات بنصف الثمن</h2>
-          <p class="muted">نقاط الخسارة = 0 نقطة — اختر وجباتك من القائمة المرسلة من الأدمن:</p>
-        </div>
-        <div id="lossRewardResult" class="box-card center" style="display:none;"></div>
-      </div>
+      <div id="lossRewardResult" style="display:none;margin-top:12px;"></div>
+
+      <button type="button" class="btn btn-dark" style="margin-top:16px;" onclick="resetLocalSession()">تسجيل فريق جديد</button>
     </div>
 
   </div>
 
   <script>
-    (function checkProtocol() {
-      try {
-        if (window.location && window.location.protocol === 'content:') {
-          var warn = document.getElementById('localFileWarn');
-          if (warn) {
-            warn.innerHTML = '⚠️ <strong>تنبيه:</strong> أنت تفتح الملف مباشرة من ذاكرة الهاتف (<code>content://</code>). لتشغيل Firebase والـ GPS بالكامل، افتح الصفحة عبر رابط <strong>GitHub Pages</strong>.';
-            warn.style.display = 'block';
-          }
-        }
-      } catch (e) {}
-    })();
-
     const firebaseConfig = {
       apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
       authDomain: "monester-challenge.firebaseapp.com",
@@ -544,1363 +352,589 @@
       measurementId: "G-RW050GJMCZ"
     };
 
-    let db = null;
-    try {
-      if (window.firebase) {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-      }
-    } catch (e) {}
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const STORAGE_TEAM_KEY = 'monster_current_team_id';
-    const STORAGE_MEMBER_KEY = 'monster_active_member';
-    const STORAGE_LOCAL_TEAM = 'monster_local_team_data';
-    const STORAGE_PERSONAL_PTS = 'monster_personal_points';
-    const STORAGE_SFX_VOL = 'monster_sfx_vol';
-
-    function safeGetStorage(key, fallbackVal) {
-      try {
-        const v = localStorage.getItem(key);
-        return v !== null ? v : fallbackVal;
-      } catch (e) {
-        return fallbackVal;
-      }
-    }
-
-    function safeSetStorage(key, val) {
-      try {
-        localStorage.setItem(key, val);
-      } catch (e) {}
-    }
-
-    function safeRemoveStorage(key) {
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {}
-    }
-
-    const CRYPTO_VALUE = 10;
-    const WIN_POINTS = 10;
-    const LOSS_POINTS = 0;
+    const STORAGE_TEAM_KEY = 'monster_challenge_team_key_v1';
     const RANK_STEP = 10000;
-    const INTRO_SECONDS = 30;
 
-    let playMode = 'team';
-    let memberCount = 5;
-    let receiptBase64 = '';
-    let challengePhotosData = [];
-    let currentTeamId = safeGetStorage(STORAGE_TEAM_KEY, '');
-    let activeMemberName = safeGetStorage(STORAGE_MEMBER_KEY, '');
-    let personalPoints = Math.max(0, Number(safeGetStorage(STORAGE_PERSONAL_PTS, 0)));
-    let selectedMobileNumber = '';
+    let teamMode = 'solo';
+    let draftTeam = null;
+    let selectedPhone = '';
+    let receiptDataUrl = '';
+    let settings = {};
+    let gpsCoinsMap = {};
+    let currentTeamKey = localStorage.getItem(STORAGE_TEAM_KEY) || '';
     let currentTeamData = null;
-    let allTeamsMap = {};
-    let userCoords = null;
-    let gpsCoinsData = {};
-    let winBonusAppliedForCurrentWin = false;
+    let lastPlayerCoords = null;
     let teamRefListener = null;
-    let listenedTeamId = '';
-    let lastAlertTimestamp = 0;
-
-    try {
-      const savedLocal = safeGetStorage(STORAGE_LOCAL_TEAM, '');
-      if (savedLocal) currentTeamData = JSON.parse(savedLocal);
-    } catch (e) {}
-
-    let sfxVolume = Number(safeGetStorage(STORAGE_SFX_VOL, 100));
-    let audioCtx = null;
-
-    let settings = {
-      activePhones: ['01000000000', '01100000000', '01200000000'],
-      challengeText: 'في انتظار نص التحدي من الأدمن...',
-      requireChallengePhotos: false,
-      challengePhotoCount: 1,
-      cashPrizeAmount: '500 جنيه',
-      foodPrizeImage: '',
-      goodsPrizeImage: '',
-      voucherPrizeImage: '',
-      winPoints: 10,
-      lossPoints: 0,
-      deliveryPhones: ['', '', '', '', '', '', ''],
-      halfPriceFoodMenu: [],
-      nextChallengeSchedule: null,
-      broadcastMessage: null,
-      keyVault: {
-        enabled: false,
-        radiusMeters: 30,
-        vaultLat: null,
-        vaultLng: null,
-        earthUrl: '',
-        keys: [
-          { label: 'المفتاح 1', lat: null, lng: null },
-          { label: 'المفتاح 2', lat: null, lng: null },
-          { label: 'المفتاح 3', lat: null, lng: null }
-        ]
-      }
-    };
-
-    function setPersonalPoints(val) {
-      personalPoints = Math.max(0, Number(val || 0));
-      safeSetStorage(STORAGE_PERSONAL_PTS, String(personalPoints));
-      renderPersonalStats();
-    }
-
-    function renderPersonalStats() {
-      const s2Box = document.getElementById('s2PlayerStats');
-      const s2Pts = document.getElementById('s2PersonalPts');
-      const s2Rank = document.getElementById('s2PersonalRank');
-      const s2Grp = document.getElementById('s2CurrentGroupName');
-      if (s2Pts) s2Pts.textContent = personalPoints;
-      if (s2Rank) s2Rank.textContent = calcRank(personalPoints);
-      if (s2Grp) s2Grp.textContent = (currentTeamData && currentTeamData.name) ? currentTeamData.name : 'بدون مجموعة';
-      if (s2Box) {
-        s2Box.style.display = (personalPoints > 0 || currentTeamId) ? 'flex' : 'none';
-      }
-      const hudP = document.getElementById('hudPersonalPoints');
-      if (hudP) hudP.textContent = personalPoints;
-    }
-
-    function persistLocalTeam(obj) {
-      currentTeamData = obj;
-      try {
-        safeSetStorage(STORAGE_LOCAL_TEAM, JSON.stringify(obj));
-      } catch (e) {}
-      renderPersonalStats();
-    }
-
-    function ensureAudioCtx() {
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return null;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(function () {});
-        }
-        return audioCtx;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function playKeySound() {
-      const volRatio = Math.max(0, Math.min(1, sfxVolume / 100));
-      if (volRatio <= 0) return;
-      try {
-        const ctx = ensureAudioCtx();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(620, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.04);
-        gain.gain.setValueAtTime(0.12 * volRatio, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.08);
-      } catch (e) {}
-    }
-
-    function toggleAudioPanel() {
-      const panel = document.getElementById('audioPanel');
-      if (panel) panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function setSfxVolume(val) {
-      sfxVolume = Number(val);
-      safeSetStorage(STORAGE_SFX_VOL, sfxVolume);
-      const lbl = document.getElementById('sfxVolLabel');
-      if (lbl) lbl.textContent = sfxVolume + '%';
-      playKeySound();
-    }
-
-    try {
-      document.getElementById('sfxVolRange').value = sfxVolume;
-      document.getElementById('sfxVolLabel').textContent = sfxVolume + '%';
-    } catch (e) {}
-
-    document.addEventListener('click', function (ev) {
-      if (ev.target && ev.target.closest('button, .phone-option, .gear-btn')) {
-        playKeySound();
-      }
-    });
-
-    function requestNotificationPermission() {
-      const banner = document.getElementById('notifStatusBanner');
-      if (!('Notification' in window)) {
-        if (banner) {
-          banner.innerHTML = '🔔 التنبيهات داخل الصفحة مفعّلة (المتصفح لا يدعم إشعارات النظام).';
-          banner.style.display = 'block';
-        }
-        return;
-      }
-      if (Notification.permission === 'granted') {
-        if (banner) {
-          banner.innerHTML = '🔔 التنبيهات مفعّلة بالفعل وسيصلك إشعار عند مواعيد التحديات.';
-          banner.style.display = 'block';
-        }
-        return;
-      }
-      Notification.requestPermission().then(function (perm) {
-        if (banner) {
-          banner.innerHTML = perm === 'granted'
-            ? '✅ تم تفعيل التنبيهات بنجاح!'
-            : '⚠️ لم يتم منح إذن التنبيهات؛ ستظهر التنبيهات داخل الصفحة.';
-          banner.style.display = 'block';
-        }
-      }).catch(function () {});
-    }
-
-    function triggerBrowserNotification(title, body, ts) {
-      if (!ts || ts <= lastAlertTimestamp) return;
-      lastAlertTimestamp = ts;
-      try {
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification(title, { body: body });
-        }
-      } catch (e) {}
-    }
 
     function calcRank(points) {
-      const p = Math.max(0, Number(points || 0));
-      return Math.floor(p / RANK_STEP) + 1;
+      return Math.floor(Math.max(0, Number(points || 0)) / RANK_STEP) + 1;
     }
 
-    function getDeliveryPhoneForTeam() {
-      const phones = Array.isArray(settings.deliveryPhones) ? settings.deliveryPhones.filter(Boolean) : [];
-      if (!phones.length) return 'غير محدد من الأدمن';
-      const idx = currentTeamData && typeof currentTeamData.deliveryPhoneIndex === 'number'
-        ? Math.abs(currentTeamData.deliveryPhoneIndex) % phones.length
-        : 0;
-      return phones[idx] || phones[0];
-    }
-
-    function renderScheduleAndBroadcastBanners() {
-      const schedEl = document.getElementById('scheduleBanner');
-      const broadEl = document.getElementById('broadcastBanner');
-
-      const sched = settings.nextChallengeSchedule;
-      if (sched && (sched.scheduledAt || sched.note)) {
-        const dtStr = sched.scheduledAt
-          ? new Date(Number(sched.scheduledAt)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
-          : '';
-        schedEl.innerHTML = '⏰ <strong style="color:#FFD700;">تنبيه موعد التحدي:</strong> ' + (dtStr ? '<span>' + esc(dtStr) + '</span>' : '') + (sched.note ? '<div style="margin-top:4px;">' + esc(sched.note) + '</div>' : '');
-        schedEl.style.display = 'block';
-        if (sched.updatedAt) {
-          triggerBrowserNotification('موعد التحدي - صراع الوحوش', (dtStr ? dtStr + ' ' : '') + (sched.note || ''), Number(sched.updatedAt));
-        }
-      } else {
-        schedEl.style.display = 'none';
-      }
-
-      const teamBroadcast = currentTeamData && currentTeamData.broadcastMessage;
-      const globalBroadcast = settings.broadcastMessage;
-      const activeBroadcast = (teamBroadcast && (!globalBroadcast || (teamBroadcast.sentAt || 0) >= (globalBroadcast.sentAt || 0)))
-        ? teamBroadcast
-        : globalBroadcast;
-
-      if (activeBroadcast && activeBroadcast.text) {
-        broadEl.innerHTML = '📢 <strong style="color:#6EE7A8;">تنبيه من الأدمن:</strong> <div style="margin-top:4px;">' + esc(activeBroadcast.text) + '</div>';
-        broadEl.style.display = 'block';
-        if (activeBroadcast.sentAt) {
-          triggerBrowserNotification('تنبيه من الأدمن - صراع الوحوش', activeBroadcast.text, Number(activeBroadcast.sentAt));
-        }
-      } else {
-        broadEl.style.display = 'none';
-      }
-
-      const directMsg = currentTeamData && currentTeamData.adminMessage && currentTeamData.adminMessage.text;
-      ['s4AdminMsg', 's5AdminMsg', 's6AdminMsg'].forEach(function (id) {
-        const box = document.getElementById(id);
-        if (!box) return;
-        if (directMsg) {
-          box.innerHTML = '✉️ <strong style="color:#FFD700;">رسالة خاصة من الأدمن:</strong><div style="margin-top:4px;white-space:pre-wrap;">' + esc(directMsg) + '</div>';
-          box.style.display = 'block';
-        } else {
-          box.style.display = 'none';
-        }
+    function goToScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => {
+        el.classList.remove('active');
       });
-    }
-
-    let introFinished = false;
-    let introStartMs = Date.now();
-    let countdownInterval = null;
-
-    function stopIntroCountdown() {
-      introFinished = true;
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
 
-    function showScreen(id) {
-      if (id !== 's1') stopIntroCountdown();
-      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(function (s) {
-        const el = document.getElementById(s);
-        if (el) el.style.display = (s === id) ? 'block' : 'none';
-      });
-      renderScheduleAndBroadcastBanners();
-      renderPersonalStats();
-      if (id === 's2') {
-        renderMembershipControls();
-      } else if (id === 's5') {
-        if (currentTeamData) updateHud(currentTeamData);
-        renderChallengePhotoSlots();
-        startGpsRadar();
-        renderCrypoCoinsList();
-        renderVaultChallenge();
-      } else if (id === 's6') {
-        if (currentTeamData && currentTeamData.status === 'won') {
-          document.getElementById('winBox').style.display = 'block';
-          document.getElementById('lossBox').style.display = 'none';
-          if (currentTeamData.rewardChoice) renderWinPrize(currentTeamData.rewardChoice);
-        } else if (currentTeamData && currentTeamData.status === 'lost') {
-          document.getElementById('winBox').style.display = 'none';
-          document.getElementById('lossBox').style.display = 'block';
-          renderLossReward('half_food');
-        }
+    function setTeamMode(mode) {
+      teamMode = mode;
+      const btnSolo = document.getElementById('btnSoloMode');
+      const btnGroup = document.getElementById('btnGroupMode');
+      const countBox = document.getElementById('memberCountBox');
+      const countInp = document.getElementById('memberCountInput');
+
+      if (mode === 'solo') {
+        btnSolo.className = 'btn btn-gold';
+        btnGroup.className = 'btn btn-dark';
+        countBox.style.display = 'none';
+        countInp.value = 1;
+      } else {
+        btnGroup.className = 'btn btn-gold';
+        btnSolo.className = 'btn btn-dark';
+        countBox.style.display = 'block';
+        if (Number(countInp.value || 1) < 1) countInp.value = 2;
       }
+      renderMemberInputs();
     }
 
-    function startIntroCountdown() {
-      introFinished = false;
-      introStartMs = Date.now();
-      const timerEl = document.getElementById('countdownTimer');
-      if (timerEl) timerEl.textContent = String(INTRO_SECONDS);
+    function renderMemberInputs() {
+      const container = document.getElementById('membersContainer');
+      const countInp = document.getElementById('memberCountInput');
+      let count = teamMode === 'solo' ? 1 : Number(countInp.value || 1);
+      if (count < 1) count = 1;
+      if (count > 5) count = 5;
+      countInp.value = count;
 
-      if (countdownInterval) clearInterval(countdownInterval);
-      countdownInterval = setInterval(function () {
-        if (introFinished) {
-          stopIntroCountdown();
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const title = i === 0 ? 'بيانات العضو الأول (قائد الفريق)' : ('بيانات العضو ' + (i + 1));
+        html += `
+          <div class="member-box">
+            <strong style="color:#FFD700;">${title}</strong>
+            <label>الاسم</label>
+            <input type="text" class="m-name" id="mName_${i}" placeholder="اكتب الاسم">
+            <label>رقم التلفون</label>
+            <input type="tel" class="m-phone" id="mPhone_${i}" placeholder="01xxxxxxxxx" dir="ltr">
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function handleTeamNext() {
+      const errEl = document.getElementById('teamSetupErr');
+      errEl.textContent = '';
+
+      const teamName = document.getElementById('teamNameInput').value.trim();
+      if (!teamName) {
+        errEl.textContent = 'من فضلك اكتب اسم الفريق أولاً.';
+        return;
+      }
+
+      const count = teamMode === 'solo' ? 1 : Math.max(1, Math.min(5, Number(document.getElementById('memberCountInput').value || 1)));
+      const members = [];
+
+      for (let i = 0; i < count; i++) {
+        const nameEl = document.getElementById('mName_' + i);
+        const phoneEl = document.getElementById('mPhone_' + i);
+        const name = nameEl ? nameEl.value.trim() : '';
+        const phone = phoneEl ? phoneEl.value.trim() : '';
+        if (!name || !phone) {
+          errEl.textContent = 'من فضلك أكمل اسم ورقم تلفون العضو ' + (i + 1) + '.';
           return;
         }
-        const elapsedSec = Math.floor((Date.now() - introStartMs) / 1000);
-        const remaining = Math.max(0, INTRO_SECONDS - elapsedSec);
-        if (timerEl) timerEl.textContent = String(remaining);
-
-        if (remaining <= 0) {
-          stopIntroCountdown();
-          showScreen('s2');
-        }
-      }, 250);
-    }
-
-    startIntroCountdown();
-
-    function renderMembers() {
-      const wrap = document.getElementById('membersList');
-      if (!wrap) return;
-      const existingNames = Array.from(document.querySelectorAll('.m-name')).map(function (el) { return el.value; });
-      const existingPhones = Array.from(document.querySelectorAll('.m-phone')).map(function (el) { return el.value; });
-
-      wrap.innerHTML = '';
-      const count = (playMode === 'solo') ? 1 : Math.min(5, Math.max(1, memberCount));
-      for (let i = 0; i < count; i++) {
-        const box = document.createElement('div');
-        box.className = 'member-box';
-        const leaderBadge = (i === 0) ? '<span class="captain-tag">قائد المجموعة</span>' : '';
-        box.innerHTML =
-          '<label style="margin-top:0;">عضو (' + (i + 1) + ') ' + leaderBadge + '</label>' +
-          '<div class="row-2">' +
-            '<input type="text" class="m-name" placeholder="الاسم" value="' + escAttr(existingNames[i] || (i === 0 ? activeMemberName : '')) + '">' +
-            '<input type="tel" class="m-phone" placeholder="رقم التلفون" value="' + escAttr(existingPhones[i] || '') + '">' +
-          '</div>';
-        wrap.appendChild(box);
+        members.push({ name, phone });
       }
 
-      const sel = document.getElementById('memberCountSelect');
-      if (sel) {
-        sel.value = String(count);
-        sel.disabled = (playMode === 'solo');
-      }
-      const addBtn = document.getElementById('btnAddMember');
-      if (addBtn) addBtn.style.display = (playMode === 'team' && count < 5) ? 'block' : 'none';
+      draftTeam = {
+        name: teamName,
+        mode: teamMode,
+        members: members,
+        points: 0,
+        status: 'pending_payment',
+        createdAt: Date.now()
+      };
+
+      alert('تم تجهيز فريق: ' + teamName + ' بنجاح!');
+
+      document.getElementById('payTeamTitle').textContent = teamName + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
+      renderActivePhones();
+      goToScreen('screenPayment');
     }
 
-    function changeMemberCount(val) {
-      const n = Math.min(5, Math.max(1, Number(val || 1)));
-      memberCount = n;
-      renderMembers();
-    }
-
-    function setMode(mode) {
-      playMode = mode;
-      if (mode === 'solo') memberCount = 1;
-      document.getElementById('btnSolo').className = 'btn ' + (mode === 'solo' ? 'btn-gold' : 'btn-dark');
-      document.getElementById('btnTeam').className = 'btn ' + (mode === 'team' ? 'btn-gold' : 'btn-dark');
-      renderMembers();
-    }
-
-    function addMember() {
-      if (playMode === 'team' && memberCount < 5) {
-        memberCount++;
-        renderMembers();
-      }
-    }
-
-    renderMembers();
-
-    function isTeamNameDuplicate(candidateName) {
-      const norm = candidateName.trim().toLowerCase();
-      if (!norm) return false;
-      return Object.keys(allTeamsMap || {}).some(function (k) {
-        if (currentTeamId && k === currentTeamId) return false;
-        const t = allTeamsMap[k];
-        return t && String(t.name || '').trim().toLowerCase() === norm;
-      });
-    }
-
-    function renderMembershipControls() {
-      const box = document.getElementById('groupMembershipBox');
-      const info = document.getElementById('membershipInfo');
-      const sel = document.getElementById('otherGroupsSelect');
-      if (!box || !info || !sel) return;
-
-      const hasTeam = Boolean(currentTeamId && currentTeamData);
-      if (!hasTeam) {
-        box.style.display = 'none';
-        return;
-      }
-      box.style.display = 'block';
-
-      const members = Array.isArray(currentTeamData.members) && currentTeamData.members.length
-        ? currentTeamData.members
-        : [{ name: activeMemberName || 'عضو', phone: '' }];
-      const grpPts = Number(currentTeamData.points || 0);
-      const share = Math.floor(grpPts / members.length);
-
-      info.innerHTML = 'أنت حالياً في مجموعة <strong>' + esc(currentTeamData.name || '-') + '</strong> (نقاط المجموعة: <strong>' + grpPts + '</strong> ÷ ' + members.length + ' أفراد = نصيب الفرد التقريبي: <strong style="color:#6EE7A8;">' + share + '</strong> نقطة).';
-
-      sel.innerHTML = '<option value="">اختر مجموعة أخرى للانضمام إليها...</option>';
-      Object.keys(allTeamsMap || {}).forEach(function (k) {
-        if (k === currentTeamId) return;
-        const g = allTeamsMap[k];
-        if (!g || !g.name) return;
-        const opt = document.createElement('option');
-        opt.value = k;
-        opt.textContent = g.name + ' (نقاطها: ' + Number(g.points || 0) + ')';
-        sel.appendChild(opt);
-      });
-    }
-
-    function leaveCurrentGroup() {
-      const msgEl = document.getElementById('membershipMsg');
-      const errEl = document.getElementById('membershipErr');
-      msgEl.textContent = '';
-      errEl.textContent = '';
-
-      if (!currentTeamId || !currentTeamData) {
-        errEl.textContent = 'أنت غير منتمٍ لمجموعة حالياً.';
+    function renderActivePhones() {
+      const wrap = document.getElementById('activePhonesContainer');
+      const phones = Array.isArray(settings.activePhones) ? settings.activePhones.filter(Boolean) : [];
+      if (!phones.length) {
+        wrap.innerHTML = '<div class="muted">لا توجد أرقام تحويل مفعلة حالياً من الأدمن.</div>';
+        selectedPhone = '';
         return;
       }
 
-      const oldTeamKey = currentTeamId;
-      const oldTeam = Object.assign({}, currentTeamData);
-      const members = Array.isArray(oldTeam.members) ? oldTeam.members.slice() : [];
-      const totalCount = Math.max(1, members.length);
-      const oldPts = Number(oldTeam.points || 0);
-      const share = Math.floor(oldPts / totalCount);
-      const remPts = Math.max(0, oldPts - share);
-
-      const remainingMembers = members.filter(function (m) {
-        return !activeMemberName || String(m.name || '').trim() !== activeMemberName.trim();
-      });
-
-      setPersonalPoints(personalPoints + share);
-
-      if (db) {
-        const updates = {};
-        updates['teams/' + oldTeamKey + '/points'] = remPts;
-        if (remainingMembers.length > 0) {
-          updates['teams/' + oldTeamKey + '/members'] = remainingMembers;
-        }
-        db.ref().update(updates).catch(function () {});
+      if (!selectedPhone || !phones.includes(selectedPhone)) {
+        selectedPhone = phones[0];
       }
 
-      if (teamRefListener && listenedTeamId) {
-        db.ref('teams/' + listenedTeamId).off('value', teamRefListener);
-        teamRefListener = null;
-        listenedTeamId = '';
-      }
-
-      currentTeamId = '';
-      currentTeamData = null;
-      safeRemoveStorage(STORAGE_TEAM_KEY);
-      safeRemoveStorage(STORAGE_LOCAL_TEAM);
-      renderMembershipControls();
-      renderPersonalStats();
-      msgEl.textContent = 'تم ترك المجموعة بنجاح وأُضيفت حصتك (' + share + ' نقطة) إلى رصيدك.';
+      wrap.innerHTML = phones.map((ph, idx) => `
+        <div class="phone-chip ${ph === selectedPhone ? 'selected' : ''}" onclick="chooseTransferPhone('${escAttr(ph)}')">
+          <div>
+            <strong style="color:#FFD700;">رقم التحويل ${idx + 1}:</strong>
+            <span dir="ltr" style="font-size:15px;font-weight:bold;margin-right:6px;">${esc(ph)}</span>
+          </div>
+          <span style="color:#6EE7A8;font-size:12px;">${ph === selectedPhone ? 'محدد ✓' : 'اختيار'}</span>
+        </div>
+      `).join('');
     }
 
-    function joinAnotherGroup() {
-      const msgEl = document.getElementById('membershipMsg');
-      const errEl = document.getElementById('membershipErr');
-      const sel = document.getElementById('otherGroupsSelect');
-      msgEl.textContent = '';
-      errEl.textContent = '';
-
-      const targetKey = sel ? sel.value : '';
-      if (!targetKey || !allTeamsMap[targetKey]) {
-        errEl.textContent = 'من فضلك اختر مجموعة أخرى للانضمام إليها.';
-        return;
-      }
-
-      const targetGroup = allTeamsMap[targetKey];
-      let transferredShare = 0;
-
-      if (currentTeamId && currentTeamData) {
-        const oldMembers = Array.isArray(currentTeamData.members) ? currentTeamData.members.slice() : [];
-        const oldCount = Math.max(1, oldMembers.length);
-        const oldPts = Number(currentTeamData.points || 0);
-        transferredShare = Math.floor(oldPts / oldCount);
-        const newOldPts = Math.max(0, oldPts - transferredShare);
-        const filteredOldMembers = oldMembers.filter(function (m) {
-          return !activeMemberName || String(m.name || '').trim() !== activeMemberName.trim();
-        });
-
-        if (db) {
-          const oldPatch = { points: newOldPts };
-          if (filteredOldMembers.length > 0) oldPatch.members = filteredOldMembers;
-          db.ref('teams/' + currentTeamId).update(oldPatch).catch(function () {});
-        }
-      }
-
-      const totalIncomingPts = personalPoints + transferredShare;
-      setPersonalPoints(totalIncomingPts);
-
-      const targetMembers = Array.isArray(targetGroup.members) ? targetGroup.members.slice() : [];
-      const memberLabel = activeMemberName || (document.querySelector('.m-name') && document.querySelector('.m-name').value.trim()) || 'عضو منضم';
-      if (!targetMembers.some(function (m) { return String(m.name || '').trim() === memberLabel.trim(); })) {
-        targetMembers.push({ name: memberLabel, phone: '' });
-      }
-      const nextTargetPts = Number(targetGroup.points || 0) + totalIncomingPts;
-
-      if (teamRefListener && listenedTeamId) {
-        db.ref('teams/' + listenedTeamId).off('value', teamRefListener);
-        teamRefListener = null;
-        listenedTeamId = '';
-      }
-
-      currentTeamId = targetKey;
-      safeSetStorage(STORAGE_TEAM_KEY, currentTeamId);
-
-      const updatedTarget = Object.assign({}, targetGroup, {
-        id: targetKey,
-        members: targetMembers,
-        points: nextTargetPts
-      });
-      persistLocalTeam(updatedTarget);
-
-      if (db) {
-        db.ref('teams/' + targetKey).update({
-          members: targetMembers,
-          points: nextTargetPts
-        }).then(function () {
-          watchTeam();
-        }).catch(function () {});
-      }
-
-      renderMembershipControls();
-      msgEl.textContent = 'تم انضمامك إلى مجموعة (' + targetGroup.name + ') وتم نقل ' + totalIncomingPts + ' نقطة إليها.';
+    function chooseTransferPhone(ph) {
+      selectedPhone = ph;
+      renderActivePhones();
     }
 
-    function goStep3() {
-      const err = document.getElementById('err2');
-      const teamName = document.getElementById('teamName').value.trim();
-      const names = document.querySelectorAll('.m-name');
-      const phones = document.querySelectorAll('.m-phone');
-
-      if (!teamName) {
-        err.textContent = 'من فضلك اكتب اسم الفريق';
+    function handleReceiptFile(input) {
+      const file = input.files && input.files[0];
+      const img = document.getElementById('receiptPreviewImg');
+      if (!file) {
+        receiptDataUrl = '';
+        img.style.display = 'none';
         return;
       }
-      if (isTeamNameDuplicate(teamName)) {
-        err.textContent = 'الاسم موجود بالفعل اختر اسم اخر';
-        return;
-      }
-      if (!names[0].value.trim() || !phones[0].value.trim()) {
-        err.textContent = 'من فضلك اكتب اسم ورقم تلفون قائد المجموعة (العضو الأول)';
-        return;
-      }
-
-      err.textContent = '';
-      renderThreeMobileChoices();
-      showScreen('s3');
-    }
-
-    function renderThreeMobileChoices() {
-      const wrap = document.getElementById('payPhonesList');
-      if (!wrap) return;
-      const rawList = Array.isArray(settings.activePhones) && settings.activePhones.length
-        ? settings.activePhones.filter(Boolean)
-        : ['01000000000', '01100000000', '01200000000'];
-
-      const threePhones = rawList.slice(0, 3);
-      while (threePhones.length < 3) {
-        threePhones.push('01000000000');
-      }
-
-      if (!selectedMobileNumber || !threePhones.includes(selectedMobileNumber)) {
-        selectedMobileNumber = threePhones[0];
-      }
-
-      wrap.innerHTML = '';
-      threePhones.forEach(function (ph, idx) {
-        const item = document.createElement('div');
-        item.className = 'phone-option' + (ph === selectedMobileNumber ? ' active' : '');
-        item.textContent = 'موبايل ' + (idx + 1) + ': ' + ph;
-        item.onclick = function () {
-          selectedMobileNumber = ph;
-          renderThreeMobileChoices();
-        };
-        wrap.appendChild(item);
-      });
-    }
-
-    renderThreeMobileChoices();
-
-    function compressImageFile(file, callback) {
       const reader = new FileReader();
-      reader.onload = function (ev) {
-        const img = new Image();
-        img.onload = function () {
+      reader.onload = ev => {
+        const image = new Image();
+        image.onload = () => {
           const canvas = document.createElement('canvas');
           const maxW = 800;
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          callback(canvas.toDataURL('image/jpeg', 0.7));
+          const scale = image.width > maxW ? maxW / image.width : 1;
+          canvas.width = image.width * scale;
+          canvas.height = image.height * scale;
+          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+          receiptDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          img.src = receiptDataUrl;
+          img.style.display = 'block';
         };
-        img.src = ev.target.result;
+        image.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function handleReceiptSelection(file) {
-      if (!file) return;
-      document.getElementById('receiptFileName').textContent = 'الملف المختار: ' + file.name;
-      compressImageFile(file, function (dataUrl) {
-        receiptBase64 = dataUrl;
-        const prev = document.getElementById('receiptPreview');
-        prev.src = receiptBase64;
-        prev.style.display = 'block';
-      });
-    }
+    function submitPaymentAndRegister() {
+      const errEl = document.getElementById('paymentErr');
+      const okEl = document.getElementById('paymentOk');
+      errEl.textContent = '';
+      okEl.textContent = '';
 
-    document.getElementById('galleryInput').addEventListener('change', function () {
-      handleReceiptSelection(this.files && this.files[0]);
-    });
-
-    document.getElementById('cameraInput').addEventListener('change', function () {
-      handleReceiptSelection(this.files && this.files[0]);
-    });
-
-    function submitRegistration() {
-      const err = document.getElementById('err3');
-      const teamName = document.getElementById('teamName').value.trim();
-
-      if (isTeamNameDuplicate(teamName)) {
-        err.textContent = 'الاسم موجود بالفعل اختر اسم اخر';
-        return;
-      }
-      if (!selectedMobileNumber) {
-        err.textContent = 'من فضلك اختر رقم الموبايل الذي أرسلت إليه التحويل';
-        return;
-      }
-      if (!receiptBase64) {
-        err.textContent = 'من فضلك اختر صورة الإيصال من الاستديو أو صوّر بالكاميرا';
+      if (!draftTeam) {
+        errEl.textContent = 'برجاء تجهيز بيانات الفريق أولاً.';
+        goToScreen('screenTeamSetup');
         return;
       }
 
-      err.textContent = '';
-      document.getElementById('submitBtn').disabled = true;
-
-      const members = [];
-      const names = document.querySelectorAll('.m-name');
-      const phones = document.querySelectorAll('.m-phone');
-      for (let i = 0; i < names.length; i++) {
-        const n = names[i].value.trim();
-        const p = phones[i].value.trim();
-        if (n || p) members.push({ name: n, phone: p, isCaptain: i === 0 });
+      const amount = Math.max(1, Number(document.getElementById('payAmountInput').value || 100));
+      if (!selectedPhone) {
+        errEl.textContent = 'برجاء اختيار رقم التحويل.';
+        return;
       }
-
-      const initialPts = personalPoints;
-      const teamKey = teamName.replace(/[.#$/[\]]/g, '_') + '_' + Date.now();
-      currentTeamId = teamKey;
-      safeSetStorage(STORAGE_TEAM_KEY, currentTeamId);
-
-      if (members[0] && members[0].name) {
-        activeMemberName = members[0].name;
-        safeSetStorage(STORAGE_MEMBER_KEY, activeMemberName);
+      if (!receiptDataUrl) {
+        errEl.textContent = 'برجاء رفع صورة إيصال التحويل أولاً.';
+        return;
       }
 
       const teamPayload = {
-        id: currentTeamId,
-        name: teamName,
-        mode: playMode,
-        members: members,
-        amount: 100,
-        selectedPhone: selectedMobileNumber,
-        receiptImage: receiptBase64,
+        ...draftTeam,
+        amount: amount,
+        selectedPhone: selectedPhone,
+        receiptImage: receiptDataUrl,
         status: 'pending',
-        points: initialPts,
-        crypoCoins: 0,
-        createdAt: Date.now()
+        updatedAt: Date.now()
       };
 
-      persistLocalTeam(teamPayload);
-      stopIntroCountdown();
-      document.getElementById('s4Title').textContent = 'جاري التحقق من البيانات';
-      document.getElementById('s4Subtitle').textContent = 'برجاء الانتظار حتى يقوم الأدمن بمراجعة بيانات الفريق والاشتراك.';
-      document.getElementById('s4RejectedBox').style.display = 'none';
-      document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + teamName;
-      showScreen('s4');
-
-      if (db) {
-        db.ref('teams/' + currentTeamId).set(teamPayload).then(function () {
-          document.getElementById('submitBtn').disabled = false;
-          watchTeam();
-        }).catch(function (e) {
-          document.getElementById('submitBtn').disabled = false;
-          err.textContent = 'تعذر الحفظ السحابي: ' + e.message;
-        });
-      } else {
-        document.getElementById('submitBtn').disabled = false;
-      }
-    }
-
-    function updateHud(d) {
-      const pts = Number(d.points || 0);
-      document.getElementById('hudTeamName').textContent = d.name || '-';
-      document.getElementById('hudPoints').textContent = pts;
-      document.getElementById('hudPersonalPoints').textContent = personalPoints;
-      document.getElementById('hudRank').textContent = calcRank(pts);
-
-      const sel = document.getElementById('activeMemberSelect');
-      const callsWrap = document.getElementById('teamMateCalls');
-      const members = Array.isArray(d.members) ? d.members : [];
-
-      sel.innerHTML = '<option value="">اختر اسمك داخل الفريق</option>';
-      callsWrap.innerHTML = '';
-
-      members.forEach(function (m, idx) {
-        const label = m.name || ('عضو ' + (idx + 1));
-        const roleSuffix = idx === 0 ? ' [قائد المجموعة]' : '';
-        const opt = document.createElement('option');
-        opt.value = label;
-        opt.textContent = label + roleSuffix + (m.phone ? ' (' + m.phone + ')' : '');
-        if (label === activeMemberName) opt.selected = true;
-        sel.appendChild(opt);
-
-        if (m.phone) {
-          const link = document.createElement('a');
-          link.className = 'call-chip';
-          link.href = 'tel:' + m.phone.replace(/[^+\d]/g, '');
-          link.textContent = '📞 ' + label + ': ' + m.phone;
-          callsWrap.appendChild(link);
-        }
+      const newRef = db.ref('teams').push();
+      newRef.set(teamPayload).then(() => {
+        currentTeamKey = newRef.key;
+        localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
+        okEl.textContent = 'تم إرسال الإيصال وتسجيل الفريق بنجاح!';
+        subscribeToCurrentTeam();
+        goToScreen('screenWaiting');
+      }).catch(() => {
+        errEl.textContent = 'حدث خطأ أثناء إرسال البيانات، حاول مرة أخرى.';
       });
     }
 
-    function selectActiveMember(name) {
-      activeMemberName = name || '';
-      if (activeMemberName) safeSetStorage(STORAGE_MEMBER_KEY, activeMemberName);
-      else safeRemoveStorage(STORAGE_MEMBER_KEY);
-    }
-
-    function watchTeam() {
-      if (!db || !currentTeamId) return;
-      if (teamRefListener && listenedTeamId) {
-        db.ref('teams/' + listenedTeamId).off('value', teamRefListener);
+    function subscribeToCurrentTeam() {
+      if (teamRefListener) {
+        db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
+        teamRefListener = null;
       }
-      stopIntroCountdown();
-      listenedTeamId = currentTeamId;
-      teamRefListener = function (snap) {
-        if (!snap.exists()) return;
-        const d = snap.val();
-        persistLocalTeam(d);
-        updateHud(d);
-        renderChallengePhotoSlots();
-        renderVaultChallenge();
-        renderScheduleAndBroadcastBanners();
+      if (!currentTeamKey) return;
 
-        if (d.status !== 'won') {
-          winBonusAppliedForCurrentWin = false;
+      const fn = snap => {
+        if (!snap.exists()) {
+          localStorage.removeItem(STORAGE_TEAM_KEY);
+          currentTeamKey = '';
+          currentTeamData = null;
+          goToScreen('screenTeamSetup');
+          return;
         }
-
-        if (d.status === 'pending') {
-          document.getElementById('s4Title').textContent = 'جاري التحقق من البيانات';
-          document.getElementById('s4Subtitle').textContent = 'برجاء الانتظار حتى يقوم الأدمن بمراجعة بيانات الفريق والاشتراك.';
-          document.getElementById('s4RejectedBox').style.display = 'none';
-          document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + (d.name || '');
-          showScreen('s4');
-        } else if (d.status === 'rejected') {
-          document.getElementById('s4Title').textContent = 'بيانات خاطئة';
-          document.getElementById('s4Subtitle').textContent = 'تم رفض طلب الاشتراك لوجود خطأ في البيانات أو الإيصال.';
-          document.getElementById('s4RejectedBox').style.display = 'block';
-          document.getElementById('s4TeamLabel').textContent = 'الفريق: ' + (d.name || '');
-          showScreen('s4');
-        } else if (d.status === 'approved' || d.status === 'challenge') {
-          showScreen('s5');
-        } else if (d.status === 'won') {
-          showScreen('s6');
-          document.getElementById('winBox').style.display = 'block';
-          document.getElementById('lossBox').style.display = 'none';
-          const winPtsVal = Number(settings.winPoints !== undefined ? settings.winPoints : WIN_POINTS);
-          if (!winBonusAppliedForCurrentWin && !d.winPointsAwardedAt) {
-            winBonusAppliedForCurrentWin = true;
-            const nextPts = Number(d.points || 0) + winPtsVal;
-            setPersonalPoints(personalPoints + winPtsVal);
-            db.ref('teams/' + currentTeamId).update({
-              points: nextPts,
-              winPointsAwardedAt: Date.now()
-            }).catch(function () {});
-          }
-          if (d.rewardChoice) renderWinPrize(d.rewardChoice);
-        } else if (d.status === 'lost') {
-          showScreen('s6');
-          document.getElementById('winBox').style.display = 'none';
-          document.getElementById('lossBox').style.display = 'block';
-          renderLossReward('half_food');
-        }
+        currentTeamData = { key: snap.key, ...snap.val() };
+        syncScreenWithTeamState();
       };
-      db.ref('teams/' + currentTeamId).on('value', teamRefListener);
+
+      db.ref('teams/' + currentTeamKey).on('value', fn);
+      teamRefListener = { key: currentTeamKey, fn };
     }
 
-    function renderChallengePhotoSlots() {
-      const box = document.getElementById('challengeImageBox');
-      const slotsWrap = document.getElementById('challengePhotoSlots');
-      const hint = document.getElementById('challengePhotosHint');
-      if (!box || !slotsWrap) return;
+    function syncScreenWithTeamState() {
+      if (!currentTeamData) return;
+      const st = currentTeamData.status || 'pending';
+      const pts = Number(currentTeamData.points || 0);
+      const rank = calcRank(pts);
 
-      const enabled = Boolean(settings.requireChallengePhotos);
-      const reqCount = Math.max(1, Math.min(10, Number(settings.challengePhotoCount || 1)));
-
-      if (!enabled) {
-        box.style.display = 'none';
-        return;
-      }
-
-      box.style.display = 'block';
-      if (challengePhotosData.length !== reqCount) {
-        challengePhotosData = new Array(reqCount).fill('');
-      }
-      hint.textContent = 'الأدمن طلب عدد (' + reqCount + ') صورة للتحدي — التقط أو اختر الصور المطلوبة ثم اضغط إرسال الصور.';
-
-      slotsWrap.innerHTML = '';
-      for (let i = 0; i < reqCount; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'photo-slot-box';
-        const hasImg = Boolean(challengePhotosData[i]);
-        slot.innerHTML =
-          '<div style="font-weight:bold;color:#FFE99E;">صورة التحدي رقم (' + (i + 1) + ')</div>' +
-          '<input type="file" id="chGal_' + i + '" accept="image/*" style="display:none;" onchange="handleChallengeSlotFile(' + i + ', this.files && this.files[0])">' +
-          '<input type="file" id="chCam_' + i + '" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengeSlotFile(' + i + ', this.files && this.files[0])">' +
-          '<div class="row-2" style="margin-top:6px;">' +
-            '<button type="button" class="btn btn-dark" style="margin-top:0;" onclick="document.getElementById(\'chGal_' + i + '\').click()">🖼️ الاستديو</button>' +
-            '<button type="button" class="btn btn-gold" style="margin-top:0;" onclick="document.getElementById(\'chCam_' + i + '\').click()">📷 الكاميرا</button>' +
-          '</div>' +
-          '<div id="chStatus_' + i + '" class="msg-ok" style="text-align:right;">' + (hasImg ? '✅ تم تجهيز الصورة (' + (i + 1) + ')' : '') + '</div>' +
-          '<img id="chPrev_' + i + '" class="preview" src="' + (hasImg ? escAttr(challengePhotosData[i]) : '') + '" style="display:' + (hasImg ? 'block' : 'none') + ';" alt="صورة ' + (i + 1) + '">';
-        slotsWrap.appendChild(slot);
-      }
-    }
-
-    function handleChallengeSlotFile(idx, file) {
-      if (!file) return;
-      document.getElementById('imgErr').textContent = '';
-      compressImageFile(file, function (dataUrl) {
-        challengePhotosData[idx] = dataUrl;
-        const prev = document.getElementById('chPrev_' + idx);
-        const st = document.getElementById('chStatus_' + idx);
-        if (prev) {
-          prev.src = dataUrl;
-          prev.style.display = 'block';
-        }
-        if (st) {
-          st.textContent = '✅ تم تجهيز الصورة رقم (' + (idx + 1) + ')';
+      const directMsg = (currentTeamData.adminMessage && currentTeamData.adminMessage.text) || '';
+      ['teamDirectMsgBox', 'chDirectMsgBox'].forEach(id => {
+        const box = document.getElementById(id);
+        if (!box) return;
+        if (directMsg) {
+          box.style.display = 'block';
+          box.innerHTML = '<strong style="color:#FFD700;">✉️ رسالة من الأدمن:</strong> <span style="color:#6EE7A8;">' + esc(directMsg) + '</span>';
+        } else {
+          box.style.display = 'none';
         }
       });
+
+      if (st === 'approved' || st === 'challenge') {
+        document.getElementById('chTeamName').textContent = currentTeamData.name || '-';
+        document.getElementById('chPoints').textContent = pts;
+        document.getElementById('chRank').textContent = rank;
+        document.getElementById('chTextBox').textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
+
+        const photoSec = document.getElementById('challengePhotoSection');
+        if (settings.requireChallengePhotos) {
+          photoSec.style.display = 'block';
+          const cnt = Math.max(1, Number(settings.challengePhotoCount || 1));
+          document.getElementById('chPhotoLabel').textContent = 'إرسال صور التحدي (المطلوب: ' + cnt + ' صورة)';
+        } else {
+          photoSec.style.display = 'none';
+        }
+
+        renderGpsCoinsForPlayer();
+        renderKeyVaultForPlayer();
+        goToScreen('screenChallenge');
+        return;
+      }
+
+      if (st === 'won') {
+        renderWinResultScreen(pts, rank);
+        goToScreen('screenResult');
+        return;
+      }
+
+      if (st === 'lost') {
+        renderLossResultScreen(pts, rank);
+        goToScreen('screenResult');
+        return;
+      }
+
+      const waitBox = document.getElementById('waitingStatusBox');
+      if (st === 'rejected') {
+        waitBox.innerHTML = `<div class="msg-err" style="font-size:15px;">تم رفض طلب فريق <strong>${esc(currentTeamData.name || '')}</strong> لوجود خطأ في البيانات أو الإيصال. يمكنك تسجيل فريق جديد.</div>`;
+      } else {
+        waitBox.innerHTML = `<div>الفريق: <strong style="color:#FFD700;">${esc(currentTeamData.name || '-')}</strong></div><div style="margin-top:6px;">الحالة الحالية: <strong style="color:#FFD700;">قيد مراجعة الأدمن وتأكيد التحويل...</strong></div>`;
+      }
+      goToScreen('screenWaiting');
     }
 
-    function sendChallengeImages() {
-      const err = document.getElementById('imgErr');
-      const ok = document.getElementById('imgMsg');
-      err.textContent = '';
-      ok.textContent = '';
+    function uploadChallengePhotos() {
+      const errEl = document.getElementById('chPhotoErr');
+      const okEl = document.getElementById('chPhotoMsg');
+      errEl.textContent = '';
+      okEl.textContent = '';
 
-      if (!settings.requireChallengePhotos) {
-        err.textContent = 'التقاط الصور غير مطلوب حالياً من الأدمن.';
+      if (!currentTeamKey) return;
+      const input = document.getElementById('chPhotosInput');
+      const files = Array.from((input && input.files) || []);
+      const requiredCount = Math.max(1, Number(settings.challengePhotoCount || 1));
+
+      if (files.length < requiredCount) {
+        errEl.textContent = 'مطلوب إرسال ' + requiredCount + ' صورة على الأقل.';
         return;
       }
 
-      const reqCount = Math.max(1, Math.min(10, Number(settings.challengePhotoCount || 1)));
-      const missingIdx = [];
-      for (let i = 0; i < reqCount; i++) {
-        if (!challengePhotosData[i]) missingIdx.push(i + 1);
-      }
-
-      if (missingIdx.length > 0) {
-        err.textContent = 'من فضلك أكمل الصور المطلوبة؛ ينقصك صورة رقم: ' + missingIdx.join('، ');
-        return;
-      }
-
-      const btn = document.getElementById('sendImgBtn');
-      btn.disabled = true;
-
-      const subPayload = {
-        type: 'images_batch',
-        images: challengePhotosData.slice(0, reqCount),
-        data: challengePhotosData[0],
-        memberName: activeMemberName || (currentTeamData && currentTeamData.name) || 'عضو',
-        sentAt: Date.now()
-      };
-
-      const nextTeam = Object.assign({}, currentTeamData || { id: currentTeamId || 'local', name: 'فريق', points: 0 });
-      nextTeam.submissions = Object.assign({}, nextTeam.submissions || {}, { ['sub_' + Date.now()]: subPayload });
-      persistLocalTeam(nextTeam);
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId + '/submissions').push(subPayload).then(function () {
-          btn.disabled = false;
-          ok.textContent = 'تم إرسال (' + reqCount + ') صور للتحدي بنجاح!';
-          challengePhotosData = new Array(reqCount).fill('');
-          renderChallengePhotoSlots();
-        }).catch(function (e) {
-          btn.disabled = false;
-          err.textContent = 'تعذر الإرسال السحابي: ' + e.message;
+      Promise.all(files.map(file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxW = 750;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }))).then(images => {
+        const leaderName = (currentTeamData && currentTeamData.members && currentTeamData.members[0] && currentTeamData.members[0].name) || currentTeamData.name || 'عضو';
+        return db.ref('teams/' + currentTeamKey + '/submissions').push({
+          memberName: leaderName,
+          images: images,
+          sentAt: Date.now()
         });
-      } else {
-        btn.disabled = false;
-        ok.textContent = 'تم حفظ (' + reqCount + ') صور محلياً.';
-      }
+      }).then(() => {
+        okEl.textContent = 'تم إرسال صور التحدي للأدمن بنجاح!';
+        input.value = '';
+      });
     }
 
     function distanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371000;
-      const toRad = function (x) { return x * Math.PI / 180; };
+      const toRad = d => d * Math.PI / 180;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
-      const s1 = Math.sin(dLat / 2);
-      const s2 = Math.sin(dLon / 2);
-      const a = (s1 * s1) + (s2 * s2) * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2));
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
       return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    function startGpsRadar() {
-      const st = document.getElementById('gpsStatus');
-      if (!st) return;
+    function refreshPlayerLocation() {
+      const statusEl = document.getElementById('playerGpsStatus');
       if (!navigator.geolocation) {
-        st.textContent = 'المتصفح لا يدعم خدمة الموقع الجغرافي GPS.';
+        statusEl.textContent = 'الجهاز لا يدعم GPS.';
         return;
       }
-      st.textContent = 'جاري قراءة موقعك عبر GPS...';
+      statusEl.textContent = 'جاري تحديد موقعك...';
       navigator.geolocation.getCurrentPosition(
-        function (pos) {
-          userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          st.textContent = 'موقعك نشط (' + userCoords.lat.toFixed(5) + ', ' + userCoords.lng.toFixed(5) + ')';
-          renderCrypoCoinsList();
-          renderVaultChallenge();
+        pos => {
+          lastPlayerCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          statusEl.textContent = 'تم تحديث موقعك (' + lastPlayerCoords.lat.toFixed(5) + ', ' + lastPlayerCoords.lng.toFixed(5) + ').';
+          renderGpsCoinsForPlayer();
+          renderKeyVaultForPlayer();
         },
-        function () {
-          st.textContent = 'تعذر الوصول للموقع؛ فعّل GPS واسمح بالوصول للموقع.';
+        () => {
+          statusEl.textContent = 'تعذر تحديد الموقع، يرجى تفعيل صلاحية الموقع GPS.';
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
 
-    function renderCrypoCoinsList() {
-      const wrap = document.getElementById('crypoCoinsList');
+    function renderGpsCoinsForPlayer() {
+      const wrap = document.getElementById('gpsCoinsContainer');
       if (!wrap) return;
-      const entries = Object.keys(gpsCoinsData || {}).map(function (id) { return Object.assign({ id: id }, gpsCoinsData[id]); })
-        .filter(function (c) { return !c.claimedBy; });
-
-      if (!entries.length) {
+      const keys = Object.keys(gpsCoinsMap || {});
+      if (!keys.length) {
         wrap.innerHTML = '<div class="muted" style="margin-top:8px;">لا توجد عملات Crypo متاحة حالياً.</div>';
         return;
       }
 
-      wrap.innerHTML = '';
-      entries.forEach(function (coin) {
-        const radius = Number(coin.radiusMeters || 30);
-        let distText = 'بانتظار GPS';
+      wrap.innerHTML = keys.map(cid => {
+        const c = gpsCoinsMap[cid];
+        const claimed = Boolean(c.claimedBy);
+        const radius = Number(c.radiusMeters || 30);
+        let distText = 'حدّث موقعك لمعرفة المسافة';
         let canClaim = false;
 
-        if (userCoords && typeof coin.lat === 'number' && typeof coin.lng === 'number') {
-          const d = Math.round(distanceMeters(userCoords.lat, userCoords.lng, coin.lat, coin.lng));
-          distText = 'المسافة: ' + d + ' متر (النطاق المطلوب: ' + radius + ' م)';
-          if (d <= radius) canClaim = true;
+        if (lastPlayerCoords && typeof c.lat === 'number' && typeof c.lng === 'number') {
+          const dist = Math.round(distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, c.lat, c.lng));
+          distText = 'المسافة الحالية: ' + dist + ' متر (النطاق المطلوب: ' + radius + ' متر)';
+          canClaim = !claimed && dist <= radius;
         }
 
-        const box = document.createElement('div');
-        box.className = 'coin-item';
-        box.innerHTML =
-          '<div><strong style="color:#FFD700;">🪙 ' + esc(coin.label || 'Crypo Coin') + '</strong> — <span style="color:#6EE7A8;">+' + CRYPTO_VALUE + ' نقاط</span></div>' +
-          '<div class="muted">' + distText + '</div>' +
-          '<button type="button" class="btn ' + (canClaim ? 'btn-green' : 'btn-dark') + '" ' + (canClaim ? '' : 'disabled') + ' onclick="claimCrypoCoin(\'' + escAttr(coin.id) + '\')">' +
-            (canClaim ? 'التقاط عملة Crypo (+10 نقاط)' : 'اقترب أكثر لالتقاط Crypo') +
-          '</button>';
-        wrap.appendChild(box);
-      });
+        return `
+          <div class="coin-item">
+            <strong style="color:#FFD700;">🪙 ${esc(c.label || 'Crypo Coin')}</strong> (+${Number(c.pointsValue || 10)} نقاط)
+            <div class="muted">${esc(distText)}</div>
+            ${claimed
+              ? `<div class="muted" style="color:#6EE7A8;">تم التقاطها بواسطة: ${esc(c.claimedByTeamName || c.claimedBy)}</div>`
+              : `<button type="button" class="btn btn-gold" ${canClaim ? '' : 'disabled'} onclick="claimCrypoCoin('${escAttr(cid)}')">${canClaim ? 'التقاط العملة الآن' : 'اقترب أكثر أو حدّث الموقع'}</button>`
+            }
+          </div>
+        `;
+      }).join('');
     }
 
     function claimCrypoCoin(coinId) {
-      if (!coinId) return;
-      const coin = gpsCoinsData[coinId];
+      if (!currentTeamKey || !currentTeamData) return;
+      const coin = gpsCoinsMap[coinId];
       if (!coin || coin.claimedBy) return;
 
-      const coinPts = Number(coin.pointsValue || CRYPTO_VALUE);
-      const currentPts = Number((currentTeamData && currentTeamData.points) || 0);
-      const currentCoins = Number((currentTeamData && currentTeamData.crypoCoins) || 0);
-
-      setPersonalPoints(personalPoints + coinPts);
-      const nextTeam = Object.assign({}, currentTeamData || {}, {
-        points: currentPts + coinPts,
-        crypoCoins: currentCoins + 1
-      });
-      persistLocalTeam(nextTeam);
-      updateHud(nextTeam);
-
-      if (db && currentTeamId) {
-        db.ref('gpsCoins/' + coinId).update({
-          claimedBy: currentTeamId,
-          claimedByTeamName: nextTeam.name || 'فريق',
-          claimedByMember: activeMemberName || '',
+      const ptsToAdd = Number(coin.pointsValue || 10);
+      db.ref('gpsCoins/' + coinId).transaction(curr => {
+        if (!curr || curr.claimedBy) return;
+        return {
+          ...curr,
+          claimedBy: currentTeamKey,
+          claimedByTeamName: currentTeamData.name || 'فريق',
           claimedAt: Date.now()
-        }).then(function () {
-          return db.ref('teams/' + currentTeamId).update({
-            points: nextTeam.points,
-            crypoCoins: nextTeam.crypoCoins
-          });
-        }).catch(function () {});
-      }
+        };
+      }).then(res => {
+        if (res.committed) {
+          const nextPts = Number(currentTeamData.points || 0) + ptsToAdd;
+          db.ref('teams/' + currentTeamKey).update({ points: nextPts, updatedAt: Date.now() });
+        }
+      });
     }
 
-    function renderVaultChallenge() {
-      const box = document.getElementById('vaultChallengeBox');
-      if (!box) return;
+    function renderKeyVaultForPlayer() {
+      const sec = document.getElementById('vaultSection');
       const kv = settings.keyVault || {};
       if (!kv.enabled) {
-        box.style.display = 'none';
+        sec.style.display = 'none';
         return;
       }
-      box.style.display = 'block';
-
-      const radius = Number(kv.radiusMeters || 30);
-      const collectedKeys = (currentTeamData && currentTeamData.collectedKeys) || {};
-      const keysArr = Array.isArray(kv.keys) ? kv.keys.slice(0, 3) : [];
-      const earthWrap = document.getElementById('vaultEarthLinkWrap');
-
-      if (kv.earthUrl) {
-        earthWrap.innerHTML = '<a href="' + escAttr(kv.earthUrl) + '" target="_blank" style="color:#7CC6FE;font-size:13px;">🌍 فتح موقع الخزنة على Google Earth</a>';
-      } else if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number') {
-        earthWrap.innerHTML = '<a href="https://earth.google.com/web/@' + kv.vaultLat + ',' + kv.vaultLng + ',150a" target="_blank" style="color:#7CC6FE;font-size:13px;">🌍 معاينة إحداثيات الخزنة على Google Earth</a>';
-      } else {
-        earthWrap.innerHTML = '';
-      }
-
-      const listEl = document.getElementById('vaultKeysList');
-      listEl.innerHTML = '';
-      let foundCount = 0;
-
-      for (let i = 0; i < 3; i++) {
-        const keyCfg = keysArr[i] || { label: 'مفتاح ' + (i + 1), lat: null, lng: null };
-        const keyId = 'key_' + i;
-        const alreadyFound = Boolean(collectedKeys[keyId]);
-        if (alreadyFound) foundCount++;
-
-        let distText = 'بانتظار GPS';
-        let nearEnough = false;
-
-        if (!alreadyFound && userCoords && typeof keyCfg.lat === 'number' && typeof keyCfg.lng === 'number') {
-          const d = Math.round(distanceMeters(userCoords.lat, userCoords.lng, keyCfg.lat, keyCfg.lng));
-          distText = 'المسافة: ' + d + ' متر (النطاق: ' + radius + ' م)';
-          if (d <= radius) nearEnough = true;
-        } else if (alreadyFound) {
-          distText = 'تم العثور على المفتاح ✅';
-        }
-
-        const item = document.createElement('div');
-        item.className = 'key-item';
-        item.innerHTML =
-          '<div><strong style="color:#FFD700;">🔑 ' + esc(keyCfg.label || ('مفتاح ' + (i + 1))) + '</strong></div>' +
-          '<div class="muted">' + distText + '</div>' +
-          '<button type="button" class="btn ' + (alreadyFound ? 'btn-dark' : (nearEnough ? 'btn-green' : 'btn-dark')) + '" ' + (alreadyFound || !nearEnough ? 'disabled' : '') + ' onclick="collectVaultKey(' + i + ')">' +
-            (alreadyFound ? 'تم التقاط المفتاح' : (nearEnough ? 'التقاط المفتاح الآن' : 'اقترب أكثر لالتقاط المفتاح')) +
-          '</button>';
-        listEl.appendChild(item);
-      }
-
-      const openBtn = document.getElementById('openVaultBtn');
-      const vaultOpened = Boolean(currentTeamData && currentTeamData.vaultOpened);
-      let nearVault = false;
-      let vaultDistMsg = '';
-
-      if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number' && userCoords) {
-        const vd = Math.round(distanceMeters(userCoords.lat, userCoords.lng, kv.vaultLat, kv.vaultLng));
-        vaultDistMsg = ' — المسافة للخزنة: ' + vd + ' متر';
-        if (vd <= radius) nearVault = true;
-      }
-
+      sec.style.display = 'block';
+      const collected = Array.isArray(currentTeamData && currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
       document.getElementById('vaultStatusText').textContent =
-        'المفاتيح المجمعة: ' + foundCount + ' من 3' + vaultDistMsg;
+        'المفاتيح المجمعة: ' + collected.length + ' من 3 | حالة الخزنة: ' + (currentTeamData && currentTeamData.vaultOpened ? 'مفتوحة' : 'مغلقة');
 
-      if (vaultOpened) {
-        openBtn.disabled = true;
-        openBtn.textContent = '✅ تم فتح الخزنة بنجاح';
-      } else if (foundCount >= 3 && nearVault) {
-        openBtn.disabled = false;
-        openBtn.textContent = '🔓 فتح الخزنة الآن';
+      const earthBox = document.getElementById('vaultEarthLinkBox');
+      if (kv.earthUrl) {
+        earthBox.innerHTML = `<a href="${escAttr(kv.earthUrl)}" target="_blank" rel="noopener noreferrer" style="color:#7CC6FE;">🌍 فتح موقع الخزنة على Google Earth</a>`;
       } else {
-        openBtn.disabled = true;
-        openBtn.textContent = foundCount < 3 ? ('اجمع المفاتيح الـ 3 أولاً (' + foundCount + '/3)') : 'اقترب من موقع الخزنة لفتحها';
+        earthBox.innerHTML = '';
       }
     }
 
-    function collectVaultKey(idx) {
-      const keyData = {
-        foundBy: activeMemberName || ((currentTeamData && currentTeamData.name) || 'عضو'),
-        foundAt: Date.now()
-      };
-      const nextTeam = Object.assign({}, currentTeamData || {});
-      nextTeam.collectedKeys = Object.assign({}, nextTeam.collectedKeys || {}, { ['key_' + idx]: keyData });
-      persistLocalTeam(nextTeam);
-      renderVaultChallenge();
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId + '/collectedKeys/key_' + idx).set(keyData).catch(function () {});
-      }
-    }
-
-    function unlockVault() {
-      const err = document.getElementById('vaultErr');
-      const ok = document.getElementById('vaultMsg');
-      err.textContent = '';
-      ok.textContent = '';
-
-      const vaultPayload = {
-        vaultOpened: true,
-        vaultOpenedBy: activeMemberName || ((currentTeamData && currentTeamData.name) || 'فريق'),
-        vaultOpenedAt: Date.now()
-      };
-      persistLocalTeam(Object.assign({}, currentTeamData || {}, vaultPayload));
-      renderVaultChallenge();
-      ok.textContent = '🎉 مبروك! تم فتح الخزنة بنجاح!';
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId).update(vaultPayload).catch(function (e) {
-          err.textContent = e.message;
-        });
-      }
-    }
-
-    function chooseWinPrize(type) {
-      const nextTeam = Object.assign({}, currentTeamData || { id: currentTeamId || 'local', name: 'فريق' }, {
-        rewardChoice: type
-      });
-      persistLocalTeam(nextTeam);
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId).update({
-          rewardChoice: type
-        }).catch(function () {});
-      }
-      renderWinPrize(type);
-    }
-
-    function submitPrizeOrderDetails(type) {
-      const orderInput = document.getElementById('prizeOrderInput');
-      const areaInput = document.getElementById('prizeAreaInput');
-      const addressInput = document.getElementById('prizeAddressInput');
-      const errEl = document.getElementById('prizeOrderErr');
-      const statusBox = document.getElementById('prizeOrderStatusBox');
-
-      const orderText = orderInput ? orderInput.value.trim() : '';
-      const areaText = areaInput ? areaInput.value.trim() : '';
-      const addressText = addressInput ? addressInput.value.trim() : '';
-
-      if (!orderText) {
-        if (errEl) errEl.textContent = 'من فضلك اكتب تفاصيل الطعام المطلوب (أقل من 500 حرف).';
+    function tryCollectKey(keyIdx) {
+      const msgEl = document.getElementById('vaultActionMsg');
+      const kv = settings.keyVault || {};
+      const keys = Array.isArray(kv.keys) ? kv.keys : [];
+      const target = keys[keyIdx];
+      if (!target || typeof target.lat !== 'number' || typeof target.lng !== 'number') {
+        msgEl.textContent = 'إحداثيات المفتاح ' + (keyIdx + 1) + ' غير محددة بعد.';
         return;
       }
-      if (orderText.length > 500) {
-        if (errEl) errEl.textContent = 'عدد الحروف يجب أن يكون أقل من 500 حرف.';
+      if (!lastPlayerCoords) {
+        msgEl.textContent = 'حدّث موقعك بالـ GPS أولاً.';
         return;
       }
-      if (!areaText) {
-        if (errEl) errEl.textContent = 'من فضلك حدد مكان توصيل الطعام.';
-        return;
-      }
-      if (!addressText) {
-        if (errEl) errEl.textContent = 'من فضلك حدد العنوان بالتفصيل.';
+      const dist = distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, target.lat, target.lng);
+      const radius = Number(kv.radiusMeters || 30);
+      if (dist > radius) {
+        msgEl.textContent = 'أنت بعيد عن المفتاح ' + (keyIdx + 1) + ' (' + Math.round(dist) + ' متر).';
         return;
       }
 
-      if (errEl) errEl.textContent = '';
-
-      const detailsPayload = {
-        prizeType: type,
-        orderDetails: orderText,
-        deliveryArea: areaText,
-        address: addressText,
-        updatedAt: Date.now()
-      };
-
-      const nextTeam = Object.assign({}, currentTeamData || {}, {
-        rewardChoice: type,
-        rewardDetails: detailsPayload
-      });
-      persistLocalTeam(nextTeam);
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId).update({
-          rewardChoice: type,
-          rewardDetails: detailsPayload
-        }).catch(function () {});
-      }
-
-      if (statusBox) {
-        const followPhone = getDeliveryPhoneForTeam();
-        statusBox.innerHTML =
-          '<div class="msg-ok" style="font-size:15px;">جارى تنفيذ طلبك</div>' +
-          '<div class="follow-phone">' + esc(followPhone) + '</div>' +
-          '<div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>';
+      const prev = Array.isArray(currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
+      if (!prev.includes(keyIdx)) {
+        const next = prev.concat(keyIdx);
+        db.ref('teams/' + currentTeamKey).update({ collectedKeys: next, updatedAt: Date.now() });
+        msgEl.textContent = 'تم التقاط المفتاح ' + (keyIdx + 1) + ' بنجاح!';
+      } else {
+        msgEl.textContent = 'لقد التقطت المفتاح ' + (keyIdx + 1) + ' بالفعل.';
       }
     }
 
-    function renderWinPrize(type) {
-      const box = document.getElementById('winPrizeResult');
-      box.style.display = 'block';
-      const ptsVal = Number((currentTeamData && currentTeamData.points) || WIN_POINTS);
-      const pts = '<div class="muted" style="margin-top:8px;">نقاط الفريق: <strong>' + ptsVal + '</strong> | التصنيف: <strong>' + calcRank(ptsVal) + '</strong></div>';
-      const saved = (currentTeamData && currentTeamData.rewardDetails) || {};
-
-      if (type === 'cash') {
-        const receiptSrc = (currentTeamData && currentTeamData.cashTransferReceipt) || '';
-        box.innerHTML =
-          '<h3>نقدي</h3>' +
-          '<div style="font-size:20px;font-weight:bold;color:#6EE7A8;">' + esc(settings.cashPrizeAmount) + '</div>' +
-          '<div class="msg-ok" style="font-size:15px;margin-top:10px;">جارى تنفيذ طلبك</div>' +
-          '<div class="order-form-box" style="text-align:center;">' +
-            '<div class="muted">إيصال الإرسال من الأدمن:</div>' +
-            (receiptSrc
-              ? '<img src="' + escAttr(receiptSrc) + '" style="max-width:100%;border-radius:8px;margin-top:8px;" alt="إيصال التحويل النقدي">'
-              : '<div class="muted" style="margin-top:6px;">في انتظار إرسال إيصال التحويل من حساب الأدمن...</div>') +
-          '</div>' +
-          pts;
-      } else if (type === 'food' || type === 'goods') {
-        const title = type === 'food' ? 'طعام' : 'سلع استهلاكية';
-        const imgSrc = type === 'food' ? (settings.foodPrizeImage || '') : (settings.goodsPrizeImage || '');
-        const hasSubmitted = Boolean(saved.orderDetails && saved.deliveryArea && saved.address);
-        const followPhone = getDeliveryPhoneForTeam();
-
-        box.innerHTML =
-          '<h3>' + title + '</h3>' +
-          (imgSrc ? '<img src="' + escAttr(imgSrc) + '" style="max-width:100%;border-radius:8px;margin-bottom:8px;" alt="' + escAttr(title) + '">' : '<div class="muted">قائمة الطعام المرسلة من الأدمن</div>') +
-          '<div class="order-form-box">' +
-            '<label style="margin-top:0;">تحديد الطعام المطلوب (أقل من 500 حرف):</label>' +
-            '<textarea id="prizeOrderInput" maxlength="499" placeholder="اكتب الطعام الذي ترغب فيه (أقل من 500 حرف)...">' + esc(saved.orderDetails || '') + '</textarea>' +
-            '<label>مكان توصيل الطعام:</label>' +
-            '<input type="text" id="prizeAreaInput" placeholder="مثال: الدهار / الكوثر / الحي..." value="' + escAttr(saved.deliveryArea || '') + '">' +
-            '<label>العنوان بالتفصيل:</label>' +
-            '<input type="text" id="prizeAddressInput" placeholder="اكتب العنوان بالتفصيل" value="' + escAttr(saved.address || '') + '">' +
-            '<button type="button" class="btn btn-gold" onclick="submitPrizeOrderDetails(\'' + type + '\')">إرسال</button>' +
-            '<div id="prizeOrderStatusBox" style="margin-top:10px;">' +
-              (hasSubmitted
-                ? '<div class="msg-ok" style="font-size:15px;">جارى تنفيذ طلبك</div><div class="follow-phone">' + esc(followPhone) + '</div><div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>'
-                : '') +
-            '</div>' +
-            '<div id="prizeOrderErr" class="msg-err"></div>' +
-          '</div>' +
-          pts;
-      } else if (type === 'voucher') {
-        box.innerHTML = '<h3>كروت خصومات</h3>' + (settings.voucherPrizeImage ? '<img src="' + escAttr(settings.voucherPrizeImage) + '" style="max-width:100%;border-radius:8px;">' : '<div class="muted">الصورة المحددة من الأدمن</div>') + pts;
+    function tryOpenVault() {
+      const msgEl = document.getElementById('vaultActionMsg');
+      const kv = settings.keyVault || {};
+      const collected = Array.isArray(currentTeamData && currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
+      if (collected.length < 3) {
+        msgEl.textContent = 'يجب جمع المفاتيح الـ 3 أولاً قبل فتح الخزنة.';
+        return;
       }
-    }
-
-    function submitHalfFoodOrder() {
-      const errEl = document.getElementById('halfFoodErr');
-      const statusBox = document.getElementById('halfFoodStatusBox');
-      const foodChoiceEl = document.getElementById('halfFoodChoiceInput');
-      const addressEl = document.getElementById('halfFoodAddress');
-      const phoneEl = document.getElementById('halfFoodPhone');
-
-      errEl.textContent = '';
-
-      const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
-      const checkedNames = [];
-      document.querySelectorAll('.half-food-chk').forEach(function (chk) {
-        if (chk.checked) {
-          const idx = Number(chk.dataset.idx);
-          const item = menuList[idx];
-          if (item) {
-            checkedNames.push(item.name + (item.price ? ' (' + item.price + ')' : ''));
-          }
+      if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number') {
+        if (!lastPlayerCoords) {
+          msgEl.textContent = 'حدّث موقعك بالـ GPS أولاً.';
+          return;
         }
-      });
-
-      const typedChoice = foodChoiceEl ? foodChoiceEl.value.trim() : '';
-      const combinedChoice = typedChoice || checkedNames.join('، ');
-      const address = addressEl ? addressEl.value.trim() : '';
-      const phone = phoneEl ? phoneEl.value.trim() : '';
-
-      if (!combinedChoice) {
-        errEl.textContent = 'من فضلك اختر أو اكتب الطعام المطلوب من القائمة (بحد أقصى 500 حرف).';
-        return;
+        const dist = distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, kv.vaultLat, kv.vaultLng);
+        const radius = Number(kv.radiusMeters || 30);
+        if (dist > radius) {
+          msgEl.textContent = 'اقترب من موقع الخزنة (' + Math.round(dist) + ' متر) لفتحها.';
+          return;
+        }
       }
-      if (combinedChoice.length > 500) {
-        errEl.textContent = 'الحد الأقصى لاختيار الطعام هو 500 حرف.';
-        return;
-      }
-      if (!address) {
-        errEl.textContent = 'من فضلك اكتب العنوان.';
-        return;
-      }
-      if (!phone) {
-        errEl.textContent = 'من فضلك اكتب رقم التلفون.';
-        return;
-      }
+      db.ref('teams/' + currentTeamKey).update({ vaultOpened: true, updatedAt: Date.now() });
+      msgEl.textContent = '🎉 مبروك! تم فتح الخزنة بنجاح!';
+    }
 
-      const halfFoodPayload = {
-        choiceText: combinedChoice,
-        items: checkedNames.map(function (name) { return { name: name }; }),
-        address: address,
-        phone: phone,
-        updatedAt: Date.now()
-      };
+    function renderWinResultScreen(pts, rank) {
+      document.getElementById('resultHeading').textContent = '🏆 مبروك الفوز!';
+      document.getElementById('resultSummaryBox').innerHTML =
+        '<div>الفريق: <strong style="color:#FFD700;">' + esc(currentTeamData.name || '-') + '</strong></div>' +
+        '<div>النقاط الحالية: <strong style="color:#6EE7A8;">' + pts + '</strong> | الدرجة: <strong>' + rank + '</strong></div>' +
+        '<div style="margin-top:6px;">قيمة الهدية النقدية المحددة: <strong style="color:#FFD700;">' + esc(settings.cashPrizeAmount || '500 جنيه') + '</strong></div>';
 
-      const nextTeam = Object.assign({}, currentTeamData || {}, {
-        rewardChoice: 'half_food',
-        halfFoodOrder: halfFoodPayload
-      });
-      persistLocalTeam(nextTeam);
-
-      if (db && currentTeamId) {
-        db.ref('teams/' + currentTeamId).update({
-          rewardChoice: 'half_food',
-          halfFoodOrder: halfFoodPayload
-        }).catch(function () {});
+      const receiptBox = document.getElementById('cashReceiptPreviewBox');
+      if (currentTeamData.cashTransferReceipt) {
+        receiptBox.innerHTML = '<div><strong style="color:#6EE7A8;">💵 إيصال التحويل النقدي من الأدمن:</strong></div>' +
+          '<img src="' + escAttr(currentTeamData.cashTransferReceipt) + '" style="max-width:240px;border-radius:10px;margin-top:8px;" alt="إيصال التحويل">';
+      } else {
+        receiptBox.innerHTML = '';
       }
 
-      if (statusBox) {
-        const followPhone = getDeliveryPhoneForTeam();
-        statusBox.innerHTML =
-          '<div class="msg-ok" style="font-size:16px;font-weight:bold;">جارى تنفيذ طلبك</div>' +
-          '<div class="follow-phone">' + esc(followPhone) + '</div>' +
-          '<div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>';
+      document.getElementById('winRewardControls').style.display = 'block';
+      document.getElementById('lossRewardResult').style.display = 'none';
+
+      if (currentTeamData.rewardChoice) {
+        selectWinReward(currentTeamData.rewardChoice, true);
+      } else {
+        document.getElementById('winRewardDetailsBox').innerHTML = '';
       }
+    }
+
+    function selectWinReward(choice, skipSave) {
+      const box = document.getElementById('winRewardDetailsBox');
+      if (!skipSave && currentTeamKey) {
+        db.ref('teams/' + currentTeamKey).update({ rewardChoice: choice, updatedAt: Date.now() });
+      }
+
+      if (choice === 'cash') {
+        box.innerHTML = '<div class="banner-box">💵 الهدية النقدية: <strong style="color:#FFD700;">' + esc(settings.cashPrizeAmount || '500 جنيه') + '</strong> — سيتم تحويلها أو إرفاق إيصالها من الأدمن.</div>';
+      } else if (choice === 'food') {
+        box.innerHTML = '<div class="banner-box">🍽️ قائمة الطعام للفائزين:' +
+          (settings.foodPrizeImage
+            ? '<div><img src="' + escAttr(settings.foodPrizeImage) + '" style="max-width:100%;border-radius:10px;margin-top:8px;" alt="قائمة الطعام للفائزين"></div>'
+            : '<div class="muted" style="margin-top:6px;">سيتم تزويدك بقائمة الطعام قريباً.</div>') +
+          '</div>';
+      } else if (choice === 'voucher') {
+        box.innerHTML = '<div class="banner-box">🎟️ كروت الخصومات:' +
+          (settings.voucherPrizeImage
+            ? '<div><img src="' + escAttr(settings.voucherPrizeImage) + '" style="max-width:100%;border-radius:10px;margin-top:8px;" alt="كروت الخصومات"></div>'
+            : '<div class="muted" style="margin-top:6px;">سيتم إرسال كروت الخصومات قريباً.</div>') +
+          '</div>';
+      } else {
+        box.innerHTML = '<div class="banner-box">📦 سلع استهلاكية: تواصل مع الأدمن لتأكيد استلام أو توصيل الهدية.</div>';
+      }
+    }
+
+    function renderLossResultScreen(pts, rank) {
+      document.getElementById('resultHeading').textContent = 'حظاً أوفر في التحدي القادم';
+      document.getElementById('resultSummaryBox').innerHTML =
+        '<div>الفريق: <strong style="color:#FFD700;">' + esc(currentTeamData.name || '-') + '</strong></div>' +
+        '<div>النقاط: <strong>' + pts + '</strong> | الدرجة: <strong>' + rank + '</strong></div>';
+      document.getElementById('cashReceiptPreviewBox').innerHTML = '';
+      document.getElementById('winRewardControls').style.display = 'none';
+      renderLossReward('half_food');
+    }
+
+    function getDeliveryPhoneForTeam() {
+      const deliv = Array.isArray(settings.deliveryPhones) ? settings.deliveryPhones.filter(Boolean) : [];
+      if (!deliv.length) return 'غير محدد';
+      const idx = Math.abs(Number(currentTeamData && currentTeamData.createdAt || 0)) % deliv.length;
+      return deliv[idx] || deliv[0];
     }
 
     function renderLossReward(type) {
       const box = document.getElementById('lossRewardResult');
       box.style.display = 'block';
       const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
+      const halfFoodImgSrc = settings.halfPriceFoodImage || '';
       const savedOrder = (currentTeamData && currentTeamData.halfFoodOrder) || {};
       const savedItems = Array.isArray(savedOrder.items) ? savedOrder.items : [];
-      const savedNames = savedItems.map(function (x) { return x.name; });
+      const savedNames = savedItems.map(x => x.name);
       const defaultChoice = savedOrder.choiceText || '';
       const defaultAddress = savedOrder.address || '';
       const defaultPhone = savedOrder.phone || ((currentTeamData && Array.isArray(currentTeamData.members) && currentTeamData.members[0] && currentTeamData.members[0].phone) || '');
@@ -1909,7 +943,7 @@
 
       let menuHtml = '';
       if (menuList.length) {
-        menuHtml = menuList.map(function (m, idx) {
+        menuHtml = menuList.map((m, idx) => {
           const nameStr = m.name || ('وجبة ' + (idx + 1));
           const labelWithPrice = nameStr + (m.price ? ' (' + m.price + ')' : '');
           const priceStr = m.price ? ' — <strong style="color:#6EE7A8;">' + esc(m.price) + '</strong>' : '';
@@ -1922,8 +956,11 @@
 
       box.innerHTML =
         '<h3>قائمة الطعام بنصف الثمن</h3>' +
+        (halfFoodImgSrc
+          ? '<img src="' + escAttr(halfFoodImgSrc) + '" style="max-width:100%;border-radius:8px;margin:8px 0;" alt="قائمة طعام نصف الثمن">'
+          : '') +
         '<div class="muted">0 نقطة للخسارة — اختر من القائمة واكتب تفاصيلك ثم اضغط إرسال:</div>' +
-        '<div class="order-form-box">' +
+        '<div class="member-box">' +
           '<label style="margin-top:0;">قائمة الطعام المرسلة من الأدمن:</label>' +
           '<div id="halfFoodMenuChecks">' + menuHtml + '</div>' +
           '<label>اختيار الطعام (بحد أقصى 500 حرف):</label>' +
@@ -1943,61 +980,119 @@
     }
 
     function syncHalfFoodCheckedToText() {
-      const ta = document.getElementById('halfFoodChoiceInput');
-      if (!ta) return;
       const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
-      const chosen = [];
-      document.querySelectorAll('.half-food-chk').forEach(function (chk) {
-        if (chk.checked) {
-          const item = menuList[Number(chk.dataset.idx)];
-          if (item) chosen.push(item.name + (item.price ? ' (' + item.price + ')' : ''));
-        }
-      });
-      if (chosen.length > 0) {
+      const checks = Array.from(document.querySelectorAll('.half-food-chk'));
+      const chosen = checks.filter(c => c.checked).map(c => {
+        const idx = Number(c.dataset.idx);
+        const m = menuList[idx] || {};
+        return m.name ? (m.name + (m.price ? ' (' + m.price + ')' : '')) : '';
+      }).filter(Boolean);
+      const ta = document.getElementById('halfFoodChoiceInput');
+      if (ta && chosen.length) {
         ta.value = chosen.join('، ').slice(0, 500);
       }
     }
 
-    if (db) {
-      db.ref('settings').on('value', function (snap) {
-        if (!snap.exists()) return;
-        settings = Object.assign({}, settings, snap.val());
-        renderThreeMobileChoices();
-        renderChallengePhotoSlots();
-        renderVaultChallenge();
-        renderScheduleAndBroadcastBanners();
-        const chEl = document.getElementById('challengeText');
-        if (chEl) chEl.textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
-        if (currentTeamData && currentTeamData.status === 'lost') {
-          renderLossReward('half_food');
-        } else if (currentTeamData && currentTeamData.status === 'won' && currentTeamData.rewardChoice) {
-          renderWinPrize(currentTeamData.rewardChoice);
-        }
-      });
+    function submitHalfFoodOrder() {
+      const errEl = document.getElementById('halfFoodErr');
+      const statusBox = document.getElementById('halfFoodStatusBox');
+      errEl.textContent = '';
 
-      db.ref('gpsCoins').on('value', function (snap) {
-        gpsCoinsData = snap.exists() ? snap.val() : {};
-        renderCrypoCoinsList();
-      });
+      if (!currentTeamKey) return;
+      const choiceText = (document.getElementById('halfFoodChoiceInput').value || '').trim().slice(0, 500);
+      const address = (document.getElementById('halfFoodAddress').value || '').trim();
+      const phone = (document.getElementById('halfFoodPhone').value || '').trim();
 
-      db.ref('teams').on('value', function (snap) {
-        allTeamsMap = snap.exists() ? snap.val() : {};
-        renderMembershipControls();
-      });
+      if (!choiceText || !address || !phone) {
+        errEl.textContent = 'برجاء إدخال اختيار الطعام والعنوان ورقم التلفون.';
+        return;
+      }
 
-      if (currentTeamId && currentTeamData && currentTeamData.status && currentTeamData.status !== 'pending') {
-        watchTeam();
+      const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
+      const selectedItems = Array.from(document.querySelectorAll('.half-food-chk'))
+        .filter(c => c.checked)
+        .map(c => menuList[Number(c.dataset.idx)])
+        .filter(Boolean);
+
+      const followPhone = getDeliveryPhoneForTeam();
+
+      db.ref('teams/' + currentTeamKey).update({
+        rewardChoice: 'half_food',
+        halfFoodOrder: {
+          items: selectedItems,
+          choiceText: choiceText,
+          address: address,
+          phone: phone,
+          updatedAt: Date.now()
+        },
+        updatedAt: Date.now()
+      }).then(() => {
+        statusBox.innerHTML =
+          '<div class="msg-ok" style="font-size:16px;font-weight:bold;">جارى تنفيذ طلبك</div>' +
+          '<div class="follow-phone">' + esc(followPhone) + '</div>' +
+          '<div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>';
+      });
+    }
+
+    function resetLocalSession() {
+      if (teamRefListener) {
+        db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
+        teamRefListener = null;
+      }
+      localStorage.removeItem(STORAGE_TEAM_KEY);
+      currentTeamKey = '';
+      currentTeamData = null;
+      draftTeam = null;
+      receiptDataUrl = '';
+      document.getElementById('receiptPreviewImg').style.display = 'none';
+      goToScreen('screenTeamSetup');
+    }
+
+    function renderGlobalNotice() {
+      const box = document.getElementById('globalNoticeBox');
+      const parts = [];
+      if (settings.broadcastMessage && settings.broadcastMessage.text) {
+        parts.push('<div>📢 <strong style="color:#FFD700;">تنبيه:</strong> ' + esc(settings.broadcastMessage.text) + '</div>');
+      }
+      if (settings.nextChallengeSchedule && settings.nextChallengeSchedule.scheduledAt) {
+        const dtStr = new Date(Number(settings.nextChallengeSchedule.scheduledAt)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+        parts.push('<div>⏰ <strong style="color:#6EE7A8;">موعد التحدي القائم:</strong> ' + esc(dtStr) + '</div>');
+      }
+      if (parts.length) {
+        box.style.display = 'block';
+        box.innerHTML = parts.join('');
+      } else {
+        box.style.display = 'none';
       }
     }
 
+    db.ref('settings').on('value', snap => {
+      settings = snap.exists() ? snap.val() : {};
+      renderGlobalNotice();
+      renderActivePhones();
+      if (currentTeamData) {
+        syncScreenWithTeamState();
+      }
+    });
+
+    db.ref('gpsCoins').on('value', snap => {
+      gpsCoinsMap = snap.exists() ? snap.val() : {};
+      if (currentTeamData && (currentTeamData.status === 'approved' || currentTeamData.status === 'challenge')) {
+        renderGpsCoinsForPlayer();
+      }
+    });
+
     function esc(str) {
-      return String(str).replace(/[&<>"']/g, function (m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-      });
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
     function escAttr(str) {
       return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    renderMemberInputs();
+    if (currentTeamKey) {
+      subscribeToCurrentTeam();
     }
   </script>
 </body>
