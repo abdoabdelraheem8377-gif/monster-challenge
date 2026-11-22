@@ -281,7 +281,7 @@
     <div id="screenTeamSetup" class="card screen active">
       <h1>👾 صراع الوحوش</h1>
       <h2>تسجيل فريق جديد أو متابعة فريقك السابق</h2>
-      <div class="muted">كوّن فريقاً جديداً باسم غير مكرر، أو سجّل الدخول بفريقك السابق بنفس الاسم ورقم القائد لاستكمال نقاطك وتصنيفك في الجولات الجديدة.</div>
+      <div class="muted">كوّن فريقاً جديداً باسم غير مكرر وأرقام موبايل مصرية صحيحة (010 / 011 / 012 / 015)، أو سجّل الدخول بفريقك السابق بنفس الاسم ورقم القائد لاستكمال نقاطك وتصنيفك في الجولات الجديدة.</div>
 
       <div class="mode-row" style="margin-top:12px;">
         <button type="button" id="btnTabNewTeam" class="btn btn-gold" onclick="switchEntryTab('new')">✨ فريق جديد</button>
@@ -295,7 +295,7 @@
           <button type="button" id="btnGroupMode" class="btn btn-dark" onclick="setTeamMode('group')">فريق (من 1 إلى 5)</button>
         </div>
 
-        <label>اسم الفريق (يجب ألا يكون مستخدماً من قبل)</label>
+        <label>اسم الفريق (خاص وغير قابل للتكرار)</label>
         <input type="text" id="teamNameInput" placeholder="مثال: النسور">
 
         <div id="memberCountBox" style="display:none;">
@@ -315,8 +315,8 @@
           <strong style="color:#FFD700;">استرجاع بيانات الفريق وتصنيفه</strong>
           <label>اسم الفريق المسجل</label>
           <input type="text" id="existingTeamNameInput" placeholder="اكتب اسم فريقك السابق بالضبط">
-          <label>رقم تلفون قائد الفريق</label>
-          <input type="tel" id="existingLeaderPhoneInput" placeholder="01xxxxxxxxx" dir="ltr">
+          <label>رقم موبايل قائد الفريق (مصر)</label>
+          <input type="tel" id="existingLeaderPhoneInput" placeholder="010xxxxxxxx" dir="ltr">
           <div id="existingTeamErr" class="msg-err"></div>
           <button type="button" id="btnLoginExistingTeam" class="btn btn-gold" onclick="handleExistingTeamLogin()">دخول واستكمال النقاط والتصنيف</button>
         </div>
@@ -489,12 +489,28 @@
     let pendingChallengePhotos = [];
     let cameraStream = null;
 
+    function toWesternDigits(str) {
+      return String(str || '').replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632));
+    }
+
     function normalizeTeamName(name) {
       return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
     }
 
-    function normalizePhone(phone) {
-      return String(phone || '').replace(/[^0-9]/g, '');
+    function normalizeEgyptPhone(rawPhone) {
+      const cleaned = toWesternDigits(rawPhone).replace(/[^0-9]/g, '');
+      if (cleaned.startsWith('0020') && cleaned.length === 14) {
+        return cleaned.slice(3);
+      }
+      if (cleaned.startsWith('20') && cleaned.length === 12) {
+        return '0' + cleaned.slice(2);
+      }
+      return cleaned;
+    }
+
+    function isValidEgyptMobile(rawPhone) {
+      const normalized = normalizeEgyptPhone(rawPhone);
+      return /^01[0125][0-9]{8}$/.test(normalized);
     }
 
     function calcRank(points) {
@@ -571,8 +587,8 @@
             <strong style="color:#FFD700;">${title}</strong>
             <label>الاسم</label>
             <input type="text" class="m-name" id="mName_${i}" placeholder="اكتب الاسم">
-            <label>رقم التلفون</label>
-            <input type="tel" class="m-phone" id="mPhone_${i}" placeholder="01xxxxxxxxx" dir="ltr">
+            <label>رقم الموبايل (مصر: 010 / 011 / 012 / 015)</label>
+            <input type="tel" class="m-phone" id="mPhone_${i}" placeholder="010xxxxxxxx" dir="ltr">
           </div>
         `;
       }
@@ -597,12 +613,16 @@
         const nameEl = document.getElementById('mName_' + i);
         const phoneEl = document.getElementById('mPhone_' + i);
         const name = nameEl ? nameEl.value.trim() : '';
-        const phone = phoneEl ? phoneEl.value.trim() : '';
-        if (!name || !phone) {
-          errEl.textContent = 'من فضلك أكمل اسم ورقم تلفون العضو ' + (i + 1) + '.';
+        const rawPhone = phoneEl ? phoneEl.value.trim() : '';
+        if (!name || !rawPhone) {
+          errEl.textContent = 'من فضلك أكمل اسم ورقم موبايل العضو ' + (i + 1) + '.';
           return;
         }
-        members.push({ name, phone });
+        if (!isValidEgyptMobile(rawPhone)) {
+          errEl.textContent = 'رقم الموبايل للعضو ' + (i + 1) + ' غير صحيح؛ يجب إدخال رقم موبايل مصري حقيقي مكون من 11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015.';
+          return;
+        }
+        members.push({ name, phone: normalizeEgyptPhone(rawPhone) });
       }
 
       btnNext.disabled = true;
@@ -611,13 +631,13 @@
       db.ref('teams').once('value').then(snap => {
         const teamsObj = snap.exists() ? snap.val() : {};
         const targetNorm = normalizeTeamName(teamName);
-        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm && (t.status || 'pending') !== 'pending');
+        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm);
 
         btnNext.disabled = false;
         btnNext.textContent = 'التالي (Next)';
 
         if (isDuplicate) {
-          errEl.textContent = 'اسم الفريق «' + teamName + '» مستخدم بالفعل! من فضلك اكتب اسماً آخر أو ادخل من تبويب «دخول فريق مسجل» إذا كان فريقك.';
+          errEl.textContent = 'هذا الاسم موجود بالفعل اختر اسم اخر';
           return;
         }
 
@@ -653,12 +673,17 @@
       const rawName = document.getElementById('existingTeamNameInput').value.trim();
       const rawPhone = document.getElementById('existingLeaderPhoneInput').value.trim();
       if (!rawName || !rawPhone) {
-        errEl.textContent = 'من فضلك اكتب اسم الفريق ورقم تلفون القائد.';
+        errEl.textContent = 'من فضلك اكتب اسم الفريق ورقم موبايل القائد.';
+        return;
+      }
+
+      if (!isValidEgyptMobile(rawPhone)) {
+        errEl.textContent = 'من فضلك أدخل رقم موبايل مصري صحيح (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015).';
         return;
       }
 
       const normName = normalizeTeamName(rawName);
-      const normPhone = normalizePhone(rawPhone);
+      const normPhone = normalizeEgyptPhone(rawPhone);
 
       btnLogin.disabled = true;
       btnLogin.textContent = 'جاري البحث عن الفريق...';
@@ -675,8 +700,8 @@
           if (!t) return;
           const sameName = normalizeTeamName(t.name) === normName;
           const leaderPh = (Array.isArray(t.members) && t.members[0] && t.members[0].phone) || '';
-          const anyMemberMatch = Array.isArray(t.members) && t.members.some(m => normalizePhone(m && m.phone) === normPhone);
-          if (sameName && (normalizePhone(leaderPh) === normPhone || anyMemberMatch)) {
+          const anyMemberMatch = Array.isArray(t.members) && t.members.some(m => normalizeEgyptPhone(m && m.phone) === normPhone);
+          if (sameName && (normalizeEgyptPhone(leaderPh) === normPhone || anyMemberMatch)) {
             if (!matchedTeam || Number(t.points || 0) >= Number(matchedTeam.points || 0)) {
               matchedKey = k;
               matchedTeam = t;
@@ -685,12 +710,12 @@
         });
 
         if (!matchedKey || !matchedTeam) {
-          errEl.textContent = 'لم يتم العثور على فريق مطابق لهذا الاسم ورقم التلفون.';
+          errEl.textContent = 'لم يتم العثور على فريق مطابق لهذا الاسم ورقم الموبايل.';
           return;
         }
 
         if ((matchedTeam.status || 'pending') === 'pending') {
-          errEl.textContent = 'يرجى تأكيد اسم الفريق وأرقام التلفونات من تبويب «فريق جديد» للمتابعة.';
+          errEl.textContent = 'يرجى تأكيد اسم الفريق وأرقام الموبايل من تبويب «فريق جديد» للمتابعة.';
           return;
         }
         currentTeamKey = matchedKey;
@@ -993,542 +1018,4 @@
         })
         .catch(() => {
           errEl.textContent = 'تعذر فتح الكاميرا المباشرة، تم فتح كاميرا الهاتف أو تأكد من صلاحية الكاميرا.';
-          document.getElementById('chCameraFallbackInput').click();
-        });
-    }
-
-    function closeLiveCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-      }
-      const box = document.getElementById('liveCameraBox');
-      const video = document.getElementById('cameraVideo');
-      if (video) video.srcObject = null;
-      if (box) box.style.display = 'none';
-    }
-
-    function capturePhotoFromCamera() {
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('cameraCanvas');
-      if (!video || !video.videoWidth) return;
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-      const rawDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      compressImageDataUrl(rawDataUrl, 750, 0.72).then(compressed => {
-        pendingChallengePhotos.push(compressed);
-        renderPendingPhotos();
-      });
-    }
-
-    function handleGallerySelection(input) {
-      const errEl = document.getElementById('chPhotoErr');
-      errEl.textContent = '';
-      const files = Array.from((input && input.files) || []);
-      if (!files.length) return;
-
-      Promise.all(files.map(file => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-          compressImageDataUrl(ev.target.result, 750, 0.72).then(resolve);
-        };
-        reader.readAsDataURL(file);
-      }))).then(compressedList => {
-        pendingChallengePhotos = pendingChallengePhotos.concat(compressedList);
-        input.value = '';
-        renderPendingPhotos();
-      });
-    }
-
-    function removePendingPhoto(index) {
-      pendingChallengePhotos.splice(index, 1);
-      renderPendingPhotos();
-    }
-
-    function renderPendingPhotos() {
-      const grid = document.getElementById('pendingPhotosGrid');
-      if (!grid) return;
-      if (!pendingChallengePhotos.length) {
-        grid.innerHTML = '';
-        return;
-      }
-      grid.innerHTML = pendingChallengePhotos.map((src, idx) => `
-        <div class="photo-thumb-card">
-          <img src="${escAttr(src)}" alt="صورة ${idx + 1}">
-          <button type="button" class="remove-photo-btn" title="حذف الصورة" onclick="removePendingPhoto(${idx})">×</button>
-        </div>
-      `).join('');
-    }
-
-    function uploadChallengePhotos() {
-      const errEl = document.getElementById('chPhotoErr');
-      const okEl = document.getElementById('chPhotoMsg');
-      errEl.textContent = '';
-      okEl.textContent = '';
-
-      if (!currentTeamKey) return;
-      if (!pendingChallengePhotos.length) {
-        errEl.textContent = 'اختر أو التقط صورة واحدة على الأقل قبل الإرسال.';
-        return;
-      }
-
-      if (settings.requireChallengePhotos) {
-        const requiredCount = Math.max(1, Number(settings.challengePhotoCount || 1));
-        if (pendingChallengePhotos.length < requiredCount) {
-          errEl.textContent = 'مطلوب إرسال ' + requiredCount + ' صورة على الأقل.';
-          return;
-        }
-      }
-
-      const leaderName = (currentTeamData && currentTeamData.members && currentTeamData.members[0] && currentTeamData.members[0].name) || currentTeamData.name || 'عضو';
-      const photosToSend = pendingChallengePhotos.slice();
-
-      db.ref('teams/' + currentTeamKey + '/submissions').push({
-        memberName: leaderName,
-        images: photosToSend,
-        sentAt: Date.now()
-      }).then(() => {
-        pendingChallengePhotos = [];
-        renderPendingPhotos();
-        closeLiveCamera();
-        okEl.textContent = 'تم إرسال الصور (' + photosToSend.length + ') للأدمن بنجاح!';
-      }).catch(() => {
-        errEl.textContent = 'تعذر إرسال الصور، حاول مرة أخرى.';
-      });
-    }
-
-    function distanceMeters(lat1, lon1, lat2, lon2) {
-      const R = 6371000;
-      const toRad = d => d * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function refreshPlayerLocation() {
-      const statusEl = document.getElementById('playerGpsStatus');
-      if (!navigator.geolocation) {
-        statusEl.textContent = 'الجهاز لا يدعم GPS.';
-        return;
-      }
-      statusEl.textContent = 'جاري تحديد موقعك...';
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          lastPlayerCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          statusEl.textContent = 'تم تحديث موقعك (' + lastPlayerCoords.lat.toFixed(5) + ', ' + lastPlayerCoords.lng.toFixed(5) + ').';
-          renderGpsCoinsForPlayer();
-          renderKeyVaultForPlayer();
-        },
-        () => {
-          statusEl.textContent = 'تعذر تحديد الموقع، يرجى تفعيل صلاحية الموقع GPS.';
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    }
-
-    function renderGpsCoinsForPlayer() {
-      const wrap = document.getElementById('gpsCoinsContainer');
-      if (!wrap) return;
-      const keys = Object.keys(gpsCoinsMap || {});
-      if (!keys.length) {
-        wrap.innerHTML = '<div class="muted" style="margin-top:8px;">لا توجد عملات Crypo متاحة حالياً.</div>';
-        return;
-      }
-
-      wrap.innerHTML = keys.map(cid => {
-        const c = gpsCoinsMap[cid];
-        const claimed = Boolean(c.claimedBy);
-        const radius = Number(c.radiusMeters || 30);
-        let distText = 'حدّث موقعك لمعرفة المسافة';
-        let canClaim = false;
-
-        if (lastPlayerCoords && typeof c.lat === 'number' && typeof c.lng === 'number') {
-          const dist = Math.round(distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, c.lat, c.lng));
-          distText = 'المسافة الحالية: ' + dist + ' متر (النطاق المطلوب: ' + radius + ' متر)';
-          canClaim = !claimed && dist <= radius;
-        }
-
-        return `
-          <div class="coin-item">
-            <strong style="color:#FFD700;">🪙 ${esc(c.label || 'Crypo Coin')}</strong> (+${Number(c.pointsValue || 10)} نقاط)
-            <div class="muted">${esc(distText)}</div>
-            ${claimed
-              ? `<div class="muted" style="color:#6EE7A8;">تم التقاطها بواسطة: ${esc(c.claimedByTeamName || c.claimedBy)}</div>`
-              : `<button type="button" class="btn btn-gold" ${canClaim ? '' : 'disabled'} onclick="claimCrypoCoin('${escAttr(cid)}')">${canClaim ? 'التقاط العملة الآن' : 'اقترب أكثر أو حدّث الموقع'}</button>`
-            }
-          </div>
-        `;
-      }).join('');
-    }
-
-    function claimCrypoCoin(coinId) {
-      if (!currentTeamKey || !currentTeamData) return;
-      const coin = gpsCoinsMap[coinId];
-      if (!coin || coin.claimedBy) return;
-
-      const ptsToAdd = Number(coin.pointsValue || 10);
-      db.ref('gpsCoins/' + coinId).transaction(curr => {
-        if (!curr || curr.claimedBy) return;
-        return {
-          ...curr,
-          claimedBy: currentTeamKey,
-          claimedByTeamName: currentTeamData.name || 'فريق',
-          claimedAt: Date.now()
-        };
-      }).then(res => {
-        if (res.committed) {
-          const nextPts = Number(currentTeamData.points || 0) + ptsToAdd;
-          db.ref('teams/' + currentTeamKey).update({ points: nextPts, updatedAt: Date.now() });
-        }
-      });
-    }
-
-    function renderKeyVaultForPlayer() {
-      const sec = document.getElementById('vaultSection');
-      const kv = settings.keyVault || {};
-      if (!kv.enabled) {
-        sec.style.display = 'none';
-        return;
-      }
-      sec.style.display = 'block';
-      const collected = Array.isArray(currentTeamData && currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
-      document.getElementById('vaultStatusText').textContent =
-        'المفاتيح المجمعة: ' + collected.length + ' من 3 | حالة الخزنة: ' + (currentTeamData && currentTeamData.vaultOpened ? 'مفتوحة' : 'مغلقة');
-
-      const earthBox = document.getElementById('vaultEarthLinkBox');
-      if (kv.earthUrl) {
-        earthBox.innerHTML = `<a href="${escAttr(kv.earthUrl)}" target="_blank" rel="noopener noreferrer" style="color:#7CC6FE;">🌍 فتح موقع الخزنة على Google Earth</a>`;
-      } else {
-        earthBox.innerHTML = '';
-      }
-    }
-
-    function tryCollectKey(keyIdx) {
-      const msgEl = document.getElementById('vaultActionMsg');
-      const kv = settings.keyVault || {};
-      const keys = Array.isArray(kv.keys) ? kv.keys : [];
-      const target = keys[keyIdx];
-      if (!target || typeof target.lat !== 'number' || typeof target.lng !== 'number') {
-        msgEl.textContent = 'إحداثيات المفتاح ' + (keyIdx + 1) + ' غير محددة بعد.';
-        return;
-      }
-      if (!lastPlayerCoords) {
-        msgEl.textContent = 'حدّث موقعك بالـ GPS أولاً.';
-        return;
-      }
-      const dist = distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, target.lat, target.lng);
-      const radius = Number(kv.radiusMeters || 30);
-      if (dist > radius) {
-        msgEl.textContent = 'أنت بعيد عن المفتاح ' + (keyIdx + 1) + ' (' + Math.round(dist) + ' متر).';
-        return;
-      }
-
-      const prev = Array.isArray(currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
-      if (!prev.includes(keyIdx)) {
-        const next = prev.concat(keyIdx);
-        db.ref('teams/' + currentTeamKey).update({ collectedKeys: next, updatedAt: Date.now() });
-        msgEl.textContent = 'تم التقاط المفتاح ' + (keyIdx + 1) + ' بنجاح!';
-      } else {
-        msgEl.textContent = 'لقد التقطت المفتاح ' + (keyIdx + 1) + ' بالفعل.';
-      }
-    }
-
-    function tryOpenVault() {
-      const msgEl = document.getElementById('vaultActionMsg');
-      const kv = settings.keyVault || {};
-      const collected = Array.isArray(currentTeamData && currentTeamData.collectedKeys) ? currentTeamData.collectedKeys : [];
-      if (collected.length < 3) {
-        msgEl.textContent = 'يجب جمع المفاتيح الـ 3 أولاً قبل فتح الخزنة.';
-        return;
-      }
-      if (typeof kv.vaultLat === 'number' && typeof kv.vaultLng === 'number') {
-        if (!lastPlayerCoords) {
-          msgEl.textContent = 'حدّث موقعك بالـ GPS أولاً.';
-          return;
-        }
-        const dist = distanceMeters(lastPlayerCoords.lat, lastPlayerCoords.lng, kv.vaultLat, kv.vaultLng);
-        const radius = Number(kv.radiusMeters || 30);
-        if (dist > radius) {
-          msgEl.textContent = 'اقترب من موقع الخزنة (' + Math.round(dist) + ' متر) لفتحها.';
-          return;
-        }
-      }
-      db.ref('teams/' + currentTeamKey).update({ vaultOpened: true, updatedAt: Date.now() });
-      msgEl.textContent = '🎉 مبروك! تم فتح الخزنة بنجاح!';
-    }
-
-    function renderWinResultScreen(pts, rank) {
-      document.getElementById('resultHeading').textContent = '🏆 مبروك الفوز!';
-      document.getElementById('resultSummaryBox').innerHTML =
-        '<div>الفريق: <strong style="color:#FFD700;">' + esc(currentTeamData.name || '-') + '</strong></div>' +
-        '<div>النقاط الحالية: <strong style="color:#6EE7A8;">' + pts + '</strong> | الدرجة: <strong>' + rank + '</strong></div>' +
-        '<div style="margin-top:6px;">قيمة الهدية النقدية المحددة: <strong style="color:#FFD700;">' + esc(settings.cashPrizeAmount || '500 جنيه') + '</strong></div>';
-
-      const receiptBox = document.getElementById('cashReceiptPreviewBox');
-      if (currentTeamData.cashTransferReceipt) {
-        receiptBox.innerHTML = '<div><strong style="color:#6EE7A8;">💵 إيصال التحويل النقدي من الأدمن:</strong></div>' +
-          '<img src="' + escAttr(currentTeamData.cashTransferReceipt) + '" style="max-width:240px;border-radius:10px;margin-top:8px;" alt="إيصال التحويل">';
-      } else {
-        receiptBox.innerHTML = '';
-      }
-
-      document.getElementById('winRewardControls').style.display = 'block';
-      document.getElementById('lossRewardResult').style.display = 'none';
-
-      if (currentTeamData.rewardChoice) {
-        selectWinReward(currentTeamData.rewardChoice, true);
-      } else {
-        document.getElementById('winRewardDetailsBox').innerHTML = '';
-      }
-    }
-
-    function selectWinReward(choice, skipSave) {
-      const box = document.getElementById('winRewardDetailsBox');
-      if (!skipSave && currentTeamKey) {
-        db.ref('teams/' + currentTeamKey).update({ rewardChoice: choice, updatedAt: Date.now() });
-      }
-
-      if (choice === 'cash') {
-        box.innerHTML = '<div class="banner-box">💵 الهدية النقدية: <strong style="color:#FFD700;">' + esc(settings.cashPrizeAmount || '500 جنيه') + '</strong> — سيتم تحويلها أو إرفاق إيصالها من الأدمن.</div>';
-      } else if (choice === 'food') {
-        box.innerHTML = '<div class="banner-box">🍽️ قائمة الطعام للفائزين:' +
-          (settings.foodPrizeImage
-            ? '<div><img src="' + escAttr(settings.foodPrizeImage) + '" style="max-width:100%;border-radius:10px;margin-top:8px;" alt="قائمة الطعام للفائزين"></div>'
-            : '<div class="muted" style="margin-top:6px;">سيتم تزويدك بقائمة الطعام قريباً.</div>') +
-          '</div>';
-      } else if (choice === 'voucher') {
-        box.innerHTML = '<div class="banner-box">🎟️ كروت الخصومات:' +
-          (settings.voucherPrizeImage
-            ? '<div><img src="' + escAttr(settings.voucherPrizeImage) + '" style="max-width:100%;border-radius:10px;margin-top:8px;" alt="كروت الخصومات"></div>'
-            : '<div class="muted" style="margin-top:6px;">سيتم إرسال كروت الخصومات قريباً.</div>') +
-          '</div>';
-      } else {
-        box.innerHTML = '<div class="banner-box">📦 سلع استهلاكية: تواصل مع الأدمن لتأكيد استلام أو توصيل الهدية.</div>';
-      }
-    }
-
-    function renderLossResultScreen(pts, rank) {
-      document.getElementById('resultHeading').textContent = 'حظاً أوفر في التحدي القادم';
-      document.getElementById('resultSummaryBox').innerHTML =
-        '<div>الفريق: <strong style="color:#FFD700;">' + esc(currentTeamData.name || '-') + '</strong></div>' +
-        '<div>النقاط: <strong>' + pts + '</strong> | الدرجة: <strong>' + rank + '</strong></div>';
-      document.getElementById('cashReceiptPreviewBox').innerHTML = '';
-      document.getElementById('winRewardControls').style.display = 'none';
-      renderLossReward('half_food');
-    }
-
-    function getDeliveryPhoneForTeam() {
-      const deliv = Array.isArray(settings.deliveryPhones) ? settings.deliveryPhones.filter(Boolean) : [];
-      if (!deliv.length) return 'غير محدد';
-      const idx = Math.abs(Number(currentTeamData && currentTeamData.createdAt || 0)) % deliv.length;
-      return deliv[idx] || deliv[0];
-    }
-
-    function renderLossReward(type) {
-      const box = document.getElementById('lossRewardResult');
-      box.style.display = 'block';
-      const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
-      const halfFoodImgSrc = settings.halfPriceFoodImage || '';
-      const savedOrder = (currentTeamData && currentTeamData.halfFoodOrder) || {};
-      const savedItems = Array.isArray(savedOrder.items) ? savedOrder.items : [];
-      const savedNames = savedItems.map(x => x.name);
-      const defaultChoice = savedOrder.choiceText || '';
-      const defaultAddress = savedOrder.address || '';
-      const defaultPhone = savedOrder.phone || ((currentTeamData && Array.isArray(currentTeamData.members) && currentTeamData.members[0] && currentTeamData.members[0].phone) || '');
-      const hasSubmitted = Boolean(defaultChoice && defaultAddress && defaultPhone);
-      const followPhone = getDeliveryPhoneForTeam();
-
-      let menuHtml = '';
-      if (menuList.length) {
-        menuHtml = menuList.map((m, idx) => {
-          const nameStr = m.name || ('وجبة ' + (idx + 1));
-          const labelWithPrice = nameStr + (m.price ? ' (' + m.price + ')' : '');
-          const priceStr = m.price ? ' — <strong style="color:#6EE7A8;">' + esc(m.price) + '</strong>' : '';
-          const isChecked = savedNames.includes(labelWithPrice) || savedNames.includes(nameStr) ? 'checked' : '';
-          return '<div class="menu-check-item"><label class="menu-check-row" style="margin:0;"><span><strong style="color:#FFD700;">🍽️ ' + esc(nameStr) + '</strong>' + priceStr + '</span><input type="checkbox" class="half-food-chk" data-idx="' + idx + '" ' + isChecked + ' onchange="syncHalfFoodCheckedToText()"></label></div>';
-        }).join('');
-      } else {
-        menuHtml = '<div class="muted">في انتظار إرسال قائمة الطعام بنصف الثمن من الأدمن...</div>';
-      }
-
-      box.innerHTML =
-        '<h3>قائمة الطعام بنصف الثمن</h3>' +
-        (halfFoodImgSrc
-          ? '<img src="' + escAttr(halfFoodImgSrc) + '" style="max-width:100%;border-radius:8px;margin:8px 0;" alt="قائمة طعام نصف الثمن">'
-          : '') +
-        '<div class="muted">0 نقطة للخسارة — اختر من القائمة واكتب تفاصيلك ثم اضغط إرسال:</div>' +
-        '<div class="member-box">' +
-          '<label style="margin-top:0;">قائمة الطعام المرسلة من الأدمن:</label>' +
-          '<div id="halfFoodMenuChecks">' + menuHtml + '</div>' +
-          '<label>اختيار الطعام (بحد أقصى 500 حرف):</label>' +
-          '<textarea id="halfFoodChoiceInput" maxlength="500" placeholder="اكتب أو حدد الطعام المطلوب (بحد أقصى 500 حرف)...">' + esc(defaultChoice) + '</textarea>' +
-          '<label>العنوان:</label>' +
-          '<input type="text" id="halfFoodAddress" placeholder="اكتب العنوان" value="' + escAttr(defaultAddress) + '">' +
-          '<label>رقم التلفون:</label>' +
-          '<input type="tel" id="halfFoodPhone" placeholder="اكتب رقم التلفون" value="' + escAttr(defaultPhone) + '">' +
-          '<button type="button" class="btn btn-gold" onclick="submitHalfFoodOrder()">إرسال</button>' +
-          '<div id="halfFoodStatusBox" style="margin-top:10px;">' +
-            (hasSubmitted
-              ? '<div class="msg-ok" style="font-size:16px;font-weight:bold;">جارى تنفيذ طلبك</div><div class="follow-phone">' + esc(followPhone) + '</div><div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>'
-              : '') +
-          '</div>' +
-          '<div id="halfFoodErr" class="msg-err"></div>' +
-        '</div>';
-    }
-
-    function syncHalfFoodCheckedToText() {
-      const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
-      const checks = Array.from(document.querySelectorAll('.half-food-chk'));
-      const chosen = checks.filter(c => c.checked).map(c => {
-        const idx = Number(c.dataset.idx);
-        const m = menuList[idx] || {};
-        return m.name ? (m.name + (m.price ? ' (' + m.price + ')' : '')) : '';
-      }).filter(Boolean);
-      const ta = document.getElementById('halfFoodChoiceInput');
-      if (ta && chosen.length) {
-        ta.value = chosen.join('، ').slice(0, 500);
-      }
-    }
-
-    function submitHalfFoodOrder() {
-      const errEl = document.getElementById('halfFoodErr');
-      const statusBox = document.getElementById('halfFoodStatusBox');
-      errEl.textContent = '';
-
-      if (!currentTeamKey) return;
-      const choiceText = (document.getElementById('halfFoodChoiceInput').value || '').trim().slice(0, 500);
-      const address = (document.getElementById('halfFoodAddress').value || '').trim();
-      const phone = (document.getElementById('halfFoodPhone').value || '').trim();
-
-      if (!choiceText || !address || !phone) {
-        errEl.textContent = 'برجاء إدخال اختيار الطعام والعنوان ورقم التلفون.';
-        return;
-      }
-
-      const menuList = Array.isArray(settings.halfPriceFoodMenu) ? settings.halfPriceFoodMenu : [];
-      const selectedItems = Array.from(document.querySelectorAll('.half-food-chk'))
-        .filter(c => c.checked)
-        .map(c => menuList[Number(c.dataset.idx)])
-        .filter(Boolean);
-
-      const followPhone = getDeliveryPhoneForTeam();
-
-      db.ref('teams/' + currentTeamKey).update({
-        rewardChoice: 'half_food',
-        halfFoodOrder: {
-          items: selectedItems,
-          choiceText: choiceText,
-          address: address,
-          phone: phone,
-          updatedAt: Date.now()
-        },
-        updatedAt: Date.now()
-      }).then(() => {
-        statusBox.innerHTML =
-          '<div class="msg-ok" style="font-size:16px;font-weight:bold;">جارى تنفيذ طلبك</div>' +
-          '<div class="follow-phone">' + esc(followPhone) + '</div>' +
-          '<div class="muted" style="color:#FFE99E;margin-top:4px;">برجاء المتابعه</div>';
-      });
-    }
-
-    function renderLeaderboard() {
-      const box = document.getElementById('leaderboardContainer');
-      if (!box) return;
-      const list = Object.values(allTeamsCache || {})
-        .filter(t => t && t.name)
-        .sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
-
-      if (!list.length) {
-        box.innerHTML = 'لا توجد فرق مسجلة بعد.';
-        return;
-      }
-
-      box.innerHTML = list.slice(0, 15).map((t, idx) => {
-        const pts = Number(t.points || 0);
-        const rank = calcRank(pts);
-        return `<div class="leader-row">
-          <span><strong style="color:#FFD700;">#${idx + 1}</strong> ${esc(t.name)}</span>
-          <span style="color:#6EE7A8;"><strong>${pts}</strong> نقطة (الدرجة ${rank})</span>
-        </div>`;
-      }).join('');
-    }
-
-    function resetLocalSession() {
-      closeLiveCamera();
-      pendingChallengePhotos = [];
-      renderPendingPhotos();
-      if (teamRefListener) {
-        db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
-        teamRefListener = null;
-      }
-      localStorage.removeItem(STORAGE_TEAM_KEY);
-      currentTeamKey = '';
-      currentTeamData = null;
-      draftTeam = null;
-      returningTeamKey = '';
-      receiptDataUrl = '';
-      document.getElementById('receiptPreviewImg').style.display = 'none';
-      const nameInp = document.getElementById('teamNameInput');
-      if (nameInp) nameInp.value = '';
-      setTeamMode('solo');
-      switchEntryTab('new');
-      goToScreen('screenTeamSetup');
-    }
-
-    function renderGlobalNotice() {
-      const box = document.getElementById('globalNoticeBox');
-      const parts = [];
-      if (settings.broadcastMessage && settings.broadcastMessage.text) {
-        parts.push('<div>📢 <strong style="color:#FFD700;">تنبيه:</strong> ' + esc(settings.broadcastMessage.text) + '</div>');
-      }
-      if (settings.nextChallengeSchedule && settings.nextChallengeSchedule.scheduledAt) {
-        const dtStr = new Date(Number(settings.nextChallengeSchedule.scheduledAt)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
-        parts.push('<div>⏰ <strong style="color:#6EE7A8;">موعد التحدي القائم:</strong> ' + esc(dtStr) + '</div>');
-      }
-      if (parts.length) {
-        box.style.display = 'block';
-        box.innerHTML = parts.join('');
-      } else {
-        box.style.display = 'none';
-      }
-    }
-
-    db.ref('settings').on('value', snap => {
-      settings = snap.exists() ? snap.val() : {};
-      renderGlobalNotice();
-      renderActivePhones();
-      if (currentTeamData && !returningTeamKey) {
-        syncScreenWithTeamState();
-      }
-    });
-
-    db.ref('gpsCoins').on('value', snap => {
-      gpsCoinsMap = snap.exists() ? snap.val() : {};
-      if (currentTeamData && (currentTeamData.status === 'approved' || currentTeamData.status === 'challenge')) {
-        renderGpsCoinsForPlayer();
-      }
-    });
-
-    db.ref('teams').on('value', snap => {
-      allTeamsCache = snap.exists() ? snap.val() : {};
-      renderLeaderboard();
-    });
-
-    function esc(str) {
-      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-    }
-
-    function escAttr(str) {
-      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    renderMemberInputs();
-    // Always open start screen cleanly so player confirms team name & phones from scratch
-  </script>
-</body>
-</html>
+          document.getElementById('chCameraFall
