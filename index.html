@@ -108,14 +108,18 @@
       padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.82rem;
     }
 
-    /* زر الكاميرا / الاستديو النظيف بدون أي آثار إضافية */
-    .media-trigger-btn {
-      width: 100%; padding: 14px; border-radius: 12px;
-      background: #0b101d; border: 1px solid var(--card-2);
-      color: var(--primary); font-weight: bold; font-size: 0.95rem;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    /* أزرار الكاميرا والاستوديو */
+    .media-pair {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
       margin: 12px 0;
     }
+    .media-choice-btn {
+      padding: 13px 10px; border-radius: 12px;
+      background: #0b101d; border: 1px solid var(--card-2);
+      color: var(--primary); font-weight: bold; font-size: 0.92rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .media-choice-btn:active { transform: scale(0.98); }
     .preview-img {
       width: 100%; max-height: 240px; object-fit: contain;
       border-radius: 10px; margin-bottom: 12px; display: none;
@@ -250,7 +254,7 @@
   </div>
 </section>
 
-<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 خانات أرقام كاش + تحتها الكاميرا/الاستديو + تأكيد) -->
+<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 خانات أرقام كاش + زرار الكاميرا / الاستوديو + تأكيد) -->
 <section id="paymentScreen" class="screen screen-top">
   <div class="box">
     <h2>💳 الاشتراك في التحدي والتحويل المالي</h2>
@@ -258,7 +262,6 @@
       حوّل قيمة الاشتراك على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال:
     </p>
 
-    <!-- 3 خانات دائمة لأرقام التحويل الكاش -->
     <div id="cashNumbersList">
       <div class="cash-slot">
         <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 1:</span><br/><strong id="cashSlot_0">جاري التحميل...</strong></div>
@@ -274,11 +277,17 @@
       </div>
     </div>
 
-    <!-- زر الكاميرا / الاستديو أسفل أرقام التحويل مباشرة -->
-    <button type="button" class="media-trigger-btn" onclick="document.getElementById('receiptFileInput').click()">
-      📷 🖼️ كاميرا / استديو (صورة الإيصال)
-    </button>
-    <input type="file" id="receiptFileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
+    <!-- زرار الكاميرا وزر الاستوديو لصورة الإيصال -->
+    <div class="media-pair">
+      <button type="button" class="media-choice-btn" onclick="openMediaSource('receipt', 'camera')">
+        📷 الكاميرا
+      </button>
+      <button type="button" class="media-choice-btn" onclick="openMediaSource('receipt', 'gallery')">
+        🖼️ الاستوديو
+      </button>
+    </div>
+    <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
+    <input type="file" id="receiptGalleryInput" accept="image/*" style="display:none;" onchange="handleReceiptSelected(event)" />
     <img id="receiptPreview" class="preview-img" alt="معاينة الإيصال" />
 
     <button class="btn btn-success" id="confirmReceiptBtn" onclick="submitReceipt()">تأكيد</button>
@@ -313,10 +322,16 @@
 
     <!-- وضع تحدي الصور -->
     <div id="photoChallengeSection" style="display:none;">
-      <button type="button" class="media-trigger-btn" onclick="document.getElementById('challengePhotoInput').click()">
-        📷 🖼️ كاميرا / استديو
-      </button>
-      <input type="file" id="challengePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+      <div class="media-pair">
+        <button type="button" class="media-choice-btn" onclick="openMediaSource('challenge', 'camera')">
+          📷 الكاميرا
+        </button>
+        <button type="button" class="media-choice-btn" onclick="openMediaSource('challenge', 'gallery')">
+          🖼️ الاستوديو
+        </button>
+      </div>
+      <input type="file" id="challengeCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+      <input type="file" id="challengeGalleryInput" accept="image/*" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
       <img id="challengePhotoPreview" class="preview-img" alt="صورة التحدي" />
       <button class="btn btn-primary" onclick="sendChallengePhoto()">إرسال</button>
       <div id="photoSentStatus" style="margin-top:12px; text-align:center; color:var(--success); font-weight:bold;"></div>
@@ -410,6 +425,19 @@
   let foundKeyIds = new Set();
   let gpsWatchId = null;
   let activeCashSlots = ["", "", ""];
+
+  // فتح الكاميرا أو الاستوديو للمستخدم
+  window.openMediaSource = (target, mode) => {
+    const inputId =
+      target === "receipt"
+        ? (mode === "camera" ? "receiptCameraInput" : "receiptGalleryInput")
+        : (mode === "camera" ? "challengeCameraInput" : "challengeGalleryInput");
+    const inp = document.getElementById(inputId);
+    if (inp) {
+      inp.value = "";
+      inp.click();
+    }
+  };
 
   window.showScreen = (screenId, force = false) => {
     if (!splashCompleted && !force) {
@@ -704,7 +732,7 @@
 
   window.submitReceipt = async () => {
     if (!receiptBase64) {
-      alert("يرجى التقاط صورة الإيصال أو اختيارها من الاستديو أولاً.");
+      alert("يرجى التقاط صورة الإيصال أو اختيارها من الاستوديو أولاً.");
       return;
     }
     if (!currentTeamId) return;
