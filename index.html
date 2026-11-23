@@ -1,1021 +1,917 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07040F">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="صراع الوحوش">
-  <title>صراع الوحوش - Monster Challenge</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>صراع الوحوش - تحديات ومكافآت</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-2: #1d2942;
+      --primary: #f59e0b;
+      --primary-dark: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
     }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
       margin: 0;
-      padding: 15px;
-      background: #07040F;
-      color: #FFFFFF;
-      font-family: Tahoma, Arial, sans-serif;
+      background: radial-gradient(circle at top, #182238 0%, var(--bg) 70%);
+      color: var(--text);
+      min-height: 100vh;
     }
-    .wrap {
-      max-width: 680px;
-      margin: 0 auto;
+    .screen { display: none; min-height: 100vh; padding: 20px; }
+    .screen.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .screen-top { justify-content: flex-start; padding-top: 28px; }
+
+    /* شاشة البداية 30 ثانية */
+    .splash-box { text-align: center; max-width: 420px; width: 100%; }
+    .monster-title {
+      font-size: 2.1rem; font-weight: 900; color: var(--primary);
+      text-shadow: 0 0 22px rgba(245, 158, 11, 0.45); margin-bottom: 10px;
     }
-    .card {
-      background: #140D24;
-      border: 1px solid #392861;
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
+    .timer-circle {
+      width: 110px; height: 110px; border-radius: 50%; margin: 22px auto;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; font-weight: bold; color: var(--primary);
+      border: 4px solid var(--primary); background: var(--card);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
     }
-    .screen {
-      display: none;
+    .progress-wrap {
+      width: 100%; height: 18px; background: var(--card);
+      border-radius: 999px; overflow: hidden; border: 1px solid var(--card-2);
     }
-    .screen.active {
-      display: block;
+    .progress-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary-dark), var(--success));
+      transition: width 0.25s linear;
     }
-    h1, h2, h3 {
-      color: #FFD700;
-      margin-top: 0;
+    .progress-label { margin-top: 10px; color: var(--muted); font-weight: bold; }
+
+    /* البطاقات والأزرار */
+    .box {
+      width: 100%; max-width: 520px; background: var(--card);
+      border: 1px solid var(--card-2); border-radius: 18px; padding: 22px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
-    .muted {
-      color: #C2B8D9;
-      font-size: 13px;
-      line-height: 1.65;
-    }
-    label {
-      display: block;
-      margin: 12px 0 6px;
-      font-size: 14px;
-      color: #FFE99E;
-      font-weight: bold;
-    }
-    input[type="text"], input[type="tel"], input[type="number"], textarea {
-      width: 100%;
-      padding: 11px;
-      border-radius: 9px;
-      border: 1px solid #483575;
-      background: #090512;
-      color: #FFFFFF;
-      font-size: 14px;
-      font-family: Tahoma, Arial, sans-serif;
-    }
-    textarea {
-      min-height: 85px;
-      resize: vertical;
-    }
-    .mode-row, .row-2 {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .mode-row > *, .row-2 > * {
-      flex: 1;
-      min-width: 160px;
-    }
-    .member-box {
-      background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
-    }
+    h2, h3 { margin-top: 0; color: var(--primary); text-align: center; }
     .btn {
-      padding: 11px 14px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: transform 0.08s ease, filter 0.15s ease;
+      width: 100%; padding: 13px 16px; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: bold; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.12s ease, opacity 0.2s ease;
     }
-    .btn:active {
-      transform: scale(0.96);
-      filter: brightness(0.9);
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-info { background: var(--info); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--card-2); }
+    .gap-10 { display: flex; flex-direction: column; gap: 12px; }
+
+    /* صفوف التسجيل والتحقق من الأخطاء */
+    .member-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 10px; position: relative;
     }
-    .btn-gold {
-      background: #FFD700;
-      color: #07040F;
-      width: 100%;
-      box-shadow: 0 3px 0 #B59500;
+    input[type="text"], input[type="tel"] {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1.5px solid var(--card-2); background: #0b101d;
+      color: var(--text); font-size: 0.95rem; outline: none;
     }
-    .btn-blue {
-      background: #2A6FD6;
-      color: #FFFFFF;
-      box-shadow: 0 3px 0 #184384;
+    input.input-error {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
     }
-    .btn-green {
-      background: #1FA855;
-      color: #FFFFFF;
-      box-shadow: 0 3px 0 #136B36;
+    .error-msg {
+      color: var(--danger); font-size: 0.88rem; font-weight: bold;
+      margin: 6px 0 12px; display: none; text-align: center;
     }
-    .btn-dark {
-      background: #261942;
-      color: #FFFFFF;
-      border: 1px solid #493575;
-      box-shadow: 0 3px 0 #130C22;
+    .add-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: 2px dashed var(--primary);
+      background: rgba(245, 158, 11, 0.1); color: var(--primary);
+      font-size: 1.5rem; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .phone-chip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-top: 8px;
-      cursor: pointer;
+
+    /* أرقام الكاش */
+    .cash-card {
+      background: #0b101d; border: 1px solid var(--card-2); border-radius: 12px;
+      padding: 12px; margin-bottom: 10px; display: flex;
+      justify-content: space-between; align-items: center;
     }
-    .phone-chip.selected {
-      border-color: #FFD700;
-      background: #251742;
+    .copy-chip {
+      background: var(--card-2); color: var(--primary); border: none;
+      padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.82rem;
     }
-    .msg-err {
-      color: #FF8FA3;
-      font-size: 13px;
-      margin-top: 8px;
-      min-height: 18px;
-    }
-    .msg-ok {
-      color: #6EE7A8;
-      font-size: 13px;
-      margin-top: 8px;
-      min-height: 18px;
-    }
-    .banner-box {
-      background: #1E1338;
-      border: 1px solid #FFD70066;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 13px;
-    }
-    .coin-item {
-      background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-    .menu-check-item {
-      background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 9px;
-      padding: 9px 12px;
-      margin-top: 8px;
-    }
-    .menu-check-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .follow-phone {
-      color: #FFD700;
-      font-size: 17px;
-      font-weight: bold;
-      direction: ltr;
-      text-align: center;
-      margin-top: 6px;
+
+    /* صندوق الكاميرا / الاستديو */
+    .upload-box {
+      border: 2px dashed var(--primary); border-radius: 14px; padding: 18px;
+      text-align: center; background: #0b101d; cursor: pointer; margin: 12px 0;
     }
     .preview-img {
-      max-width: 220px;
-      border-radius: 10px;
-      margin-top: 10px;
-      display: none;
+      width: 100%; max-height: 240px; object-fit: contain;
+      border-radius: 10px; margin-top: 10px; display: none;
     }
-    .stats-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      background: #1B1130;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      color: #FFE99E;
+
+    /* النقاط المتحركة للتحميل */
+    .dots::after {
+      content: "";
+      animation: dotsAnim 1.4s infinite steps(4, end);
     }
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 10px;
-      margin-top: 12px;
+    @keyframes dotsAnim {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
     }
-    .photo-thumb-card {
-      position: relative;
-      background: #110A21;
-      border: 1px solid #483575;
-      border-radius: 10px;
-      overflow: hidden;
-      padding: 4px;
+
+    /* مفاتيح GPS */
+    .keys-grid {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      margin: 16px 0;
     }
-    .photo-thumb-card img {
-      width: 100%;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 7px;
-      display: block;
+    .key-slot {
+      width: 74px; height: 74px; border-radius: 14px;
+      background: #0b101d; border: 2px solid #334155;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0.35; filter: grayscale(100%); transition: all 0.3s ease;
     }
-    .remove-photo-btn {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: none;
-      background: #E11D48;
-      color: #FFFFFF;
-      font-weight: bold;
-      font-size: 14px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    .key-slot.found {
+      opacity: 1; filter: grayscale(0%);
+      border-color: var(--primary); background: rgba(245, 158, 11, 0.16);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
     }
-    .camera-box {
-      background: #110A21;
-      border: 1px solid #483575;
-      border-radius: 10px;
-      padding: 10px;
-      margin-top: 10px;
-      display: none;
+
+    /* احتفال الفوز ومكافآت الصور القابلة للتكبير */
+    .celebration-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(245, 158, 11, 0.25));
+      border: 1px solid var(--success); border-radius: 14px;
+      padding: 16px; text-align: center; margin-bottom: 16px;
     }
-    .camera-box video {
-      width: 100%;
-      max-height: 260px;
-      border-radius: 8px;
-      background: #000000;
+    .meal-menu-img {
+      width: 100%; border-radius: 12px; margin-top: 12px;
+      cursor: zoom-in; border: 2px solid var(--primary); display: none;
     }
-    .leader-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      background: #1B1130;
-      border: 1px solid #3D2B68;
-      border-radius: 9px;
-      padding: 9px 11px;
-      margin-top: 7px;
-      font-size: 13px;
+    #zoomModal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+      z-index: 9999; align-items: center; justify-content: center; padding: 15px;
     }
+    #zoomModal img { max-width: 96%; max-height: 92vh; border-radius: 12px; }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-  <div class="wrap">
 
-    <div id="globalNoticeBox" class="banner-box" style="display:none;"></div>
+<!-- نافذة تكبير قائمة الطعام -->
+<div id="zoomModal" onclick="this.style.display='none'">
+  <img id="zoomedImg" src="" alt="قائمة الطعام" />
+</div>
 
-    <!-- الشاشة 1: تكوين فريق جديد أو دخول فريق مسجل مسبقاً -->
-    <div id="screenTeamSetup" class="card screen active">
-      <h1>👾 صراع الوحوش</h1>
-      <h2>تسجيل فريق جديد أو متابعة فريقك السابق</h2>
-      <div class="muted">كوّن فريقاً جديداً باسم غير مكرر وأرقام موبايل مصرية صحيحة (010 / 011 / 012 / 015)، أو سجّل الدخول بفريقك السابق بنفس الاسم ورقم القائد لاستكمال نقاطك وتصنيفك في الجولات الجديدة.</div>
-
-      <div class="mode-row" style="margin-top:12px;">
-        <button type="button" id="btnTabNewTeam" class="btn btn-gold" onclick="switchEntryTab('new')">✨ فريق جديد</button>
-        <button type="button" id="btnTabExistingTeam" class="btn btn-dark" onclick="switchEntryTab('existing')">🏆 دخول فريق مسجل (استكمال التصنيف)</button>
-      </div>
-
-      <!-- قسم إنشاء فريق جديد -->
-      <div id="newTeamEntrySection">
-        <div class="mode-row" style="margin-top:10px;">
-          <button type="button" id="btnSoloMode" class="btn btn-gold" onclick="setTeamMode('solo')">لعب فردي (1)</button>
-          <button type="button" id="btnGroupMode" class="btn btn-dark" onclick="setTeamMode('group')">فريق (من 1 إلى 5)</button>
-        </div>
-
-        <label>اسم الفريق (خاص وغير قابل للتكرار)</label>
-        <input type="text" id="teamNameInput" placeholder="مثال: النسور">
-
-        <div id="memberCountBox" style="display:none;">
-          <label>عدد أفراد الفريق (من 1 إلى 5)</label>
-          <input type="number" id="memberCountInput" min="1" max="5" value="2" oninput="renderMemberInputs()">
-        </div>
-
-        <div id="membersContainer"></div>
-
-        <div id="teamSetupErr" class="msg-err"></div>
-        <button type="button" id="btnNextTeam" class="btn btn-gold" onclick="handleTeamNext()">التالي (Next)</button>
-      </div>
-
-      <!-- قسم دخول فريق مسجل مسبقاً -->
-      <div id="existingTeamEntrySection" style="display:none;margin-top:10px;">
-        <div class="member-box">
-          <strong style="color:#FFD700;">استرجاع بيانات الفريق وتصنيفه</strong>
-          <label>اسم الفريق المسجل</label>
-          <input type="text" id="existingTeamNameInput" placeholder="اكتب اسم فريقك السابق بالضبط">
-          <label>رقم موبايل قائد الفريق (مصر)</label>
-          <input type="tel" id="existingLeaderPhoneInput" placeholder="010xxxxxxxx" dir="ltr">
-          <div id="existingTeamErr" class="msg-err"></div>
-          <button type="button" id="btnLoginExistingTeam" class="btn btn-gold" onclick="handleExistingTeamLogin()">دخول واستكمال النقاط والتصنيف</button>
-        </div>
-      </div>
-
-      <!-- لوحة ترتيب وتصنيف الفرق -->
-      <div class="banner-box" style="margin-top:16px;margin-bottom:0;">
-        <strong style="color:#FFD700;">🏅 ترتيب وتصنيف الفرق (الأعلى نقاطاً)</strong>
-        <div id="leaderboardContainer" class="muted" style="margin-top:6px;">جاري تحميل تصنيف الفرق...</div>
-      </div>
+<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش + عداد 30 ثانية وشريط تحميل 100% -->
+<section id="splashScreen" class="screen active">
+  <div class="splash-box">
+    <div class="monster-title">🐉 مرحباً بك في صراع الوحوش</div>
+    <p style="color:var(--muted);">استعد للتحديات والمكافآت...</p>
+    <div class="timer-circle" id="splashTimer">30</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="splashProgressBar"></div>
     </div>
-
-    <!-- الشاشة 2: الدفع ورفع إيصال الاشتراك -->
-    <div id="screenPayment" class="card screen">
-      <h2>تأكيد الاشتراك وإرسال الإيصال</h2>
-      <div class="muted">الفريق: <strong id="payTeamTitle" style="color:#FFD700;">-</strong></div>
-      <div id="payExistingStats" class="muted" style="color:#6EE7A8;margin-top:4px;display:none;"></div>
-
-      <label>قيمة الاشتراك (جنيه)</label>
-      <input type="number" id="payAmountInput" value="100" min="1">
-
-      <label>اختر رقم التحويل المعتمد من الأدمن</label>
-      <div id="activePhonesContainer">
-        <div class="muted">جاري تحميل أرقام التحويل...</div>
-      </div>
-
-      <label>صورة إيصال التحويل</label>
-      <input type="file" id="receiptFileInput" accept="image/*" onchange="handleReceiptFile(this)">
-      <img id="receiptPreviewImg" class="preview-img" alt="معاينة الإيصال">
-
-      <div id="paymentErr" class="msg-err"></div>
-      <div id="paymentOk" class="msg-ok"></div>
-
-      <button type="button" class="btn btn-green" onclick="submitPaymentAndRegister()">إرسال الإيصال وتأكيد الاشتراك</button>
-      <button type="button" class="btn btn-dark" onclick="backFromPayment()">← رجوع</button>
-    </div>
-
-    <!-- الشاشة 3: انتظار مراجعة الأدمن أو عرض حالة الفريق -->
-    <div id="screenWaiting" class="card screen">
-      <h2>حالة طلب الفريق</h2>
-      <div id="waitingStatusBox" class="muted">جاري متابعة حالة الفريق مع الأدمن...</div>
-      <div id="teamDirectMsgBox" class="banner-box" style="display:none;margin-top:12px;"></div>
-      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">تسجيل فريق جديد / تبديل الفريق</button>
-    </div>
-
-    <!-- الشاشة 4: شاشة التحدي وGPS Crypo والمفاتيح والصور -->
-    <div id="screenChallenge" class="card screen">
-      <h2>🔥 التحدي نشط</h2>
-      <div class="stats-bar">
-        <span>الفريق: <strong id="chTeamName">-</strong></span>
-        <span>النقاط: <strong id="chPoints">0</strong></span>
-        <span>الدرجة: <strong id="chRank">1</strong></span>
-      </div>
-
-      <div id="chDirectMsgBox" class="banner-box" style="display:none;"></div>
-
-      <div class="banner-box">
-        <strong style="color:#FFD700;">نص التحدي:</strong>
-        <div id="chTextBox" class="muted" style="margin-top:6px;">-</div>
-      </div>
-
-      <!-- نافذة كاميرا واستديو وصور التحدي أسفل نص التحدي مباشرة -->
-      <div id="challengePhotoSection" class="banner-box">
-        <strong id="chPhotoLabel" style="color:#FFD700;">📸 نافذة تصوير ورفع صور التحدي (كاميرا / استديو)</strong>
-        <div class="muted" style="margin-top:4px;">صور صورة بالكاميرا أو اختر صورة أو أكثر من الاستديو، واحذف أي صورة بعلامة <strong>×</strong> لو لم تعجبك ثم اضغط إرسال.</div>
-
-        <input type="file" id="chPhotosInput" accept="image/*" multiple style="display:none;" onchange="handleGallerySelection(this)">
-        <input type="file" id="chCameraFallbackInput" accept="image/*" capture="environment" style="display:none;" onchange="handleGallerySelection(this)">
-
-        <div class="row-2" style="margin-top:8px;">
-          <button type="button" class="btn btn-blue" onclick="openLiveCamera()">📷 تصوير بالكاميرا</button>
-          <button type="button" class="btn btn-dark" onclick="document.getElementById('chPhotosInput').click()">🖼️ رفع من الاستديو</button>
-        </div>
-
-        <div id="liveCameraBox" class="camera-box">
-          <video id="cameraVideo" autoplay playsinline></video>
-          <canvas id="cameraCanvas" style="display:none;"></canvas>
-          <div class="row-2">
-            <button type="button" class="btn btn-green" onclick="capturePhotoFromCamera()">📸 التقاط الصورة</button>
-            <button type="button" class="btn btn-dark" onclick="closeLiveCamera()">إغلاق الكاميرا</button>
-          </div>
-        </div>
-
-        <div id="pendingPhotosGrid" class="photo-grid"></div>
-
-        <button type="button" class="btn btn-gold" onclick="uploadChallengePhotos()">📤 إرسال</button>
-        <div id="chPhotoMsg" class="msg-ok"></div>
-        <div id="chPhotoErr" class="msg-err"></div>
-      </div>
-
-      <div class="banner-box" style="margin-top:14px;">
-        <strong style="color:#FFD700;">🪙 عملات Crypo بالـ GPS (+10 نقاط)</strong>
-        <div class="muted">حدّث موقعك لالتقاط العملات القريبة منك ضمن النطاق المحدد:</div>
-        <button type="button" class="btn btn-blue" onclick="refreshPlayerLocation()">📍 تحديث موقعي الآن</button>
-        <div id="playerGpsStatus" class="msg-ok"></div>
-        <div id="gpsCoinsContainer"></div>
-      </div>
-
-      <div id="vaultSection" class="banner-box" style="display:none;margin-top:14px;">
-        <strong style="color:#FFD700;">🗝️ تحدي المفاتيح الـ 3 والخزنة</strong>
-        <div id="vaultStatusText" class="muted" style="margin-top:6px;"></div>
-        <div id="vaultEarthLinkBox" style="margin-top:6px;"></div>
-        <div class="row-2" style="margin-top:8px;">
-          <button type="button" class="btn btn-blue" onclick="tryCollectKey(0)">التقاط المفتاح 1</button>
-          <button type="button" class="btn btn-blue" onclick="tryCollectKey(1)">التقاط المفتاح 2</button>
-          <button type="button" class="btn btn-blue" onclick="tryCollectKey(2)">التقاط المفتاح 3</button>
-        </div>
-        <button type="button" class="btn btn-green" onclick="tryOpenVault()">🔓 فتح الخزنة</button>
-        <div id="vaultActionMsg" class="msg-ok"></div>
-      </div>
-
-      <button type="button" class="btn btn-dark" onclick="resetLocalSession()">الخروج من جلسة الفريق</button>
-    </div>
-
-    <!-- الشاشة 5: شاشة الفوز أو الخسارة والجوائز -->
-    <div id="screenResult" class="card screen">
-      <h2 id="resultHeading">نتيجة التحدي</h2>
-      <div id="resultSummaryBox" class="muted"></div>
-      <div id="cashReceiptPreviewBox" style="margin-top:10px;"></div>
-
-      <div id="winRewardControls" style="display:none;margin-top:12px;">
-        <label>اختر جائزتك:</label>
-        <div class="row-2">
-          <button type="button" class="btn btn-gold" onclick="selectWinReward('cash')">💵 نقدي</button>
-          <button type="button" class="btn btn-blue" onclick="selectWinReward('food')">🍽️ طعام</button>
-          <button type="button" class="btn btn-blue" onclick="selectWinReward('voucher')">🎟️ كروت خصومات</button>
-          <button type="button" class="btn btn-dark" onclick="selectWinReward('goods')">📦 سلع استهلاكية</button>
-        </div>
-        <div id="winRewardDetailsBox" style="margin-top:12px;"></div>
-      </div>
-
-      <div id="lossRewardResult" style="display:none;margin-top:12px;"></div>
-
-      <button type="button" class="btn btn-gold" style="margin-top:16px;" onclick="startNewRoundForSameTeam()">🔄 دخول تحدٍ جديد بنفس الفريق (الاحتفاظ بالنقاط والتصنيف)</button>
-      <button type="button" class="btn btn-dark" style="margin-top:8px;" onclick="resetLocalSession()">الخروج / تسجيل فريق آخر</button>
-    </div>
-
+    <div class="progress-label" id="splashPercent">0%</div>
   </div>
+</section>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
-      authDomain: "monester-challenge.firebaseapp.com",
-      databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
-      projectId: "monester-challenge",
-      storageBucket: "monester-challenge.firebasestorage.app",
-      messagingSenderId: "258204342725",
-      appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
-      measurementId: "G-RW050GJMCZ"
-    };
+<!-- 2. الشاشة التالية: تسجيل (فريق جديد) أو مشترك (فريق مسجل سابقاً) -->
+<section id="homeChoiceScreen" class="screen">
+  <div class="box gap-10">
+    <h2>⚔️ صراع الوحوش</h2>
+    <p style="color:var(--muted); text-align:center; margin-top:-4px;">اختر طريقة الدخول للمتابعة</p>
+    <button class="btn btn-primary" onclick="showScreen('registerScreen')">📝 تسجيل (فريق جديد)</button>
+    <button class="btn btn-info" onclick="showScreen('memberLoginScreen')">🛡️ مشترك (مسجل مسبقاً)</button>
+  </div>
+</section>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<!-- 3. صفحة التسجيل (حتى 5 أسماء وأرقام موبايل مصرية وفريدة) -->
+<section id="registerScreen" class="screen screen-top">
+  <div class="box">
+    <h2>📝 تسجيل فريق جديد</h2>
+    <p style="color:var(--muted); font-size:0.86rem; text-align:center;">
+      أدخل الاسم ورقم الموبايل المصري (بحد أقصى 5 أعضاء). يجب أن يكون كل اسم ورقم فريدين.
+    </p>
 
-    const STORAGE_TEAM_KEY = 'monster_challenge_team_key_v1';
-    const RANK_STEP = 10000;
+    <div id="membersContainer"></div>
 
-    let teamMode = 'solo';
-    let draftTeam = null;
-    let returningTeamKey = '';
-    let selectedPhone = '';
-    let receiptDataUrl = '';
-    let settings = {};
-    let gpsCoinsMap = {};
-    let allTeamsCache = {};
-    let currentTeamKey = '';
-    let currentTeamData = null;
-    let lastPlayerCoords = null;
-    let teamRefListener = null;
-    let pendingChallengePhotos = [];
-    let cameraStream = null;
+    <div style="text-align:center; margin: 10px 0;">
+      <button type="button" class="add-btn" id="addMemberBtn" onclick="addMemberRow()" title="إضافة عضو">+</button>
+      <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+        إضافة عضو (<span id="membersCountText">1</span> / 5)
+      </div>
+    </div>
 
-    function toWesternDigits(str) {
-      return String(str || '').replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632));
-    }
+    <div id="regErrorMsg" class="error-msg">الاسم او الرقم غير صحيح</div>
 
-    function normalizeTeamName(name) {
-      return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
-    }
+    <button class="btn btn-success" id="submitRegBtn" onclick="submitRegistration()">تسجيل</button>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="showScreen('homeChoiceScreen')">⬅️ رجوع</button>
+  </div>
+</section>
 
-    function normalizeEgyptPhone(rawPhone) {
-      const cleaned = toWesternDigits(rawPhone).replace(/[^0-9]/g, '');
-      if (cleaned.startsWith('0020') && cleaned.length === 14) {
-        return cleaned.slice(3);
+<!-- 4. شاشة انتظار موافقة الأدمن أو إشعار الرفض -->
+<section id="waitingApprovalScreen" class="screen">
+  <div class="box" style="text-align:center;">
+    <h2 id="approvalTitle">⏳ تم إرسال طلب التسجيل</h2>
+    <p id="approvalDesc" style="color:var(--muted); line-height:1.7;">
+      طلبك الآن في صفحة طلبات التسجيل لدى الأدمن. سيتم نقلك تلقائياً فور الموافقة.
+    </p>
+    <div id="rejectedBanner" style="display:none; background:rgba(239,68,68,0.18); border:1px solid var(--danger); padding:14px; border-radius:12px; color:#fca5a5; font-weight:bold; margin-bottom:14px;">
+      ❌ تم رفض طلبك — لا يمكنك الانتقال إلى الصفحة التالية.
+    </div>
+    <button class="btn btn-outline" onclick="showScreen('homeChoiceScreen')">⬅️ العودة للبداية</button>
+  </div>
+</section>
+
+<!-- 5. شاشة دخول المشترك المسجل مسبقاً -->
+<section id="memberLoginScreen" class="screen">
+  <div class="box gap-10">
+    <h2>🛡️ دخول المشتركين</h2>
+    <p style="color:var(--muted); font-size:0.88rem; text-align:center;">
+      أدخل رقم الموبايل المسجل لفريقك للانتقال إلى الاشتراك والتحويل المالي:
+    </p>
+    <input type="tel" id="loginPhoneInput" placeholder="مثال: 01012345678" />
+    <div id="loginErrorMsg" class="error-msg">الاسم او الرقم غير صحيح</div>
+    <button class="btn btn-primary" onclick="loginExistingMember()">دخول</button>
+    <button class="btn btn-outline" onclick="showScreen('homeChoiceScreen')">⬅️ رجوع</button>
+  </div>
+</section>
+
+<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 أرقام كاش + إيصال + تأكيد) -->
+<section id="paymentScreen" class="screen screen-top">
+  <div class="box">
+    <h2>💳 الاشتراك في التحدي والتحويل المالي</h2>
+    <p style="color:var(--muted); font-size:0.88rem; text-align:center;">
+      حوّل قيمة الاشتراك على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال:
+    </p>
+
+    <div id="cashNumbersList">جاري تحميل أرقام الكاش...</div>
+
+    <label class="upload-box" for="receiptFileInput">
+      <div style="font-size:2rem;">📷 🖼️</div>
+      <div style="font-weight:bold; color:var(--primary);">التقاط صورة الإيصال أو اختيارها من الاستديو</div>
+      <div style="font-size:0.8rem; color:var(--muted);">اضغط هنا لفتح الكاميرا أو الاستديو</div>
+      <input type="file" id="receiptFileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
+      <img id="receiptPreview" class="preview-img" alt="معاينة الإيصال" />
+    </label>
+
+    <button class="btn btn-success" id="confirmReceiptBtn" onclick="submitReceipt()">تأكيد</button>
+
+    <div id="receiptLoadingBox" style="display:none; text-align:center; margin-top:14px; color:var(--primary); font-weight:bold;">
+      جارى تنفيذ طلبك<span class="dots"></span>
+    </div>
+  </div>
+</section>
+
+<!-- 7. شاشة انتظار موعد التحدي التالي (عند اكتمال عدد الفرق) -->
+<section id="nextChallengeScreen" class="screen">
+  <div class="box" style="text-align:center;">
+    <h2>⏳ اكتمل عدد الفرق لهذا التحدي</h2>
+    <p style="color:var(--muted);">تم الوصول للحد الأقصى للفرق المشاركة حالياً.</p>
+    <div style="background:#0b101d; border:1px solid var(--primary); padding:16px; border-radius:12px; margin:16px 0;">
+      <div style="color:var(--muted); font-size:0.9rem;">موعد التحدي التالي:</div>
+      <div id="nextChallengeTimeDisplay" style="font-size:1.3rem; font-weight:bold; color:var(--primary); margin-top:6px;">
+        سيتم تحديده قريباً
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. شاشة التحدي اليومي (صور أو مفاتيح GPS) -->
+<section id="challengeScreen" class="screen screen-top">
+  <div class="box">
+    <h2>🎯 التحدي اليومي</h2>
+    <div id="challengeDescriptionBox" style="background:#0b101d; padding:14px; border-radius:12px; border:1px solid var(--card-2); margin-bottom:14px; line-height:1.7;">
+      جاري تحميل التحدي...
+    </div>
+
+    <!-- وضع تحدي الصور -->
+    <div id="photoChallengeSection" style="display:none;">
+      <label class="upload-box" for="challengePhotoInput">
+        <div style="font-size:2rem;">📷 🖼️</div>
+        <div style="font-weight:bold; color:var(--primary);">التقاط صورة أو سحبها من الاستديو</div>
+        <input type="file" id="challengePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+        <img id="challengePhotoPreview" class="preview-img" alt="صورة التحدي" />
+      </label>
+      <button class="btn btn-primary" onclick="sendChallengePhoto()">إرسال</button>
+      <div id="photoSentStatus" style="margin-top:12px; text-align:center; color:var(--success); font-weight:bold;"></div>
+    </div>
+
+    <!-- وضع تحدي المفاتيح (GPS) -->
+    <div id="keysChallengeSection" style="display:none;">
+      <div style="text-align:center; color:var(--muted); font-size:0.9rem;">
+        المفاتيح المجمعة: <b id="foundKeysCount" style="color:var(--primary);">0</b> / <b id="requiredKeysTarget">3</b>
+      </div>
+      <div class="keys-grid" id="keysSlotsContainer"></div>
+      <div id="gpsStatusText" style="text-align:center; font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
+        جاري تتبع موقعك الجغرافي للبحث عن المفاتيح...
+      </div>
+      <button class="btn btn-success" id="submitKeysWinnerBtn" style="display:none;" onclick="submitKeysVictory()">
+        إرسال (إعلان الفوز بالمفاتيح)
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 9. شاشة المكافآت والنتائج (فوز أو خسارة) -->
+<section id="rewardsScreen" class="screen screen-top">
+  <div class="box">
+    <!-- حالة الفوز -->
+    <div id="winnerView" style="display:none;">
+      <div class="celebration-banner">
+        <div style="font-size:2.3rem;">🎉🏆🎊</div>
+        <h2 style="color:var(--success); margin:8px 0;">لقد ربحت!</h2>
+        <div style="font-weight:bold; color:var(--primary);">✨ ربحت 10 نقاط ✨</div>
+      </div>
+
+      <h3>🎁 المكافآت</h3>
+      <div class="gap-10">
+        <button class="btn btn-primary" onclick="openCashRewardBox()">💵 نقدي</button>
+        <button class="btn btn-info" onclick="openFreeMealMenu()">🍔 وجبات مجانية</button>
+      </div>
+
+      <!-- قسم المكسب النقدي -->
+      <div id="cashRewardBox" style="display:none; background:#0b101d; padding:14px; border-radius:12px; margin-top:14px; border:1px solid var(--card-2);">
+        <div style="color:var(--muted); font-size:0.9rem;">قيمة مكسبك النقدي:</div>
+        <div id="prizeAmountValue" style="font-size:1.25rem; font-weight:bold; color:var(--success); margin:6px 0 12px;">—</div>
+        <label style="font-size:0.88rem; color:var(--muted);">أدخل رقم الموبايل لاستلام التحويل عليه:</label>
+        <input type="tel" id="payoutPhoneInput" placeholder="010xxxxxxxx" style="margin-top:6px;" />
+        <button class="btn btn-success" style="margin-top:10px;" onclick="confirmPayoutRequest()">تأكيد</button>
+        <div id="payoutConfirmMsg" style="margin-top:10px; text-align:center; color:var(--success); font-weight:bold;"></div>
+      </div>
+
+      <!-- صورة الوجبات المجانية -->
+      <img id="freeMealMenuImg" class="meal-menu-img" onclick="zoomImage(this.src)" alt="قائمة الوجبات المجانية" />
+    </div>
+
+    <!-- حالة الخسارة -->
+    <div id="loserView" style="display:none; text-align:center;">
+      <div style="background:rgba(239,68,68,0.15); border:1px solid var(--danger); border-radius:14px; padding:16px; margin-bottom:14px;">
+        <h2 style="color:#fca5a5; margin-bottom:6px;">لقد خسرت ولكنك ربحت وجبات بنصف الثمن</h2>
+        <p style="color:var(--muted); margin:0; font-size:0.9rem;">اضغط على صورة القائمة لتكبيرها</p>
+      </div>
+      <img id="halfMealMenuImg" class="meal-menu-img" style="display:block;" onclick="zoomImage(this.src)" alt="قائمة الوجبات بنصف الثمن" />
+    </div>
+  </div>
+</section>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, get, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
+    authDomain: "monester-challenge.firebaseapp.com",
+    databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
+    projectId: "monester-challenge",
+    storageBucket: "monester-challenge.firebasestorage.app",
+    messagingSenderId: "258204342725",
+    appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
+    measurementId: "G-RW050GJMCZ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let currentTeamId = null;
+  let currentTeamData = null;
+  let allTeamsCache = {};
+  let challengeConfig = {};
+  let receiptBase64 = "";
+  let challengePhotoBase64 = "";
+  let foundKeyIds = new Set();
+  let gpsWatchId = null;
+
+  // التنقل بين الشاشات
+  window.showScreen = (screenId) => {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(screenId).classList.add("active");
+    window.scrollTo(0, 0);
+  };
+
+  window.zoomImage = (src) => {
+    if (!src) return;
+    document.getElementById("zoomedImg").src = src;
+    document.getElementById("zoomModal").style.display = "flex";
+  };
+
+  // ==========================================
+  // 1. شاشة البداية: عداد 30 ثانية + شريط 100%
+  // ==========================================
+  function startSplashCountdown() {
+    const totalSeconds = 30;
+    let remaining = totalSeconds;
+    const timerEl = document.getElementById("splashTimer");
+    const barEl = document.getElementById("splashProgressBar");
+    const pctEl = document.getElementById("splashPercent");
+
+    const interval = setInterval(() => {
+      remaining--;
+      const elapsed = totalSeconds - remaining;
+      const pct = Math.min(100, Math.round((elapsed / totalSeconds) * 100));
+
+      timerEl.innerText = Math.max(0, remaining);
+      barEl.style.width = `${pct}%`;
+      pctEl.innerText = `${pct}%`;
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        showScreen("homeChoiceScreen");
       }
-      if (cleaned.startsWith('20') && cleaned.length === 12) {
-        return '0' + cleaned.slice(2);
-      }
-      return cleaned;
-    }
+    }, 1000);
+  }
+  startSplashCountdown();
 
-    function isValidEgyptMobile(rawPhone) {
-      const normalized = normalizeEgyptPhone(rawPhone);
-      return /^01[0125][0-9]{8}$/.test(normalized);
-    }
+  // ==========================================
+  // 2. تسجيل الفريق (حتى 5 أسماء وأرقام مصرية فريدة)
+  // ==========================================
+  const MAX_MEMBERS = 5;
+  let memberRowsCount = 0;
+  const membersContainer = document.getElementById("membersContainer");
 
-    function calcRank(points) {
-      return Math.floor(Math.max(0, Number(points || 0)) / RANK_STEP) + 1;
+  window.addMemberRow = () => {
+    if (memberRowsCount >= MAX_MEMBERS) return;
+    memberRowsCount++;
+    const idx = memberRowsCount;
+    const div = document.createElement("div");
+    div.className = "member-row";
+    div.id = `memberRow_${idx}`;
+    div.innerHTML = `
+      <input type="text" id="memberName_${idx}" placeholder="الاسم ${idx}" />
+      <input type="tel" id="memberPhone_${idx}" placeholder="رقم الموبايل (01xxxxxxxxx)" maxlength="11" />
+    `;
+    membersContainer.appendChild(div);
+    document.getElementById("membersCountText").innerText = memberRowsCount;
+    if (memberRowsCount >= MAX_MEMBERS) {
+      document.getElementById("addMemberBtn").style.display = "none";
     }
+  };
+  // إضافة أول صف افتراضياً
+  addMemberRow();
 
-    function goToScreen(screenId) {
-      if (screenId !== 'screenChallenge') {
-        closeLiveCamera();
-      }
-      document.querySelectorAll('.screen').forEach(el => {
-        el.classList.remove('active');
+  function isValidEgyptianPhone(phone) {
+    return /^01[0125][0-9]{8}$/.test(phone.trim());
+  }
+
+  function clearValidationErrors() {
+    document.getElementById("regErrorMsg").style.display = "none";
+    document.querySelectorAll("#membersContainer input").forEach(inp => inp.classList.remove("input-error"));
+  }
+
+  window.submitRegistration = async () => {
+    clearValidationErrors();
+    const errEl = document.getElementById("regErrorMsg");
+    const members = [];
+    const seenNames = new Set();
+    const seenPhones = new Set();
+    let hasError = false;
+
+    // جمع كل الأرقام والأسماء المسجلة مسبقاً في قاعدة البيانات لمنع التكرار
+    const existingNames = new Set();
+    const existingPhones = new Set();
+    Object.values(allTeamsCache).forEach(t => {
+      (t.members || []).forEach(m => {
+        if (m.name) existingNames.add(m.name.trim().toLowerCase());
+        if (m.phone) existingPhones.add(m.phone.trim());
       });
-      const target = document.getElementById(screenId);
-      if (target) {
-        target.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    for (let i = 1; i <= memberRowsCount; i++) {
+      const nameInp = document.getElementById(`memberName_${i}`);
+      const phoneInp = document.getElementById(`memberPhone_${i}`);
+      const name = nameInp.value.trim();
+      const phone = phoneInp.value.trim();
+
+      // إذا كان الصف فارغاً بالكامل وتمت إضافة صفوف أخرى نتجاهله، أما الصف الأول فيجب أن يمتلئ
+      if (!name && !phone && i > 1) continue;
+
+      const nameKey = name.toLowerCase();
+      const isNameInvalid = !name || seenNames.has(nameKey) || existingNames.has(nameKey);
+      const isPhoneInvalid = !isValidEgyptianPhone(phone) || seenPhones.has(phone) || existingPhones.has(phone);
+
+      if (isNameInvalid) {
+        nameInp.classList.add("input-error");
+        hasError = true;
+      }
+      if (isPhoneInvalid) {
+        phoneInp.classList.add("input-error");
+        hasError = true;
+      }
+
+      if (!isNameInvalid && !isPhoneInvalid) {
+        seenNames.add(nameKey);
+        seenPhones.add(phone);
+        members.push({ name, phone });
       }
     }
 
-    function switchEntryTab(tab) {
-      const btnNew = document.getElementById('btnTabNewTeam');
-      const btnEx = document.getElementById('btnTabExistingTeam');
-      const secNew = document.getElementById('newTeamEntrySection');
-      const secEx = document.getElementById('existingTeamEntrySection');
-
-      if (tab === 'existing') {
-        btnEx.className = 'btn btn-gold';
-        btnNew.className = 'btn btn-dark';
-        secNew.style.display = 'none';
-        secEx.style.display = 'block';
-      } else {
-        btnNew.className = 'btn btn-gold';
-        btnEx.className = 'btn btn-dark';
-        secNew.style.display = 'block';
-        secEx.style.display = 'none';
-      }
+    if (members.length === 0 || hasError) {
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
     }
 
-    function setTeamMode(mode) {
-      teamMode = mode;
-      const btnSolo = document.getElementById('btnSoloMode');
-      const btnGroup = document.getElementById('btnGroupMode');
-      const countBox = document.getElementById('memberCountBox');
-      const countInp = document.getElementById('memberCountInput');
+    const newTeamRef = push(ref(db, "teams"));
+    currentTeamId = newTeamRef.key;
+    localStorage.setItem("mc_team_id", currentTeamId);
 
-      if (mode === 'solo') {
-        btnSolo.className = 'btn btn-gold';
-        btnGroup.className = 'btn btn-dark';
-        countBox.style.display = 'none';
-        countInp.value = 1;
-      } else {
-        btnGroup.className = 'btn btn-gold';
-        btnSolo.className = 'btn btn-dark';
-        countBox.style.display = 'block';
-        if (Number(countInp.value || 1) < 1) countInp.value = 2;
-      }
-      renderMemberInputs();
+    await set(newTeamRef, {
+      teamName: members[0].name,
+      members,
+      status: "pending_registration",
+      points: 0,
+      createdAt: new Date().toLocaleString("ar-EG")
+    });
+
+    listenToTeamState(currentTeamId);
+    showScreen("waitingApprovalScreen");
+  };
+
+  // ==========================================
+  // 3. دخول المشترك المسجل مسبقاً
+  // ==========================================
+  window.loginExistingMember = () => {
+    const phone = document.getElementById("loginPhoneInput").value.trim();
+    const errEl = document.getElementById("loginErrorMsg");
+    errEl.style.display = "none";
+
+    if (!isValidEgyptianPhone(phone)) {
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
     }
 
-    function renderMemberInputs() {
-      const container = document.getElementById('membersContainer');
-      const countInp = document.getElementById('memberCountInput');
-      let count = teamMode === 'solo' ? 1 : Number(countInp.value || 1);
-      if (count < 1) count = 1;
-      if (count > 5) count = 5;
-      countInp.value = count;
+    let matchedId = null;
+    Object.entries(allTeamsCache).forEach(([tId, tData]) => {
+      const found = (tData.members || []).some(m => m.phone === phone);
+      if (found) matchedId = tId;
+    });
 
-      let html = '';
-      for (let i = 0; i < count; i++) {
-        const title = i === 0 ? 'بيانات العضو الأول (قائد الفريق)' : ('بيانات العضو ' + (i + 1));
-        html += `
-          <div class="member-box">
-            <strong style="color:#FFD700;">${title}</strong>
-            <label>الاسم</label>
-            <input type="text" class="m-name" id="mName_${i}" placeholder="اكتب الاسم">
-            <label>رقم الموبايل (مصر: 010 / 011 / 012 / 015)</label>
-            <input type="tel" class="m-phone" id="mPhone_${i}" placeholder="010xxxxxxxx" dir="ltr">
+    if (!matchedId) {
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
+    }
+
+    currentTeamId = matchedId;
+    localStorage.setItem("mc_team_id", currentTeamId);
+    listenToTeamState(currentTeamId);
+    showScreen("paymentScreen");
+  };
+
+  // ==========================================
+  // 4. متابعة حالة الفريق والانتقال التلقائي حسب قرار الأدمن
+  // ==========================================
+  function listenToTeamState(teamId) {
+    onValue(ref(db, `teams/${teamId}`), (snap) => {
+      const team = snap.val();
+      if (!team) return;
+      currentTeamData = team;
+
+      if (team.status === "rejected") {
+        showScreen("waitingApprovalScreen");
+        document.getElementById("approvalTitle").innerText = "❌ تم رفض طلبك";
+        document.getElementById("approvalDesc").style.display = "none";
+        document.getElementById("rejectedBanner").style.display = "block";
+        return;
+      }
+
+      if (team.status === "approved_for_payment") {
+        showScreen("paymentScreen");
+        return;
+      }
+
+      if (team.status === "in_challenge") {
+        evaluateChallengeAccess();
+        return;
+      }
+
+      if (team.status === "won") {
+        showRewardsScreen("winner");
+        return;
+      }
+
+      if (team.status === "lost") {
+        showRewardsScreen("loser");
+        return;
+      }
+    });
+  }
+
+  onValue(ref(db, "teams"), (snap) => {
+    allTeamsCache = snap.val() || {};
+  });
+
+  // ==========================================
+  // 5. شاشة الاشتراك والتحويل المالي (3 أرقام كاش + إيصال)
+  // ==========================================
+  onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
+    const nums = snap.val() || [];
+    const container = document.getElementById("cashNumbersList");
+    container.innerHTML = "";
+    if (!nums.length) {
+      container.innerHTML = "<p style='color:var(--muted); text-align:center;'>لا توجد أرقام كاش متاحة حالياً.</p>";
+      return;
+    }
+    nums.slice(0, 3).forEach((num, idx) => {
+      container.innerHTML += `
+        <div class="cash-card">
+          <div>
+            <span style="color:var(--muted); font-size:0.8rem;">رقم كاش ${idx + 1}:</span><br/>
+            <strong style="font-size:1.05rem; letter-spacing:1px;">${num}</strong>
+          </div>
+          <button class="copy-chip" onclick="copyCashNum('${num}')">نسخ</button>
+        </div>
+      `;
+    });
+  });
+
+  window.copyCashNum = (num) => {
+    navigator.clipboard?.writeText(num);
+    alert("تم نسخ الرقم: " + num);
+  };
+
+  function compressImageToBase64(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxW = 800;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        callback(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  window.handleReceiptSelected = (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    compressImageToBase64(file, (b64) => {
+      receiptBase64 = b64;
+      const img = document.getElementById("receiptPreview");
+      img.src = b64;
+      img.style.display = "block";
+    });
+  };
+
+  window.submitReceipt = async () => {
+    if (!receiptBase64) {
+      alert("يرجى التقاط صورة الإيصال أو اختيارها من الاستديو أولاً.");
+      return;
+    }
+    if (!currentTeamId) return;
+
+    document.getElementById("receiptLoadingBox").style.display = "block";
+    document.getElementById("confirmReceiptBtn").disabled = true;
+
+    await update(ref(db, `teams/${currentTeamId}`), {
+      receiptImage: receiptBase64,
+      status: "receipt_uploaded"
+    });
+  };
+
+  // ==========================================
+  // 6. التحقق من عدد الفرق والدخول للتحدي اليومي
+  // ==========================================
+  onValue(ref(db, "settings/challenge"), (snap) => {
+    challengeConfig = snap.val() || {};
+    if (currentTeamData && currentTeamData.status === "in_challenge") {
+      evaluateChallengeAccess();
+    }
+  });
+
+  function evaluateChallengeAccess() {
+    const maxTeams = parseInt(challengeConfig.maxTeams) || 10;
+    const activeChallengeTeams = Object.entries(allTeamsCache).filter(([tId, t]) =>
+      ["in_challenge", "won", "lost"].includes(t.status)
+    );
+
+    const isAlreadyInside = activeChallengeTeams.some(([tId]) => tId === currentTeamId);
+    const currentCount = activeChallengeTeams.length;
+
+    // إذا كان العدد >= المحدد ولم يكن الفريق من الداخلين بالفعل، تظهر رسالة موعد التحدي التالي
+    if (!isAlreadyInside && currentCount >= maxTeams) {
+      document.getElementById("nextChallengeTimeDisplay").innerText =
+        challengeConfig.nextChallengeTime || "سيتم الإعلان عن الموعد قريباً";
+      showScreen("nextChallengeScreen");
+      return;
+    }
+
+    // إذا كان عدد الفرق < العدد المحدد (أو الفريق ضمن العدد المسموح) ينتقل لصفحة التحدي
+    renderChallengeScreen();
+  }
+
+  function renderChallengeScreen() {
+    showScreen("challengeScreen");
+    document.getElementById("challengeDescriptionBox").innerText =
+      challengeConfig.description || "التحدي اليومي جاهز!";
+
+    const type = challengeConfig.type || "photo";
+    document.getElementById("photoChallengeSection").style.display = type === "photo" ? "block" : "none";
+    document.getElementById("keysChallengeSection").style.display = type === "keys" ? "block" : "none";
+
+    if (type === "keys") {
+      startKeysGpsChallenge();
+    }
+  }
+
+  // تحدي الصور
+  window.handleChallengePhotoSelected = (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    compressImageToBase64(file, (b64) => {
+      challengePhotoBase64 = b64;
+      const img = document.getElementById("challengePhotoPreview");
+      img.src = b64;
+      img.style.display = "block";
+    });
+  };
+
+  window.sendChallengePhoto = async () => {
+    if (!challengePhotoBase64) {
+      alert("يرجى التقاط أو اختيار صورة التحدي أولاً.");
+      return;
+    }
+    const primaryMember = currentTeamData?.members?.[0] || { name: "فريق", phone: "" };
+    await set(ref(db, `challengeSubmissions/${currentTeamId}`), {
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      phone: primaryMember.phone,
+      photo: challengePhotoBase64,
+      timestamp: Date.now()
+    });
+    document.getElementById("photoSentStatus").innerText = "✅ تم إرسال صورتك إلى صفحة صور التحدي بنجاح!";
+  };
+
+  // تحدي المفاتيح (GPS)
+  function getDistanceMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function startKeysGpsChallenge() {
+    const requiredKeys = parseInt(challengeConfig.requiredKeys) || 3;
+    const radius = parseFloat(challengeConfig.keyRadius) || 30;
+    document.getElementById("requiredKeysTarget").innerText = requiredKeys;
+
+    onValue(ref(db, "gpsCoins"), (snap) => {
+      const keysObj = snap.val() || {};
+      const keysArr = Object.entries(keysObj);
+      const slotsEl = document.getElementById("keysSlotsContainer");
+      slotsEl.innerHTML = "";
+
+      for (let i = 0; i < requiredKeys; i++) {
+        const keyEntry = keysArr[i];
+        const keyId = keyEntry ? keyEntry[0] : `slot_${i}`;
+        const isFound = foundKeyIds.has(keyId);
+        slotsEl.innerHTML += `
+          <div class="key-slot ${isFound ? "found" : ""}" id="keySlot_${keyId}">
+            <span style="font-size:1.6rem;">🗝️</span>
+            <span style="font-size:0.72rem; margin-top:3px;">مفتاح ${i + 1}</span>
           </div>
         `;
       }
-      container.innerHTML = html;
-    }
 
-    function handleTeamNext() {
-      const errEl = document.getElementById('teamSetupErr');
-      const btnNext = document.getElementById('btnNextTeam');
-      errEl.textContent = '';
+      if (navigator.geolocation && !gpsWatchId) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById("gpsStatusText").innerText =
+              `📍 موقعك الحالي نشط (نصف قطر الإيجاد: ${radius} متر)`;
 
-      const teamName = document.getElementById('teamNameInput').value.trim().replace(/\s+/g, ' ');
-      if (!teamName) {
-        errEl.textContent = 'من فضلك اكتب اسم الفريق أولاً.';
-        return;
-      }
+            let changed = false;
+            keysArr.slice(0, requiredKeys).forEach(([kId, kData]) => {
+              if (!foundKeyIds.has(kId)) {
+                const dist = getDistanceMeters(latitude, longitude, kData.lat, kData.lng);
+                if (dist <= radius) {
+                  foundKeyIds.add(kId);
+                  changed = true;
+                }
+              }
+            });
 
-      const count = teamMode === 'solo' ? 1 : Math.max(1, Math.min(5, Number(document.getElementById('memberCountInput').value || 1)));
-      const members = [];
-
-      for (let i = 0; i < count; i++) {
-        const nameEl = document.getElementById('mName_' + i);
-        const phoneEl = document.getElementById('mPhone_' + i);
-        const name = nameEl ? nameEl.value.trim() : '';
-        const rawPhone = phoneEl ? phoneEl.value.trim() : '';
-        if (!name || !rawPhone) {
-          errEl.textContent = 'من فضلك أكمل اسم ورقم موبايل العضو ' + (i + 1) + '.';
-          return;
-        }
-        if (!isValidEgyptMobile(rawPhone)) {
-          errEl.textContent = 'رقم الموبايل للعضو ' + (i + 1) + ' غير صحيح؛ يجب إدخال رقم موبايل مصري حقيقي مكون من 11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015.';
-          return;
-        }
-        members.push({ name, phone: normalizeEgyptPhone(rawPhone) });
-      }
-
-      btnNext.disabled = true;
-      btnNext.textContent = 'جاري التحقق من اسم الفريق...';
-
-      db.ref('teams').once('value').then(snap => {
-        const teamsObj = snap.exists() ? snap.val() : {};
-        const targetNorm = normalizeTeamName(teamName);
-        const isDuplicate = Object.values(teamsObj).some(t => t && normalizeTeamName(t.name) === targetNorm);
-
-        btnNext.disabled = false;
-        btnNext.textContent = 'التالي (Next)';
-
-        if (isDuplicate) {
-          errEl.textContent = 'هذا الاسم موجود بالفعل اختر اسم اخر';
-          return;
-        }
-
-        returningTeamKey = '';
-        draftTeam = {
-          name: teamName,
-          mode: teamMode,
-          members: members,
-          points: 0,
-          status: 'pending_payment',
-          createdAt: Date.now()
-        };
-
-        alert('تم تجهيز فريق: ' + teamName + ' بنجاح!');
-
-        document.getElementById('payTeamTitle').textContent = teamName + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
-        const statsEl = document.getElementById('payExistingStats');
-        statsEl.style.display = 'none';
-        renderActivePhones();
-        goToScreen('screenPayment');
-      }).catch(() => {
-        btnNext.disabled = false;
-        btnNext.textContent = 'التالي (Next)';
-        errEl.textContent = 'تعذر التحقق من اسم الفريق حالياً، تأكد من الاتصال بالإنترنت.';
-      });
-    }
-
-    function handleExistingTeamLogin() {
-      const errEl = document.getElementById('existingTeamErr');
-      const btnLogin = document.getElementById('btnLoginExistingTeam');
-      errEl.textContent = '';
-
-      const rawName = document.getElementById('existingTeamNameInput').value.trim();
-      const rawPhone = document.getElementById('existingLeaderPhoneInput').value.trim();
-      if (!rawName || !rawPhone) {
-        errEl.textContent = 'من فضلك اكتب اسم الفريق ورقم موبايل القائد.';
-        return;
-      }
-
-      if (!isValidEgyptMobile(rawPhone)) {
-        errEl.textContent = 'من فضلك أدخل رقم موبايل مصري صحيح (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015).';
-        return;
-      }
-
-      const normName = normalizeTeamName(rawName);
-      const normPhone = normalizeEgyptPhone(rawPhone);
-
-      btnLogin.disabled = true;
-      btnLogin.textContent = 'جاري البحث عن الفريق...';
-
-      db.ref('teams').once('value').then(snap => {
-        btnLogin.disabled = false;
-        btnLogin.textContent = 'دخول واستكمال النقاط والتصنيف';
-
-        const teamsObj = snap.exists() ? snap.val() : {};
-        let matchedKey = '';
-        let matchedTeam = null;
-
-        Object.entries(teamsObj).forEach(([k, t]) => {
-          if (!t) return;
-          const sameName = normalizeTeamName(t.name) === normName;
-          const leaderPh = (Array.isArray(t.members) && t.members[0] && t.members[0].phone) || '';
-          const anyMemberMatch = Array.isArray(t.members) && t.members.some(m => normalizeEgyptPhone(m && m.phone) === normPhone);
-          if (sameName && (normalizeEgyptPhone(leaderPh) === normPhone || anyMemberMatch)) {
-            if (!matchedTeam || Number(t.points || 0) >= Number(matchedTeam.points || 0)) {
-              matchedKey = k;
-              matchedTeam = t;
+            if (changed) {
+              document.getElementById("foundKeysCount").innerText = foundKeyIds.size;
+              foundKeyIds.forEach(id => {
+                const el = document.getElementById(`keySlot_${id}`);
+                if (el) el.classList.add("found");
+              });
+              if (foundKeyIds.size >= requiredKeys) {
+                document.getElementById("submitKeysWinnerBtn").style.display = "flex";
+              }
             }
-          }
-        });
+          },
+          () => {
+            document.getElementById("gpsStatusText").innerText =
+              "⚠️ يرجى تفعيل خدمة الموقع (GPS) على هاتفك للعثور على المفاتيح.";
+          },
+          { enableHighAccuracy: true }
+        );
+      }
+    });
+  }
 
-        if (!matchedKey || !matchedTeam) {
-          errEl.textContent = 'لم يتم العثور على فريق مطابق لهذا الاسم ورقم الموبايل.';
-          return;
-        }
+  window.submitKeysVictory = async () => {
+    const primaryMember = currentTeamData?.members?.[0] || { name: "فريق", phone: "" };
+    await set(ref(db, `keyWinners/${currentTeamId}`), {
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      phone: primaryMember.phone,
+      keysCount: foundKeyIds.size,
+      timestamp: Date.now()
+    });
+    alert("🎉 تم إرسال إتمام المفاتيح إلى صفحة رابحو المفاتيح بنجاح!");
+  };
 
-        if ((matchedTeam.status || 'pending') === 'pending') {
-          errEl.textContent = 'يرجى تأكيد اسم الفريق وأرقام الموبايل من تبويب «فريق جديد» للمتابعة.';
-          return;
-        }
-        currentTeamKey = matchedKey;
-        localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
-        subscribeToCurrentTeam();
-      }).catch(() => {
-        btnLogin.disabled = false;
-        btnLogin.textContent = 'دخول واستكمال النقاط والتصنيف';
-        errEl.textContent = 'حدث خطأ أثناء البحث عن الفريق، حاول مرة أخرى.';
-      });
+  // ==========================================
+  // 7. صفحة المكافآت والنتائج
+  // ==========================================
+  function showRewardsScreen(mode) {
+    showScreen("rewardsScreen");
+    document.getElementById("winnerView").style.display = mode === "winner" ? "block" : "none";
+    document.getElementById("loserView").style.display = mode === "loser" ? "block" : "none";
+
+    onValue(ref(db, "settings/prizeAmount"), (snap) => {
+      document.getElementById("prizeAmountValue").innerText = snap.val() || "جائزة نقدية";
+    });
+
+    onValue(ref(db, "settings/meals"), (snap) => {
+      const meals = snap.val() || {};
+      if (meals.freeMealImg) {
+        document.getElementById("freeMealMenuImg").src = meals.freeMealImg;
+      }
+      if (meals.halfMealImg) {
+        document.getElementById("halfMealMenuImg").src = meals.halfMealImg;
+      }
+    });
+  }
+
+  window.openCashRewardBox = () => {
+    document.getElementById("cashRewardBox").style.display = "block";
+    document.getElementById("freeMealMenuImg").style.display = "none";
+  };
+
+  window.openFreeMealMenu = () => {
+    document.getElementById("cashRewardBox").style.display = "none";
+    const img = document.getElementById("freeMealMenuImg");
+    if (img.src) {
+      img.style.display = "block";
+    } else {
+      alert("لم يقم الأدمن برفع صورة قائمة الوجبات المجانية بعد.");
     }
+  };
 
-    function startNewRoundForSameTeam() {
-      if (!currentTeamKey || !currentTeamData) {
-        resetLocalSession();
-        return;
-      }
-      returningTeamKey = currentTeamKey;
-      draftTeam = null;
-      receiptDataUrl = '';
-      document.getElementById('receiptPreviewImg').style.display = 'none';
-      document.getElementById('receiptFileInput').value = '';
-      document.getElementById('paymentErr').textContent = '';
-      document.getElementById('paymentOk').textContent = '';
-
-      const pts = Number(currentTeamData.points || 0);
-      const rank = calcRank(pts);
-      const members = Array.isArray(currentTeamData.members) ? currentTeamData.members : [];
-      document.getElementById('payTeamTitle').textContent = (currentTeamData.name || '-') + ' (' + members.length + (members.length === 1 ? ' فرد)' : ' أفراد)');
-
-      const statsEl = document.getElementById('payExistingStats');
-      statsEl.style.display = 'block';
-      statsEl.textContent = 'رصيدك المحفوظ: ' + pts + ' نقطة | التصنيف الحالي: الدرجة ' + rank;
-
-      renderActivePhones();
-      goToScreen('screenPayment');
+  window.confirmPayoutRequest = async () => {
+    const walletPhone = document.getElementById("payoutPhoneInput").value.trim();
+    if (!isValidEgyptianPhone(walletPhone)) {
+      alert("يرجى إدخال رقم موبايل مصري صحيح لاستلام التحويل.");
+      return;
     }
+    const amount = document.getElementById("prizeAmountValue").innerText;
+    const primaryMember = currentTeamData?.members?.[0] || { name: "فريق" };
 
-    function backFromPayment() {
-      if (returningTeamKey && currentTeamData) {
-        returningTeamKey = '';
-        syncScreenWithTeamState();
-      } else {
-        goToScreen('screenTeamSetup');
-      }
-    }
+    await push(ref(db, "payoutRequests"), {
+      teamId: currentTeamId,
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      walletPhone,
+      amount,
+      sent: false,
+      createdAt: Date.now()
+    });
 
-    function renderActivePhones() {
-      const wrap = document.getElementById('activePhonesContainer');
-      const phones = Array.isArray(settings.activePhones) ? settings.activePhones.filter(Boolean) : [];
-      if (!phones.length) {
-        wrap.innerHTML = '<div class="muted">لا توجد أرقام تحويل مفعلة حالياً من الأدمن.</div>';
-        selectedPhone = '';
-        return;
-      }
+    document.getElementById("payoutConfirmMsg").innerText =
+      "✅ تم إرسال رقمك وقيمة المكسب إلى صفحة التحويلات المرسلة بنجاح.";
+  };
 
-      if (!selectedPhone || !phones.includes(selectedPhone)) {
-        selectedPhone = phones[0];
-      }
+  // استعادة الجلسة إذا كان المستخدم قد سجل أو دخل مسبقاً في نفس المتصفح
+  const savedTeamId = localStorage.getItem("mc_team_id");
+  if (savedTeamId) {
+    currentTeamId = savedTeamId;
+    listenToTeamState(currentTeamId);
+  }
+</script>
 
-      wrap.innerHTML = phones.map((ph, idx) => `
-        <div class="phone-chip ${ph === selectedPhone ? 'selected' : ''}" onclick="chooseTransferPhone('${escAttr(ph)}')">
-          <div>
-            <strong style="color:#FFD700;">رقم التحويل ${idx + 1}:</strong>
-            <span dir="ltr" style="font-size:15px;font-weight:bold;margin-right:6px;">${esc(ph)}</span>
-          </div>
-          <span style="color:#6EE7A8;font-size:12px;">${ph === selectedPhone ? 'محدد ✓' : 'اختيار'}</span>
-        </div>
-      `).join('');
-    }
-
-    function chooseTransferPhone(ph) {
-      selectedPhone = ph;
-      renderActivePhones();
-    }
-
-    function compressImageDataUrl(rawDataUrl, maxW, quality) {
-      return new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          canvas.width = Math.max(1, Math.round(img.width * scale));
-          canvas.height = Math.max(1, Math.round(img.height * scale));
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', quality || 0.7));
-        };
-        img.src = rawDataUrl;
-      });
-    }
-
-    function handleReceiptFile(input) {
-      const file = input.files && input.files[0];
-      const img = document.getElementById('receiptPreviewImg');
-      if (!file) {
-        receiptDataUrl = '';
-        img.style.display = 'none';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = ev => {
-        compressImageDataUrl(ev.target.result, 800, 0.7).then(dataUrl => {
-          receiptDataUrl = dataUrl;
-          img.src = receiptDataUrl;
-          img.style.display = 'block';
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function submitPaymentAndRegister() {
-      const errEl = document.getElementById('paymentErr');
-      const okEl = document.getElementById('paymentOk');
-      errEl.textContent = '';
-      okEl.textContent = '';
-
-      if (!draftTeam && !returningTeamKey) {
-        errEl.textContent = 'برجاء تجهيز بيانات الفريق أولاً.';
-        goToScreen('screenTeamSetup');
-        return;
-      }
-
-      const amount = Math.max(1, Number(document.getElementById('payAmountInput').value || 100));
-      if (!selectedPhone) {
-        errEl.textContent = 'برجاء اختيار رقم التحويل.';
-        return;
-      }
-      if (!receiptDataUrl) {
-        errEl.textContent = 'برجاء رفع صورة إيصال التحويل أولاً.';
-        return;
-      }
-
-      if (returningTeamKey) {
-        db.ref('teams/' + returningTeamKey).update({
-          amount: amount,
-          selectedPhone: selectedPhone,
-          receiptImage: receiptDataUrl,
-          status: 'pending',
-          rewardChoice: null,
-          halfFoodOrder: null,
-          cashTransferReceipt: null,
-          collectedKeys: null,
-          vaultOpened: null,
-          updatedAt: Date.now()
-        }).then(() => {
-          currentTeamKey = returningTeamKey;
-          returningTeamKey = '';
-          localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
-          okEl.textContent = 'تم إرسال إيصال الجولة الجديدة بنفس رصيدك وتصنيفك!';
-          subscribeToCurrentTeam();
-          goToScreen('screenWaiting');
-        }).catch(() => {
-          errEl.textContent = 'حدث خطأ أثناء تحديث بيانات الجولة الجديدة، حاول مرة أخرى.';
-        });
-        return;
-      }
-
-      const teamPayload = {
-        ...draftTeam,
-        amount: amount,
-        selectedPhone: selectedPhone,
-        receiptImage: receiptDataUrl,
-        status: 'pending',
-        updatedAt: Date.now()
-      };
-
-      const newRef = db.ref('teams').push();
-      newRef.set(teamPayload).then(() => {
-        currentTeamKey = newRef.key;
-        localStorage.setItem(STORAGE_TEAM_KEY, currentTeamKey);
-        okEl.textContent = 'تم إرسال الإيصال وتسجيل الفريق بنجاح!';
-        subscribeToCurrentTeam();
-        goToScreen('screenWaiting');
-      }).catch(() => {
-        errEl.textContent = 'حدث خطأ أثناء إرسال البيانات، حاول مرة أخرى.';
-      });
-    }
-
-    function subscribeToCurrentTeam() {
-      if (teamRefListener) {
-        db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
-        teamRefListener = null;
-      }
-      if (!currentTeamKey) return;
-
-      const fn = snap => {
-        if (!snap.exists()) {
-          localStorage.removeItem(STORAGE_TEAM_KEY);
-          currentTeamKey = '';
-          currentTeamData = null;
-          goToScreen('screenTeamSetup');
-          return;
-        }
-        currentTeamData = { key: snap.key, ...snap.val() };
-        if (!returningTeamKey) {
-          syncScreenWithTeamState();
-        }
-      };
-
-      db.ref('teams/' + currentTeamKey).on('value', fn);
-      teamRefListener = { key: currentTeamKey, fn };
-    }
-
-    function syncScreenWithTeamState() {
-      if (!currentTeamData) return;
-      const st = currentTeamData.status || 'pending';
-      const pts = Number(currentTeamData.points || 0);
-      const rank = calcRank(pts);
-
-      if (st === 'pending') {
-        if (teamRefListener) {
-          db.ref('teams/' + teamRefListener.key).off('value', teamRefListener.fn);
-          teamRefListener = null;
-        }
-        localStorage.removeItem(STORAGE_TEAM_KEY);
-        currentTeamKey = '';
-        currentTeamData = null;
-        draftTeam = null;
-        returningTeamKey = '';
-        switchEntryTab('new');
-        goToScreen('screenTeamSetup');
-        return;
-      }
-
-      const directMsg = (currentTeamData.adminMessage && currentTeamData.adminMessage.text) || '';
-      ['teamDirectMsgBox', 'chDirectMsgBox'].forEach(id => {
-        const box = document.getElementById(id);
-        if (!box) return;
-        if (directMsg) {
-          box.style.display = 'block';
-          box.innerHTML = '<strong style="color:#FFD700;">✉️ رسالة من الأدمن:</strong> <span style="color:#6EE7A8;">' + esc(directMsg) + '</span>';
-        } else {
-          box.style.display = 'none';
-        }
-      });
-
-      if (st === 'approved' || st === 'challenge') {
-        document.getElementById('chTeamName').textContent = currentTeamData.name || '-';
-        document.getElementById('chPoints').textContent = pts;
-        document.getElementById('chRank').textContent = rank;
-        document.getElementById('chTextBox').textContent = settings.challengeText || 'في انتظار نص التحدي من الأدمن...';
-
-        const photoSec = document.getElementById('challengePhotoSection');
-        photoSec.style.display = 'block';
-        if (settings.requireChallengePhotos) {
-          const cnt = Math.max(1, Number(settings.challengePhotoCount || 1));
-          document.getElementById('chPhotoLabel').textContent = '📸 نافذة تصوير ورفع صور التحدي (المطلوب: ' + cnt + ' صورة أو أكثر)';
-        } else {
-          document.getElementById('chPhotoLabel').textContent = '📸 نافذة تصوير ورفع صور التحدي (كاميرا / استديو)';
-        }
-
-        renderPendingPhotos();
-        renderGpsCoinsForPlayer();
-        renderKeyVaultForPlayer();
-        goToScreen('screenChallenge');
-        return;
-      }
-
-      if (st === 'won') {
-        renderWinResultScreen(pts, rank);
-        goToScreen('screenResult');
-        return;
-      }
-
-      if (st === 'lost') {
-        renderLossResultScreen(pts, rank);
-        goToScreen('screenResult');
-        return;
-      }
-
-      const waitBox = document.getElementById('waitingStatusBox');
-      if (st === 'rejected') {
-        waitBox.innerHTML = `<div class="msg-err" style="font-size:15px;">تم رفض طلب فريق <strong>${esc(currentTeamData.name || '')}</strong> لوجود خطأ في البيانات أو الإيصال. يمكنك إعادة رفع الإيصال أو تسجيل فريق جديد.</div>` +
-          `<button type="button" class="btn btn-gold" style="margin-top:10px;" onclick="startNewRoundForSameTeam()">إعادة رفع إيصال التحويل لنفس الفريق</button>`;
-      } else {
-        waitBox.innerHTML = `<div>الفريق: <strong style="color:#FFD700;">${esc(currentTeamData.name || '-')}</strong></div>` +
-          `<div style="margin-top:4px;">النقاط: <strong style="color:#6EE7A8;">${pts}</strong> | التصنيف: <strong>الدرجة ${rank}</strong></div>` +
-          `<div style="margin-top:6px;">الحالة الحالية: <strong style="color:#FFD700;">قيد مراجعة الأدمن وتأكيد التحويل...</strong></div>`;
-      }
-      goToScreen('screenWaiting');
-    }
-
-    function openLiveCamera() {
-      const errEl = document.getElementById('chPhotoErr');
-      const box = document.getElementById('liveCameraBox');
-      const video = document.getElementById('cameraVideo');
-      errEl.textContent = '';
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        document.getElementById('chCameraFallbackInput').click();
-        return;
-      }
-
-      closeLiveCamera();
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-        .then(stream => {
-          cameraStream = stream;
-          video.srcObject = stream;
-          box.style.display = 'block';
-        })
-        .catch(() => {
-          errEl.textContent = 'تعذر فتح الكاميرا المباشرة، تم فتح كاميرا الهاتف أو تأكد من صلاحية الكاميرا.';
-          document.getElementById('chCameraFall
+</body>
+</html>
