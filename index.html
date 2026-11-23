@@ -75,7 +75,7 @@
     /* صفوف التسجيل والتحقق من الأخطاء */
     .member-row {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      margin-bottom: 10px; position: relative;
+      margin-bottom: 10px;
     }
     input[type="text"], input[type="tel"] {
       width: 100%; padding: 11px 12px; border-radius: 10px;
@@ -108,14 +108,17 @@
       padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.82rem;
     }
 
-    /* صندوق الكاميرا / الاستديو */
-    .upload-box {
-      border: 2px dashed var(--primary); border-radius: 14px; padding: 18px;
-      text-align: center; background: #0b101d; cursor: pointer; margin: 12px 0;
+    /* زر الكاميرا / الاستديو النظيف بدون أي آثار إضافية */
+    .media-trigger-btn {
+      width: 100%; padding: 14px; border-radius: 12px;
+      background: #0b101d; border: 1px solid var(--card-2);
+      color: var(--primary); font-weight: bold; font-size: 0.95rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 12px 0;
     }
     .preview-img {
       width: 100%; max-height: 240px; object-fit: contain;
-      border-radius: 10px; margin-top: 10px; display: none;
+      border-radius: 10px; margin-bottom: 12px; display: none;
     }
 
     /* النقاط المتحركة للتحميل */
@@ -171,7 +174,7 @@
   <img id="zoomedImg" src="" alt="قائمة الطعام" />
 </div>
 
-<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش (بدون صورة التنين) + عداد 30 ثانية وشريط 100% -->
+<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش + عداد 30 ثانية وشريط 100% -->
 <section id="splashScreen" class="screen active">
   <div class="splash-box">
     <div class="game-title">مرحباً بك في صراع الوحوش</div>
@@ -232,14 +235,15 @@
   </div>
 </section>
 
-<!-- 5. شاشة دخول المشترك المسجل مسبقاً -->
+<!-- 5. شاشة دخول المشترك المسجل مسبقاً (الاسم + رقم الموبايل) -->
 <section id="memberLoginScreen" class="screen">
   <div class="box gap-10">
     <h2>🛡️ دخول المشتركين</h2>
     <p style="color:var(--muted); font-size:0.88rem; text-align:center;">
-      أدخل رقم الموبايل المسجل لفريقك للانتقال إلى الاشتراك والتحويل المالي:
+      أدخل الاسم ورقم الموبايل المسجلين لفريقك:
     </p>
-    <input type="tel" id="loginPhoneInput" placeholder="مثال: 01012345678" />
+    <input type="text" id="loginNameInput" placeholder="الاسم المسجل" />
+    <input type="tel" id="loginPhoneInput" placeholder="رقم الموبايل (01xxxxxxxxx)" maxlength="11" />
     <div id="loginErrorMsg" class="error-msg">الاسم او الرقم غير صحيح</div>
     <button class="btn btn-primary" onclick="loginExistingMember()">دخول</button>
     <button class="btn btn-outline" onclick="showScreen('homeChoiceScreen')">⬅️ رجوع</button>
@@ -270,14 +274,12 @@
       </div>
     </div>
 
-    <!-- خانة الكاميرا / الاستديو تحت أرقام التحويل مباشرة -->
-    <label class="upload-box" for="receiptFileInput">
-      <div style="font-size:2rem;">📷 🖼️</div>
-      <div style="font-weight:bold; color:var(--primary);">التقاط صورة الإيصال أو اختيارها من الاستديو</div>
-      <div style="font-size:0.8rem; color:var(--muted);">اضغط هنا لفتح الكاميرا أو الاستديو</div>
-      <input type="file" id="receiptFileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
-      <img id="receiptPreview" class="preview-img" alt="معاينة الإيصال" />
-    </label>
+    <!-- زر الكاميرا / الاستديو أسفل أرقام التحويل مباشرة -->
+    <button type="button" class="media-trigger-btn" onclick="document.getElementById('receiptFileInput').click()">
+      📷 🖼️ كاميرا / استديو (صورة الإيصال)
+    </button>
+    <input type="file" id="receiptFileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
+    <img id="receiptPreview" class="preview-img" alt="معاينة الإيصال" />
 
     <button class="btn btn-success" id="confirmReceiptBtn" onclick="submitReceipt()">تأكيد</button>
 
@@ -311,12 +313,11 @@
 
     <!-- وضع تحدي الصور -->
     <div id="photoChallengeSection" style="display:none;">
-      <label class="upload-box" for="challengePhotoInput">
-        <div style="font-size:2rem;">📷 🖼️</div>
-        <div style="font-weight:bold; color:var(--primary);">التقاط صورة أو سحبها من الاستديو</div>
-        <input type="file" id="challengePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
-        <img id="challengePhotoPreview" class="preview-img" alt="صورة التحدي" />
-      </label>
+      <button type="button" class="media-trigger-btn" onclick="document.getElementById('challengePhotoInput').click()">
+        📷 🖼️ كاميرا / استديو
+      </button>
+      <input type="file" id="challengePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+      <img id="challengePhotoPreview" class="preview-img" alt="صورة التحدي" />
       <button class="btn btn-primary" onclick="sendChallengePhoto()">إرسال</button>
       <div id="photoSentStatus" style="margin-top:12px; text-align:center; color:var(--success); font-weight:bold;"></div>
     </div>
@@ -331,7 +332,7 @@
         جاري تتبع موقعك الجغرافي للبحث عن المفاتيح...
       </div>
       <button class="btn btn-success" id="submitKeysWinnerBtn" style="display:none;" onclick="submitKeysVictory()">
-        إرسال (إعلان الفوز بالمفاتيح)
+        إرسال
       </button>
     </div>
   </div>
@@ -382,7 +383,7 @@
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, set, get, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, set, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
@@ -410,7 +411,6 @@
   let gpsWatchId = null;
   let activeCashSlots = ["", "", ""];
 
-  // منع الانتقال من شاشة البداية قبل اكتمال 30 ثانية و100%
   window.showScreen = (screenId, force = false) => {
     if (!splashCompleted && !force) {
       pendingScreenAfterSplash = screenId;
@@ -545,7 +545,6 @@
 
     const newTeamRef = push(ref(db, "teams"));
     currentTeamId = newTeamRef.key;
-    localStorage.setItem("mc_team_id", currentTeamId);
 
     await set(newTeamRef, {
       teamName: members[0].name,
@@ -560,14 +559,22 @@
   };
 
   // ==========================================
-  // 3. دخول المشترك المسجل مسبقاً
+  // 3. دخول المشترك المسجل مسبقاً (إدخال الاسم ورقم الموبايل معاً)
   // ==========================================
   window.loginExistingMember = () => {
-    const phone = document.getElementById("loginPhoneInput").value.trim();
+    const nameInp = document.getElementById("loginNameInput");
+    const phoneInp = document.getElementById("loginPhoneInput");
+    const name = nameInp.value.trim().toLowerCase();
+    const phone = phoneInp.value.trim();
     const errEl = document.getElementById("loginErrorMsg");
+
+    nameInp.classList.remove("input-error");
+    phoneInp.classList.remove("input-error");
     errEl.style.display = "none";
 
-    if (!isValidEgyptianPhone(phone)) {
+    if (!name || !isValidEgyptianPhone(phone)) {
+      if (!name) nameInp.classList.add("input-error");
+      if (!isValidEgyptianPhone(phone)) phoneInp.classList.add("input-error");
       errEl.innerText = "الاسم او الرقم غير صحيح";
       errEl.style.display = "block";
       return;
@@ -575,18 +582,21 @@
 
     let matchedId = null;
     Object.entries(allTeamsCache).forEach(([tId, tData]) => {
-      const found = (tData.members || []).some(m => m.phone === phone);
-      if (found) matchedId = tId;
+      const exactMatch = (tData.members || []).some(
+        m => (m.name || "").trim().toLowerCase() === name && (m.phone || "").trim() === phone
+      );
+      if (exactMatch) matchedId = tId;
     });
 
     if (!matchedId) {
+      nameInp.classList.add("input-error");
+      phoneInp.classList.add("input-error");
       errEl.innerText = "الاسم او الرقم غير صحيح";
       errEl.style.display = "block";
       return;
     }
 
     currentTeamId = matchedId;
-    localStorage.setItem("mc_team_id", currentTeamId);
     listenToTeamState(currentTeamId);
     showScreen("paymentScreen");
   };
@@ -751,7 +761,6 @@
     }
   }
 
-  // تحدي الصور
   window.handleChallengePhotoSelected = (ev) => {
     const file = ev.target.files[0];
     if (!file) return;
@@ -778,7 +787,6 @@
     document.getElementById("photoSentStatus").innerText = "✅ تم إرسال صورتك إلى صفحة صور التحدي بنجاح!";
   };
 
-  // تحدي المفاتيح (GPS)
   function getDistanceMeters(lat1, lon1, lat2, lon2) {
     const R = 6371000;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -935,12 +943,6 @@
     document.getElementById("payoutConfirmMsg").innerText =
       "✅ تم إرسال رقمك وقيمة المكسب إلى صفحة التحويلات المرسلة بنجاح.";
   };
-
-  const savedTeamId = localStorage.getItem("mc_team_id");
-  if (savedTeamId) {
-    currentTeamId = savedTeamId;
-    listenToTeamState(currentTeamId);
-  }
 </script>
 
 </body>
