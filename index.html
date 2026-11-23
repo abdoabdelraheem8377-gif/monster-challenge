@@ -30,7 +30,7 @@
 
     /* شاشة البداية 30 ثانية */
     .splash-box { text-align: center; max-width: 420px; width: 100%; }
-    .monster-title {
+    .game-title {
       font-size: 2.1rem; font-weight: 900; color: var(--primary);
       text-shadow: 0 0 22px rgba(245, 158, 11, 0.45); margin-bottom: 10px;
     }
@@ -97,10 +97,10 @@
       display: inline-flex; align-items: center; justify-content: center;
     }
 
-    /* أرقام الكاش */
-    .cash-card {
+    /* 3 خانات أرقام الكاش */
+    .cash-slot {
       background: #0b101d; border: 1px solid var(--card-2); border-radius: 12px;
-      padding: 12px; margin-bottom: 10px; display: flex;
+      padding: 11px 14px; margin-bottom: 10px; display: flex;
       justify-content: space-between; align-items: center;
     }
     .copy-chip {
@@ -171,10 +171,10 @@
   <img id="zoomedImg" src="" alt="قائمة الطعام" />
 </div>
 
-<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش + عداد 30 ثانية وشريط تحميل 100% -->
+<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش (بدون صورة التنين) + عداد 30 ثانية وشريط 100% -->
 <section id="splashScreen" class="screen active">
   <div class="splash-box">
-    <div class="monster-title">🐉 مرحباً بك في صراع الوحوش</div>
+    <div class="game-title">مرحباً بك في صراع الوحوش</div>
     <p style="color:var(--muted);">استعد للتحديات والمكافآت...</p>
     <div class="timer-circle" id="splashTimer">30</div>
     <div class="progress-wrap">
@@ -187,7 +187,7 @@
 <!-- 2. الشاشة التالية: تسجيل (فريق جديد) أو مشترك (فريق مسجل سابقاً) -->
 <section id="homeChoiceScreen" class="screen">
   <div class="box gap-10">
-    <h2>⚔️ صراع الوحوش</h2>
+    <h2>صراع الوحوش</h2>
     <p style="color:var(--muted); text-align:center; margin-top:-4px;">اختر طريقة الدخول للمتابعة</p>
     <button class="btn btn-primary" onclick="showScreen('registerScreen')">📝 تسجيل (فريق جديد)</button>
     <button class="btn btn-info" onclick="showScreen('memberLoginScreen')">🛡️ مشترك (مسجل مسبقاً)</button>
@@ -246,7 +246,7 @@
   </div>
 </section>
 
-<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 أرقام كاش + إيصال + تأكيد) -->
+<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 خانات أرقام كاش + تحتها الكاميرا/الاستديو + تأكيد) -->
 <section id="paymentScreen" class="screen screen-top">
   <div class="box">
     <h2>💳 الاشتراك في التحدي والتحويل المالي</h2>
@@ -254,8 +254,23 @@
       حوّل قيمة الاشتراك على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال:
     </p>
 
-    <div id="cashNumbersList">جاري تحميل أرقام الكاش...</div>
+    <!-- 3 خانات دائمة لأرقام التحويل الكاش -->
+    <div id="cashNumbersList">
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 1:</span><br/><strong id="cashSlot_0">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_0" onclick="copySlotNum(0)">نسخ</button>
+      </div>
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 2:</span><br/><strong id="cashSlot_1">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_1" onclick="copySlotNum(1)">نسخ</button>
+      </div>
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 3:</span><br/><strong id="cashSlot_2">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_2" onclick="copySlotNum(2)">نسخ</button>
+      </div>
+    </div>
 
+    <!-- خانة الكاميرا / الاستديو تحت أرقام التحويل مباشرة -->
     <label class="upload-box" for="receiptFileInput">
       <div style="font-size:2rem;">📷 🖼️</div>
       <div style="font-weight:bold; color:var(--primary);">التقاط صورة الإيصال أو اختيارها من الاستديو</div>
@@ -383,6 +398,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  let splashCompleted = false;
+  let pendingScreenAfterSplash = "homeChoiceScreen";
   let currentTeamId = null;
   let currentTeamData = null;
   let allTeamsCache = {};
@@ -391,9 +408,14 @@
   let challengePhotoBase64 = "";
   let foundKeyIds = new Set();
   let gpsWatchId = null;
+  let activeCashSlots = ["", "", ""];
 
-  // التنقل بين الشاشات
-  window.showScreen = (screenId) => {
+  // منع الانتقال من شاشة البداية قبل اكتمال 30 ثانية و100%
+  window.showScreen = (screenId, force = false) => {
+    if (!splashCompleted && !force) {
+      pendingScreenAfterSplash = screenId;
+      return;
+    }
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
     window.scrollTo(0, 0);
@@ -406,7 +428,7 @@
   };
 
   // ==========================================
-  // 1. شاشة البداية: عداد 30 ثانية + شريط 100%
+  // 1. شاشة البداية: عداد 30 ثانية وشريط 100% إلزامي قبل الدخول
   // ==========================================
   function startSplashCountdown() {
     const totalSeconds = 30;
@@ -426,7 +448,10 @@
 
       if (remaining <= 0) {
         clearInterval(interval);
-        showScreen("homeChoiceScreen");
+        barEl.style.width = "100%";
+        pctEl.innerText = "100%";
+        splashCompleted = true;
+        window.showScreen(pendingScreenAfterSplash, true);
       }
     }, 1000);
   }
@@ -456,7 +481,6 @@
       document.getElementById("addMemberBtn").style.display = "none";
     }
   };
-  // إضافة أول صف افتراضياً
   addMemberRow();
 
   function isValidEgyptianPhone(phone) {
@@ -476,7 +500,6 @@
     const seenPhones = new Set();
     let hasError = false;
 
-    // جمع كل الأرقام والأسماء المسجلة مسبقاً في قاعدة البيانات لمنع التكرار
     const existingNames = new Set();
     const existingPhones = new Set();
     Object.values(allTeamsCache).forEach(t => {
@@ -492,7 +515,6 @@
       const name = nameInp.value.trim();
       const phone = phoneInp.value.trim();
 
-      // إذا كان الصف فارغاً بالكامل وتمت إضافة صفوف أخرى نتجاهله، أما الصف الأول فيجب أن يمتلئ
       if (!name && !phone && i > 1) continue;
 
       const nameKey = name.toLowerCase();
@@ -570,7 +592,7 @@
   };
 
   // ==========================================
-  // 4. متابعة حالة الفريق والانتقال التلقائي حسب قرار الأدمن
+  // 4. متابعة حالة الفريق والانتقال التلقائي
   // ==========================================
   function listenToTeamState(teamId) {
     onValue(ref(db, `teams/${teamId}`), (snap) => {
@@ -613,30 +635,30 @@
   });
 
   // ==========================================
-  // 5. شاشة الاشتراك والتحويل المالي (3 أرقام كاش + إيصال)
+  // 5. شاشة الاشتراك والتحويل المالي (3 خانات كاش + إيصال)
   // ==========================================
   onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
     const nums = snap.val() || [];
-    const container = document.getElementById("cashNumbersList");
-    container.innerHTML = "";
-    if (!nums.length) {
-      container.innerHTML = "<p style='color:var(--muted); text-align:center;'>لا توجد أرقام كاش متاحة حالياً.</p>";
-      return;
+    for (let i = 0; i < 3; i++) {
+      const val = nums[i] || "";
+      activeCashSlots[i] = val;
+      const slotEl = document.getElementById(`cashSlot_${i}`);
+      const btnEl = document.getElementById(`copyBtn_${i}`);
+      if (val) {
+        slotEl.innerText = val;
+        slotEl.style.color = "var(--text)";
+        btnEl.style.display = "inline-block";
+      } else {
+        slotEl.innerText = "غير محدد بعد";
+        slotEl.style.color = "var(--muted)";
+        btnEl.style.display = "none";
+      }
     }
-    nums.slice(0, 3).forEach((num, idx) => {
-      container.innerHTML += `
-        <div class="cash-card">
-          <div>
-            <span style="color:var(--muted); font-size:0.8rem;">رقم كاش ${idx + 1}:</span><br/>
-            <strong style="font-size:1.05rem; letter-spacing:1px;">${num}</strong>
-          </div>
-          <button class="copy-chip" onclick="copyCashNum('${num}')">نسخ</button>
-        </div>
-      `;
-    });
   });
 
-  window.copyCashNum = (num) => {
+  window.copySlotNum = (idx) => {
+    const num = activeCashSlots[idx];
+    if (!num) return;
     navigator.clipboard?.writeText(num);
     alert("تم نسخ الرقم: " + num);
   };
@@ -705,7 +727,6 @@
     const isAlreadyInside = activeChallengeTeams.some(([tId]) => tId === currentTeamId);
     const currentCount = activeChallengeTeams.length;
 
-    // إذا كان العدد >= المحدد ولم يكن الفريق من الداخلين بالفعل، تظهر رسالة موعد التحدي التالي
     if (!isAlreadyInside && currentCount >= maxTeams) {
       document.getElementById("nextChallengeTimeDisplay").innerText =
         challengeConfig.nextChallengeTime || "سيتم الإعلان عن الموعد قريباً";
@@ -713,7 +734,6 @@
       return;
     }
 
-    // إذا كان عدد الفرق < العدد المحدد (أو الفريق ضمن العدد المسموح) ينتقل لصفحة التحدي
     renderChallengeScreen();
   }
 
@@ -859,11 +879,22 @@
 
     onValue(ref(db, "settings/meals"), (snap) => {
       const meals = snap.val() || {};
+      const freeImg = document.getElementById("freeMealMenuImg");
+      const halfImg = document.getElementById("halfMealMenuImg");
+
       if (meals.freeMealImg) {
-        document.getElementById("freeMealMenuImg").src = meals.freeMealImg;
+        freeImg.src = meals.freeMealImg;
+      } else {
+        freeImg.removeAttribute("src");
+        freeImg.style.display = "none";
       }
+
       if (meals.halfMealImg) {
-        document.getElementById("halfMealMenuImg").src = meals.halfMealImg;
+        halfImg.src = meals.halfMealImg;
+        halfImg.style.display = "block";
+      } else {
+        halfImg.removeAttribute("src");
+        halfImg.style.display = "none";
       }
     });
   }
@@ -876,7 +907,7 @@
   window.openFreeMealMenu = () => {
     document.getElementById("cashRewardBox").style.display = "none";
     const img = document.getElementById("freeMealMenuImg");
-    if (img.src) {
+    if (img.getAttribute("src")) {
       img.style.display = "block";
     } else {
       alert("لم يقم الأدمن برفع صورة قائمة الوجبات المجانية بعد.");
@@ -905,7 +936,6 @@
       "✅ تم إرسال رقمك وقيمة المكسب إلى صفحة التحويلات المرسلة بنجاح.";
   };
 
-  // استعادة الجلسة إذا كان المستخدم قد سجل أو دخل مسبقاً في نفس المتصفح
   const savedTeamId = localStorage.getItem("mc_team_id");
   if (savedTeamId) {
     currentTeamId = savedTeamId;
