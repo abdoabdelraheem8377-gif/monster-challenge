@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لوحة تحكم الأدمن - صراع الوحوش</title>
-  <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -26,7 +25,6 @@
       color: var(--text);
       padding-bottom: 40px;
     }
-    /* شاشة تسجيل دخول الأدمن */
     #loginOverlay {
       position: fixed; inset: 0; background: var(--bg);
       display: flex; align-items: center; justify-content: center; z-index: 9999;
@@ -40,7 +38,7 @@
     header {
       background: var(--card); padding: 15px 20px;
       border-bottom: 2px solid var(--primary);
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
       position: sticky; top: 0; z-index: 1000;
     }
     header h1 { margin: 0; font-size: 1.2rem; color: var(--primary); }
@@ -67,7 +65,7 @@
     }
     .card h2, .card h3 { margin-top: 0; color: var(--primary); }
     label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
-    input[type="text"], input[type="number"], input[type="password"], input[type="datetime-local"], textarea, select {
+    input[type="text"], input[type="number"], input[type="password"], textarea, select {
       width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--card-light);
       background: #0f172a; color: var(--text); font-size: 0.95rem; margin-bottom: 12px;
     }
@@ -103,7 +101,6 @@
       background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
       border: 1px solid var(--card-light);
     }
-    /* نافذة تكبير الصور */
     #imgModal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
       z-index: 10000; align-items: center; justify-content: center; padding: 20px;
@@ -115,7 +112,6 @@
 </head>
 <body>
 
-<!-- شاشة دخول الأدمن -->
 <div id="loginOverlay">
   <div class="login-box">
     <h2 style="color:var(--primary); margin-top:0;">🛡️ لوحة تحكم صراع الوحوش</h2>
@@ -126,17 +122,18 @@
   </div>
 </div>
 
-<!-- نافذة تكبير الصور -->
 <div id="imgModal" onclick="this.style.display='none'">
   <img id="modalImgSrc" src="" alt="تكبير الصورة" />
 </div>
 
 <header>
   <h1>⚔️ صراع الوحوش - Admin</h1>
-  <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة الحالية</button>
+  <div class="row-flex">
+    <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+    <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة وحذف الصور</button>
+  </div>
 </header>
 
-<!-- شريط التنقل بين الصفحات -->
 <div class="nav-tabs">
   <button class="tab-btn active" onclick="switchTab('regRequests', this)">
     📋 طلبات التسجيل <span class="badge" id="badgeReg">0</span>
@@ -185,11 +182,14 @@
     </div>
   </div>
 
-  <!-- 3. صفحة المشتركين في التحدي (إيصالات الكاش) -->
+  <!-- 3. صفحة المشتركين في التحدي (إيصالات الدفع + زر حذف صور الإيصالات) -->
   <div id="subscribers" class="section">
     <div class="card">
-      <h2>مراجعة إيصالات الدفع والمشتركين</h2>
-      <p style="color:var(--muted); font-size:0.88rem;">اضغط على صورة الإيصال لتكبيرها، وعند الضغط على (قبول) ينتقل الفريق تلقائياً لصفحة التحدي اليومي.</p>
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">مراجعة إيصالات الدفع والمشتركين</h2>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+      </div>
+      <p style="color:var(--muted); font-size:0.88rem;">اضغط على صورة الإيصال لتكبيرها، ويمكنك حذف صور الإيصالات بعد انتهاء التحدي لتوفير الذاكرة.</p>
       <div id="subscribersList">جاري التحميل...</div>
     </div>
   </div>
@@ -219,7 +219,6 @@
       <label>وصف / نص التحدي اليومي (يظهر للمشتركين):</label>
       <textarea id="challengeTextInput" rows="3" placeholder="اكتب تفاصيل التحدي أو اللغز هنا..."></textarea>
 
-      <!-- إعدادات تحدي المفاتيح والخريطة -->
       <div id="keysConfigBox" style="display:none; border-top:1px solid var(--card-light); padding-top:15px; margin-top:10px;">
         <h3>🗺️ إعدادات المفاتيح والمواقع الجغرافية</h3>
         <div class="grid-2">
@@ -258,11 +257,17 @@
     </div>
   </div>
 
-  <!-- 5. صفحة صور التحدي -->
+  <!-- 5. صفحة صور التحدي + حذف صور الإيصالات وحذف صور التحدي -->
   <div id="challengePhotos" class="section">
     <div class="card">
-      <h2>صور التحدي المرسلة من الفرق</h2>
-      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). راجع الصورة ثم اضغط <b>اعتماد كفائز</b>.</p>
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">صور التحدي المرسلة من الفرق</h2>
+        <div class="row-flex">
+          <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
+        </div>
+      </div>
+      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). راجع الصورة ثم اضغط <b>اعتماد كفائز</b> أو احذف الصور بعد انتهاء التحدي.</p>
       <div id="challengePhotosList">جاري التحميل...</div>
     </div>
   </div>
@@ -291,20 +296,29 @@
     </div>
   </div>
 
-  <!-- 8. صفحة وجبات الطعام -->
+  <!-- 8. صفحة وجبات الطعام + زر حذف صور الإيصالات وحذف صور الوجبات -->
   <div id="mealsTab" class="section">
     <div class="card">
-      <h2>🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0;">🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+      </div>
       
-      <div style="margin-bottom:20px;">
-        <label>1️⃣ صورة قائمة الوجبات المجانية (تظهر للفريق الفائز):</label>
-        <input type="file" accept="image/*" onchange="uploadMealImage(event, 'freeMealImg')" />
+      <div style="margin-bottom:20px; border-bottom:1px solid var(--card-light); padding-bottom:16px;">
+        <div class="row-flex" style="justify-content:space-between;">
+          <label style="margin:0;">1️⃣ صورة قائمة الوجبات المجانية (تظهر للفريق الفائز):</label>
+          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('freeMealImg')">🗑️ حذف الصورة</button>
+        </div>
+        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'freeMealImg')" />
         <div id="previewFreeMeal"></div>
       </div>
 
       <div>
-        <label>2️⃣ صورة قائمة الوجبات بنصف الثمن (تظهر للفرق الخاسرة):</label>
-        <input type="file" accept="image/*" onchange="uploadMealImage(event, 'halfMealImg')" />
+        <div class="row-flex" style="justify-content:space-between;">
+          <label style="margin:0;">2️⃣ صورة قائمة الوجبات بنصف الثمن (تظهر للفرق الخاسرة):</label>
+          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('halfMealImg')">🗑️ حذف الصورة</button>
+        </div>
+        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'halfMealImg')" />
         <div id="previewHalfMeal"></div>
       </div>
     </div>
@@ -312,15 +326,12 @@
 
 </div>
 
-<!-- Leaflet Map JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // إعدادات Firebase الخاصة بمشروعك
   const firebaseConfig = {
     apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
     authDomain: "monester-challenge.firebaseapp.com",
@@ -335,8 +346,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // كلمة مرور الأدمن (يمكنك تعديلها هنا)
-  const ADMIN_PASSWORD = "admin123";
+  // كلمة سر الأدمن المحددة
+  const ADMIN_PASSWORD = "38512385";
 
   window.checkAdminLogin = () => {
     const val = document.getElementById("adminPassInput").value;
@@ -351,7 +362,6 @@
     document.getElementById("loginOverlay").style.display = "none";
   }
 
-  // التنقل بين التبويبات
   window.switchTab = (tabId, btn) => {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -367,11 +377,14 @@
     document.getElementById("imgModal").style.display = "flex";
   };
 
+  let latestTeamsData = {};
+
   // ==========================================
-  // 1. طلبات التسجيل
+  // 1. طلبات التسجيل والمشتركين + حذف صور الإيصالات
   // ==========================================
   onValue(ref(db, "teams"), (snap) => {
     const data = snap.val() || {};
+    latestTeamsData = data;
     const regContainer = document.getElementById("regRequestsList");
     const subContainer = document.getElementById("subscribersList");
     regContainer.innerHTML = "";
@@ -385,7 +398,6 @@
         `<div class="member-item">👤 ${idx + 1}. <b>${m.name}</b> — 📱 ${m.phone}</div>`
       ).join("");
 
-      // طلبات التسجيل الجديدة
       if (team.status === "pending_registration") {
         pendingRegCount++;
         regContainer.innerHTML += `
@@ -403,7 +415,6 @@
         `;
       }
 
-      // المشتركين وإيصالات الدفع
       if (team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
         if (team.status === "receipt_uploaded") pendingReceiptCount++;
         const statusLabel = {
@@ -423,9 +434,10 @@
             ${team.receiptImage ? `
               <div>
                 <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
-                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" />
+                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" /><br/>
+                <button class="btn btn-danger btn-sm" style="margin-bottom:8px;" onclick="deleteTeamReceipt('${teamId}')">🗑️ حذف صورة الإيصال</button>
               </div>
-            ` : `<p style="color:var(--danger);">لم يتم رفع إيصال</p>`}
+            ` : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة إيصال محفوظة حالياً.</p>`}
             ${team.status === "receipt_uploaded" ? `
               <button class="btn btn-success" onclick="approveReceipt('${teamId}')">✅ قبول الإيصال ونقل للتحدي</button>
             ` : ""}
@@ -457,6 +469,22 @@
       status: "in_challenge",
       joinedChallengeAt: Date.now()
     });
+  };
+
+  window.deleteTeamReceipt = async (teamId) => {
+    if (!confirm("هل تريد حذف صورة الإيصال لتوفير مساحة الذاكرة؟")) return;
+    await remove(ref(db, `teams/${teamId}/receiptImage`));
+    alert("✅ تم حذف صورة الإيصال.");
+  };
+
+  window.deleteAllReceipts = async () => {
+    if (!confirm("هل تريد حذف كل صور الإيصالات بعد انتهاء التحدي لتوفير مساحة الذاكرة؟")) return;
+    for (const tId of Object.keys(latestTeamsData)) {
+      if (latestTeamsData[tId]?.receiptImage) {
+        await remove(ref(db, `teams/${tId}/receiptImage`));
+      }
+    }
+    alert("✅ تم حذف كل صور الإيصالات بنجاح.");
   };
 
   // ==========================================
@@ -521,7 +549,6 @@
   let mapMarkersLayer = null;
 
   function initAdminMap() {
-    // إحداثيات افتراضية (مصر - الغردقة / القاهرة) ويمكن تحريكها لأي مكان
     mapInstance = L.map("adminMap").setView([27.2579, 33.8116], 13);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap"
@@ -572,7 +599,6 @@
     alert("✅ تم حفظ ونشر إعدادات التحدي بنجاح!");
   };
 
-  // إدارة المفاتيح على الخريطة
   onValue(ref(db, "gpsCoins"), (snap) => {
     const keys = snap.val() || {};
     const listEl = document.getElementById("adminKeysList");
@@ -622,7 +648,7 @@
   };
 
   // ==========================================
-  // 4. صفحة صور التحدي واعتماد الفائز
+  // 4. صفحة صور التحدي + حذف الصور
   // ==========================================
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
@@ -640,12 +666,13 @@
             <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
             <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
           </div>
-          <img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />
+          ${item.photo ? `<img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />` : `<p style="color:var(--muted); font-size:0.85rem;">تم حذف الصورة.</p>`}
           <div class="row-flex">
             ${item.isWinner
               ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
               : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
             }
+            <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
           </div>
         </div>
       `;
@@ -654,10 +681,21 @@
     if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
   });
 
+  window.deleteChallengePhoto = async (teamId) => {
+    if (!confirm("هل تريد حذف صورة التحدي لهذا الفريق لتوفير الذاكرة؟")) return;
+    await remove(ref(db, `challengeSubmissions/${teamId}/photo`));
+    alert("✅ تم حذف صورة التحدي.");
+  };
+
+  window.deleteAllChallengePhotos = async () => {
+    if (!confirm("هل تريد مسح كل صور التحدي المرسلة لتوفير الذاكرة؟")) return;
+    await remove(ref(db, "challengeSubmissions"));
+    alert("✅ تم حذف كل صور التحدي.");
+  };
+
   window.confirmChallengeWinner = async (winnerTeamId) => {
     if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
 
-    // تحديث حالة الفائز وإضافة 10 نقاط
     const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
     const winnerData = winnerSnap.val() || {};
     const currentPoints = winnerData.points || 0;
@@ -671,7 +709,6 @@
       isWinner: true
     });
 
-    // تحويل باقي الفرق المشاركة في التحدي إلى حالة "lost" لتظهر لهم رسالة الخسارة ووجبات نصف الثمن
     const allTeamsSnap = await get(ref(db, "teams"));
     const allTeams = allTeamsSnap.val() || {};
     for (const [tId, tData] of Object.entries(allTeams)) {
@@ -757,7 +794,7 @@
   };
 
   // ==========================================
-  // 7. وجبات الطعام (ضغط الصور وحفظها)
+  // 7. وجبات الطعام + زر حذف الصور
   // ==========================================
   function compressImage(file, callback) {
     const reader = new FileReader();
@@ -787,22 +824,28 @@
     });
   };
 
+  window.deleteMealImage = async (dbKey) => {
+    if (!confirm("هل تريد حذف صورة قائمة الطعام هذه لتوفير الذاكرة؟")) return;
+    await remove(ref(db, `settings/meals/${dbKey}`));
+    alert("✅ تم حذف صورة قائمة الطعام.");
+  };
+
   onValue(ref(db, "settings/meals"), (snap) => {
     const meals = snap.val() || {};
-    if (meals.freeMealImg) {
-      document.getElementById("previewFreeMeal").innerHTML = `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`;
-    }
-    if (meals.halfMealImg) {
-      document.getElementById("previewHalfMeal").innerHTML = `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`;
-    }
+    document.getElementById("previewFreeMeal").innerHTML = meals.freeMealImg
+      ? `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`
+      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
+
+    document.getElementById("previewHalfMeal").innerHTML = meals.halfMealImg
+      ? `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`
+      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
   });
 
-  // تصفير الجولة الحالية لبدء تحدي جديد
   window.resetRoundData = async () => {
     if (!confirm("⚠️ هل تريد مسح صور التحدي ورابحو المفاتيح لبدء جولة تحدي جديدة؟ (لن يتم حذف الفرق المسجلة)")) return;
     await remove(ref(db, "challengeSubmissions"));
     await remove(ref(db, "keyWinners"));
-    alert("✅ تم تصفير بيانات الجولة بنجاح.");
+    alert("✅ تم تصفير بيانات الجولة وحذف الصور بنجاح.");
   };
 </script>
 
