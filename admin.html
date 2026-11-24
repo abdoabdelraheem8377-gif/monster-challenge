@@ -3,875 +3,1261 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>لوحة إدارة صراع التحديات — المشتركين والمهام والتحديثات</title>
+  <title>لوحة تحكم الأدمن - صراع الوحوش</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
-      --bg: #070b14;
-      --card: #101829;
-      --card-2: #162138;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #334155;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --purple: #8b5cf6;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --accent: #f59e0b;
-      --accent-2: #38bdf8;
-      --danger: #ef4444;
-      --success: #22c55e;
-      --border: rgba(255, 255, 255, 0.1);
     }
-
-    * {
-      box-sizing: border-box;
-      font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
-    }
-
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
       margin: 0;
-      padding: 16px;
-      background: linear-gradient(180deg, #070b14 0%, #0d1526 100%);
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      padding-bottom: 40px;
     }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .topbar h1 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .topbar small {
-      color: var(--muted);
-      display: block;
-      margin-top: 4px;
-    }
-
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .tab-btn {
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 10px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: 0.2s;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: #090d16;
-      border-color: var(--accent);
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    .panel-header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-      margin: 0;
-      word-break: break-word;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-2);
-    }
-
-    .badge.success {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-    }
-
-    .member-box {
-      background: var(--card-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-    }
-
-    .member-info {
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    .member-info span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: auto;
-    }
-
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.18s;
-    }
-
-    button:hover {
-      opacity: 0.92;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #090d16;
-    }
-
-    .btn-info {
-      background: var(--accent-2);
-      color: #07131d;
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: #06180c;
-    }
-
-    .btn-ghost {
-      background: var(--card-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    input, textarea, select {
-      width: 100%;
-      background: var(--card-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .empty-state {
-      background: var(--card);
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.72);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 999;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 480px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+    #loginOverlay {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
       padding: 20px;
     }
-
-    .modal h3 {
-      margin: 0 0 8px 0;
+    .login-box {
+      background: var(--card); padding: 30px; border-radius: 16px;
+      width: 100%; max-width: 380px; text-align: center;
+      border: 1px solid var(--card-light); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-
-    .modal p {
-      margin: 0 0 14px 0;
-      color: var(--muted);
-      font-size: 0.9rem;
+    header {
+      background: var(--card); padding: 15px 20px;
+      border-bottom: 2px solid var(--primary);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      position: sticky; top: 0; z-index: 1000;
     }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: #14223b;
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 700;
-      z-index: 1000;
-      display: none;
+    header h1 { margin: 0; font-size: 1.2rem; color: var(--primary); }
+    .nav-tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding: 12px 15px;
+      background: #162033; border-bottom: 1px solid var(--card-light);
     }
-
-    .toast.show {
-      display: block;
+    .tab-btn {
+      background: var(--card); color: var(--text); border: 1px solid var(--card-light);
+      padding: 10px 14px; border-radius: 10px; cursor: pointer; white-space: nowrap;
+      font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
     }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    .badge {
+      background: var(--danger); color: #fff; padding: 2px 7px;
+      border-radius: 999px; font-size: 0.75rem;
+    }
+    .container { max-width: 960px; margin: 20px auto; padding: 0 15px; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: var(--card); border-radius: 14px; padding: 18px;
+      margin-bottom: 16px; border: 1px solid var(--card-light);
+    }
+    .card h2, .card h3 { margin-top: 0; color: var(--primary); }
+    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
+    input[type="text"], input[type="number"], input[type="password"], input[type="datetime-local"], textarea, select {
+      width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--card-light);
+      background: #0f172a; color: var(--text); font-size: 0.95rem; margin-bottom: 12px;
+    }
+    .btn {
+      padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold;
+      cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-info { background: var(--info); color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-sm { padding: 7px 12px; font-size: 0.82rem; }
+    .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .cash-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+      background: #0f172a; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--card-light);
+    }
+    .cash-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+    .cash-row input[type="text"] { margin-bottom: 0; }
+    .member-list { background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; }
+    .member-item { padding: 6px 0; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+    .member-item:last-child { border-bottom: none; }
+    .thumb-img {
+      width: 100%; max-width: 240px; max-height: 220px; object-fit: cover;
+      border-radius: 10px; border: 2px solid var(--card-light); cursor: zoom-in; margin: 10px 0;
+    }
+    #adminMap {
+      height: 330px; width: 100%; border-radius: 12px; margin: 12px 0;
+      border: 2px solid var(--primary); z-index: 1;
+    }
+    .key-item {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+      border: 1px solid var(--card-light);
+    }
+    /* سطر طلب الطعام المختصر الذي يكبر عند الضغط عليه */
+    .meal-order-row {
+      background: #0f172a; border: 1px solid var(--card-light); border-radius: 10px;
+      padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s;
+    }
+    .meal-order-summary {
+      display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.88rem;
+    }
+    .meal-order-details {
+      display: none; margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--card-light); white-space: pre-wrap; line-height: 1.6;
+    }
+    .meal-order-row.expanded .meal-order-details { display: block; }
+    .meal-order-row.expanded .meal-order-summary { white-space: normal; }
+    .task-page-box {
+      background: #0f172a; border: 1px dashed var(--primary); border-radius: 12px;
+      padding: 14px; margin-top: 12px;
+    }
+    #imgModal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+      z-index: 10000; align-items: center; justify-content: center; padding: 20px;
+    }
+    #imgModal img { max-width: 95%; max-height: 90vh; border-radius: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="topbar">
+
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2 style="color:var(--primary); margin-top:0;">🛡️ لوحة تحكم صراع الوحوش</h2>
+    <p style="color:var(--muted); font-size:0.9rem;">أدخل كلمة مرور الأدمن للمتابعة</p>
+    <input type="password" id="adminPassInput" placeholder="كلمة المرور..." />
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="checkAdminLogin()">دخول</button>
+    <p id="loginErr" style="color:var(--danger); font-size:0.85rem; display:none; margin-top:10px;">كلمة المرور غير صحيحة!</p>
+  </div>
+</div>
+
+<div id="imgModal" onclick="this.style.display='none'">
+  <img id="modalImgSrc" src="" alt="تكبير الصورة" />
+</div>
+
+<header>
+  <h1>⚔️ صراع الوحوش - Admin</h1>
+  <div class="row-flex">
+    <button class="btn btn-info btn-sm" onclick="cleanOldTransferRecords()">🧹 تنظيف _tr_</button>
+    <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة الحالية</button>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('regRequests', this)">
+    📋 طلبات التسجيل <span class="badge" id="badgeReg">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('cashSettings', this)">
+    💳 الاشتراك في التحدي
+  </button>
+  <button class="tab-btn" onclick="switchTab('subscribers', this)">
+    🧾 المشتركين في التحدي <span class="badge" id="badgeSub">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('teamsDirectoryTab', this)">
+    👥 الفرق <span class="badge" id="badgeTeamsDir">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('dailyChallenge', this)">
+    🎯 التحدي اليومي
+  </button>
+  <button class="tab-btn" onclick="switchTab('challengePhotos', this)">
+    📸 صور التحدي <span class="badge" id="badgePhotos">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('keyWinners', this)">
+    🗝️ رابحو المفاتيح <span class="badge" id="badgeKeys">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('rewardsTab', this)">
+    💰 المكافآت والتحويلات <span class="badge" id="badgePayouts">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('mealsTab', this)">
+    🍔 وجبات الطعام <span class="badge" id="badgeMeals">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('ordersTab', this)">
+    📦 طلبات <span class="badge" id="badgeOrders">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('adminTasksTab', this)">
+    📌 المهام
+  </button>
+  <button class="tab-btn" onclick="switchTab('completedTasksTab', this)">
+    ✅ المهام المكتملة <span class="badge" id="badgeCompletedTasks">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('appUpdateTab', this)">
+    🔄 التحديثات
+  </button>
+</div>
+
+<div class="container">
+
+  <!-- 1. طلبات التسجيل -->
+  <div id="regRequests" class="section active">
+    <div class="card">
+      <h2>طلبات تسجيل الفرق الجديدة (<span id="countRegTitle">0</span>)</h2>
+      <p style="color:var(--muted); font-size:0.88rem;">عند قبول الفريق يصبح مشتركاً وينتقل تلقائياً لشاشة التحويل المالي.</p>
+      <div id="regRequestsList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 2. الاشتراك في التحدي (أرقام الكاش) -->
+  <div id="cashSettings" class="section">
+    <div class="card">
+      <h2>أرقام استقبال تحويلات الكاش (اختر 3 أرقام فقط)</h2>
+      <p style="color:var(--muted); font-size:0.88rem;">أدخل حتى 7 أرقام موبايل مصرية، وحدد علامة (✓) بجانب 3 أرقام فقط لتظهر للمستخدمين.</p>
+      <div id="cashInputsContainer"></div>
+      <button class="btn btn-primary" onclick="saveCashNumbers()">💾 حفظ الأرقام المحددة</button>
+    </div>
+  </div>
+
+  <!-- 3. المشتركين في التحدي -->
+  <div id="subscribers" class="section">
+    <div class="card">
+      <h2>مراجعة إيصالات الدفع والمشتركين</h2>
+      <p style="color:var(--muted); font-size:0.88rem;">اضغط على صورة الإيصال لتكبيرها، وعند الضغط على (قبول) ينتقل الفريق تلقائياً لصفحة التحدي اليومي.</p>
+      <div id="subscribersList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 4. صفحة الفرق -->
+  <div id="teamsDirectoryTab" class="section">
+    <div class="card">
+      <h2>👥 إدارة الفرق</h2>
+      <button class="btn btn-primary" onclick="toggleAllAppTeamsList()">📋 الفرق المشتركة في التطبيق</button>
+      <div id="allAppTeamsContainer" style="display:none; margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- 5. التحدي اليومي -->
+  <div id="dailyChallenge" class="section">
+    <div class="card">
+      <h2>إعدادات التحدي اليومي وعدد الفرق</h2>
+      <div class="grid-2">
+        <div>
+          <label>عدد الفرق المسموح لها بالمشاركة (اتركه فارغاً لعدد غير محدد):</label>
+          <input type="number" id="maxTeamsInput" min="1" placeholder="مثال: 10 (أو فارغ لغير محدد)" />
+        </div>
+        <div>
+          <label>موعد التحدي التالي:</label>
+          <input type="text" id="nextChallengeTimeInput" placeholder="مثال: غداً الساعة 8:00 مساءً" />
+        </div>
+      </div>
+
+      <label>نوع التحدي الحالي:</label>
+      <select id="challengeTypeSelect" onchange="toggleChallengeTypeUI()">
+        <option value="photo">📸 تحدي إرسال صورة (أسرع فريق يرسل الصورة الصحيحة)</option>
+        <option value="keys">🗝️ تحدي إيجاد المفاتيح على الخريطة (GPS)</option>
+      </select>
+
+      <label>وصف / نص التحدي اليومي (يظهر للمشتركين):</label>
+      <textarea id="challengeTextInput" rows="3" placeholder="اكتب تفاصيل التحدي أو اللغز هنا..."></textarea>
+
+      <div id="keysConfigBox" style="display:none; border-top:1px solid var(--card-light); padding-top:15px; margin-top:10px;">
+        <h3>🗺️ إعدادات المفاتيح والمواقع الجغرافية</h3>
+        <div class="grid-2">
+          <div>
+            <label>عدد المفاتيح المطلوب تجميعها للفوز:</label>
+            <input type="number" id="requiredKeysCount" min="1" max="20" value="3" />
+          </div>
+          <div>
+            <label>نصف قطر دائرة إيجاد المفتاح (بالمتر):</label>
+            <input type="number" id="keyRadiusMeters" min="5" max="5000" value="30" />
+          </div>
+        </div>
+        <p style="color:var(--primary); font-size:0.9rem; margin-bottom:5px;">📍 اضغط على الخريطة لإضافة مفتاح:</p>
+        <div id="adminMap"></div>
+        <div class="grid-2">
+          <div>
+            <input type="text" id="manualKeyName" placeholder="اسم المكان / تلميح للمفتاح (اختياري)" />
+          </div>
+          <div class="row-flex">
+            <input type="text" id="pickedCoords" readonly placeholder="الإحداثيات المختارة من الخريطة" style="margin-bottom:0; flex:1;" />
+            <button class="btn btn-success" onclick="addKeyFromMap()">➕ إضافة مفتاح</button>
+          </div>
+        </div>
+        <h4>المفاتيح المضافة حالياً على الخريطة:</h4>
+        <div id="adminKeysList"></div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:15px; width:100%; justify-content:center;" onclick="saveChallengeSettings()">
+        🚀 حفظ ونشر إعدادات التحدي
+      </button>
+    </div>
+  </div>
+
+  <!-- 6. صور التحدي -->
+  <div id="challengePhotos" class="section">
+    <div class="card">
+      <h2>صور التحدي المرسلة من الفرق</h2>
+      <div id="challengePhotosList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 7. رابحو المفاتيح -->
+  <div id="keyWinners" class="section">
+    <div class="card">
+      <h2>🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
+      <div id="keyWinnersList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 8. المكافآت والتحويلات -->
+  <div id="rewardsTab" class="section">
+    <div class="card">
+      <h2>تحديد قيمة المكافأة النقدية للفائز</h2>
+      <div class="row-flex">
+        <input type="text" id="cashPrizeAmount" placeholder="مثال: 500 جنيه مصري" style="margin-bottom:0; flex:1;" />
+        <button class="btn btn-primary" onclick="savePrizeAmount()">💾 حفظ قيمة الجائزة</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💸 التحويلات المرسلة / طلبات سحب الجوائز النقدية</h2>
+      <div id="payoutRequestsList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 9. وجبات الطعام -->
+  <div id="mealsTab" class="section">
+    <div class="card">
+      <h2>🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
+      <div style="margin-bottom:20px;">
+        <label>1️⃣ صورة قائمة الوجبات المجانية (تظهر للفريق الفائز):</label>
+        <input type="file" accept="image/*" onchange="uploadMealImage(event, 'freeMealImg')" />
+        <div id="previewFreeMeal"></div>
+      </div>
       <div>
-        <h1>🛡️ لوحة تحكم الأدمن — صراع التحديات</h1>
-        <small>إدارة المشتركين والمجموعات، أرقام الكاش (5 خانات)، المهام المكتملة، والتحديثات</small>
-      </div>
-      <div class="actions">
-        <button class="btn-ghost" onclick="cleanOldTransferRecords()">🧹 تنظيف سجلات _tr_ القديمة</button>
+        <label>2️⃣ صورة قائمة الوجبات بنصف الثمن (تظهر للفرق الخاسرة):</label>
+        <input type="file" accept="image/*" onchange="uploadMealImage(event, 'halfMealImg')" />
+        <div id="previewHalfMeal"></div>
       </div>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="subscribersTab" onclick="switchTab('subscribersTab')">
-        👥 المشتركين والمجموعات (<span id="subscribersCount">0</span>)
-      </button>
-      <button class="tab-btn" data-tab="cashFiveTab" onclick="switchTab('cashFiveTab')">
-        💳 أرقام الكاش (5 خانات)
-      </button>
-      <button class="tab-btn" data-tab="completedTasksTab" onclick="switchTab('completedTasksTab')">
-        ✅ المهام المكتملة (<span id="completedTasksCount">0</span>)
-      </button>
-      <button class="tab-btn" data-tab="updatesTab" onclick="switchTab('updatesTab')">
-        🔄 التحديثات
-      </button>
+    <div class="card">
+      <h2>📋 طلبات وجبات الطعام (الفائزون والخاسرون)</h2>
+      <p style="color:var(--muted); font-size:0.85rem;">اضغط على أي سطر لتكبير تفاصيل الطلب بالكامل.</p>
+      <div id="mealOrdersList">جاري التحميل...</div>
     </div>
-
-    <!-- 1. شاشة كل المشتركين والمجموعات -->
-    <section id="subscribersTab" class="tab-panel active">
-      <div class="panel-header">
-        <div>
-          <h2 style="margin:0;">كل المشتركين والمجموعات</h2>
-          <small style="color:var(--muted);">يمكنك إرسال رسالة لكل مجموعة/فريق بالكامل أو لكل عضو على حدة</small>
-        </div>
-        <div style="min-width:240px;">
-          <input
-            type="text"
-            id="subscriberSearch"
-            placeholder="ابحث باسم المجموعة أو المشترك أو رقم الهاتف..."
-            oninput="renderSubscribers()"
-          />
-        </div>
-      </div>
-
-      <div id="subscribersContainer" class="grid"></div>
-    </section>
-
-    <!-- 2. شاشة تحديد 5 خانات لأرقام الموبايل لتحويل الكاش -->
-    <section id="cashFiveTab" class="tab-panel">
-      <div class="card" style="max-width:640px;">
-        <h2 style="margin:0;">💳 أرقام الموبايل لتحويل الكاش (5 خانات)</h2>
-        <p style="margin:0; color:var(--muted); font-size:0.9rem;">
-          أدخل أرقام الموبايل في الخانات الخمس التالية لتظهر للمشترك في صفحة الاشتراك وصفحة تحويل الكاش.
-        </p>
-
-        <div class="form-group">
-          <label for="cashSlot0">الخانة رقم 1:</label>
-          <input type="tel" id="cashSlot0" placeholder="مثال: 010xxxxxxxx" />
-        </div>
-        <div class="form-group">
-          <label for="cashSlot1">الخانة رقم 2:</label>
-          <input type="tel" id="cashSlot1" placeholder="مثال: 011xxxxxxxx" />
-        </div>
-        <div class="form-group">
-          <label for="cashSlot2">الخانة رقم 3:</label>
-          <input type="tel" id="cashSlot2" placeholder="مثال: 012xxxxxxxx" />
-        </div>
-        <div class="form-group">
-          <label for="cashSlot3">الخانة رقم 4:</label>
-          <input type="tel" id="cashSlot3" placeholder="مثال: 015xxxxxxxx" />
-        </div>
-        <div class="form-group">
-          <label for="cashSlot4">الخانة رقم 5:</label>
-          <input type="tel" id="cashSlot4" placeholder="مثال: 010xxxxxxxx" />
-        </div>
-
-        <div class="actions">
-          <button class="btn-success" onclick="saveFiveCashSlots()">💾 حفظ الخانات الخمس</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. شاشة المهام المكتملة -->
-    <section id="completedTasksTab" class="tab-panel">
-      <div class="panel-header">
-        <div>
-          <h2 style="margin:0;">المهام المكتملة</h2>
-          <small style="color:var(--muted);">حذف مهمة مكتملة بعينها أو حذف جميع المهام المكتملة دفعة واحدة</small>
-        </div>
-        <div class="actions">
-          <button class="btn-danger" onclick="deleteAllCompletedTasks()">🗑️ حذف الكل</button>
-        </div>
-      </div>
-
-      <div id="completedTasksContainer" class="grid"></div>
-    </section>
-
-    <!-- 4. شاشة التحديثات -->
-    <section id="updatesTab" class="tab-panel">
-      <div class="card" style="max-width:640px;">
-        <h2 style="margin:0;">🔄 إدارة إشعارات وتحديثات التطبيق</h2>
-        <p style="margin:0; color:var(--muted); font-size:0.9rem;">
-          عند تفعيل التحديث وحفظه، يظهر إشعار التحديث للمستخدمين في التطبيق (`settings/appUpdate`).
-        </p>
-
-        <div class="form-group">
-          <label for="updateVersion">رقم الإصدار الجديد (Version)</label>
-          <input type="text" id="updateVersion" placeholder="مثال: 1.0.5 أو 2026-11-24" />
-        </div>
-
-        <div class="form-group">
-          <label for="updateMessage">رسالة التحديث للمشتركين</label>
-          <textarea id="updateMessage" rows="3" placeholder="اكتب تفاصيل التحديث الجديد أو المميزات المضافة..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="updateActive">حالة إشعار التحديث</label>
-          <select id="updateActive">
-            <option value="true">مفعّل (يظهر للمستخدمين)</option>
-            <option value="false">متوقف (مخفي حالياً)</option>
-          </select>
-        </div>
-
-        <div class="actions">
-          <button class="btn-success" onclick="saveAppUpdate()">💾 حفظ ونشر التحديث</button>
-          <button class="btn-ghost" onclick="disableAppUpdate()">🔕 إيقاف التحديث</button>
-        </div>
-      </div>
-    </section>
   </div>
 
-  <!-- نافذة إرسال رسالة -->
-  <div id="messageModal" class="modal-backdrop">
-    <div class="modal">
-      <h3 id="modalTitle">إرسال رسالة</h3>
-      <p id="modalSubtitle">سيتم إرسال الرسالة مباشرة إلى قاعدة البيانات.</p>
-      <div class="form-group">
-        <label for="messageTextInput">نص الرسالة</label>
-        <textarea id="messageTextInput" rows="4" placeholder="اكتب رسالتك هنا..."></textarea>
+  <!-- 10. صفحة (طلبات) -->
+  <div id="ordersTab" class="section">
+    <div class="card">
+      <h2>📦 صفحة الطلبات</h2>
+      <div id="customOrdersList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 11. صفحة (المهام) -->
+  <div id="adminTasksTab" class="section">
+    <div class="card">
+      <h2>📌 صفحة المهام</h2>
+      <label>نص المهمة (حد أقصى 500 حرف):</label>
+      <textarea id="newTaskText" maxlength="500" rows="3" placeholder="اكتب وصف المهمة هنا..." oninput="document.getElementById('newTaskCharCnt').innerText = this.value.length"></textarea>
+      <div style="color:var(--muted); font-size:0.82rem; margin-top:-8px; margin-bottom:10px;">
+        <span id="newTaskCharCnt">0</span> / 500
       </div>
-      <div class="actions">
-        <button class="btn-primary" onclick="confirmSendMessage()">📤 إرسال الآن</button>
-        <button class="btn-ghost" onclick="closeMessageModal()">إلغاء</button>
+
+      <div class="grid-2">
+        <div>
+          <label>الوقت المحدد لإتمام المهمة:</label>
+          <input type="text" id="newTaskDuration" placeholder="مثال: ساعتان أو 45 دقيقة" />
+        </div>
+        <div>
+          <label>إرفاق صورة للمهمة (اختياري):</label>
+          <input type="file" id="newTaskImageFile" accept="image/*" />
+        </div>
+      </div>
+
+      <button class="btn btn-success" onclick="addAdminTask()">➕ إضافة المهمة</button>
+      <div id="adminTasksPagesContainer" style="margin-top:16px;">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 12. صفحة (المهام المكتملة) -->
+  <div id="completedTasksTab" class="section">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">✅ صفحة المهام المكتملة</h2>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllCompletedTasks()">🗑️ حذف الكل</button>
+      </div>
+      <div id="completedTasksList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 13. صفحة (التحديثات) -->
+  <div id="appUpdateTab" class="section">
+    <div class="card">
+      <h2>🔄 إشعار تحديث التطبيق</h2>
+      <label>نص رسالة التحديث:</label>
+      <input type="text" id="appUpdateMsgInput" placeholder="يجب تحديث التطبيق" />
+      <div class="row-flex">
+        <button class="btn btn-success" onclick="activateAppUpdate()">✅ تفعيل إشعار التحديث (يجب تحديث التطبيق)</button>
+        <button class="btn btn-danger" onclick="deactivateAppUpdate()">🔕 إيقاف إشعار التحديث</button>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      onValue,
-      get,
-      set,
-      push,
-      remove
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-      databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
+    authDomain: "monester-challenge.firebaseapp.com",
+    databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
+    projectId: "monester-challenge",
+    storageBucket: "monester-challenge.firebasestorage.app",
+    messagingSenderId: "258204342725",
+    appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
+    measurementId: "G-RW050GJMCZ"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    let state = {
-      teams: {},
-      completedTasks: {},
-      appUpdate: {},
-      cashSlotsFive: ["", "", "", "", ""]
-    };
-
-    let pendingMessageTarget = null;
-
-    function normalizeFiveCashSlots(val) {
-      if (Array.isArray(val)) {
-        return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
-      }
-      if (val && typeof val === "object") {
-        return Array.from({ length: 5 }, (_, i) => String(val[i] ?? val[`slot${i}`] ?? "").trim());
-      }
-      return ["", "", "", "", ""];
+  const ADMIN_PASSWORD = "admin123";
+  window.checkAdminLogin = () => {
+    const val = document.getElementById("adminPassInput").value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById("loginOverlay").style.display = "none";
+      sessionStorage.setItem("mc_admin_auth", "1");
+    } else {
+      document.getElementById("loginErr").style.display = "block";
     }
+  };
+  if (sessionStorage.getItem("mc_admin_auth") === "1") {
+    document.getElementById("loginOverlay").style.display = "none";
+  }
 
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.classList.add("show");
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+  window.switchTab = (tabId, btn) => {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    if (btn) btn.classList.add("active");
+    if (tabId === "dailyChallenge" && mapInstance) {
+      setTimeout(() => mapInstance.invalidateSize(), 200);
     }
+  };
 
-    window.switchTab = function (tabId) {
-      document.querySelectorAll(".tab-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.tab === tabId);
-      });
-      document.querySelectorAll(".tab-panel").forEach((panel) => {
-        panel.classList.toggle("active", panel.id === tabId);
-      });
-    };
+  window.openModal = (src) => {
+    document.getElementById("modalImgSrc").src = src;
+    document.getElementById("imgModal").style.display = "flex";
+  };
 
-    window.saveFiveCashSlots = async function () {
-      const slots = Array.from({ length: 5 }, (_, i) => {
-        const el = document.getElementById(`cashSlot${i}`);
-        return (el?.value || "").trim();
-      });
-
-      try {
-        await set(ref(db, "settings/cashSlotsFive"), slots);
-        state.cashSlotsFive = slots;
-        showToast("✅ تم حفظ الخانات الخمس لأرقام الكاش بنجاح.");
-      } catch (err) {
-        console.error(err);
-        showToast("❌ فشل حفظ أرقام الكاش.");
-      }
-    };
-
-    function fillFiveCashInputs(arr) {
-      const normalized = normalizeFiveCashSlots(arr);
-      for (let i = 0; i < 5; i++) {
-        const el = document.getElementById(`cashSlot${i}`);
-        if (el) el.value = normalized[i] || "";
-      }
-    }
-
-    function extractMembers(team) {
-      if (!team || typeof team !== "object") return [];
-      const list = [];
-
-      if (Array.isArray(team.members)) {
-        team.members.forEach((m, idx) => {
-          if (!m) return;
-          if (typeof m === "string") {
-            list.push({ id: `m_${idx}`, name: m, phone: "" });
-          } else if (typeof m === "object") {
-            list.push({
-              id: m.id || `m_${idx}`,
-              name: m.name || m.memberName || m.fullName || `مشترك ${idx + 1}`,
-              phone: m.phone || m.mobile || m.whatsapp || ""
-            });
-          }
-        });
-      } else if (team.members && typeof team.members === "object") {
-        Object.entries(team.members).forEach(([k, m], idx) => {
-          if (!m) return;
-          if (typeof m === "string") {
-            list.push({ id: k, name: m, phone: "" });
-          } else if (typeof m === "object") {
-            list.push({
-              id: k,
-              name: m.name || m.memberName || m.fullName || `مشترك ${idx + 1}`,
-              phone: m.phone || m.mobile || m.whatsapp || ""
-            });
-          }
-        });
-      }
-
-      if (list.length === 0 && (team.leaderName || team.leaderPhone || team.phone)) {
-        list.push({
-          id: "leader",
-          name: team.leaderName || team.name || team.teamName || "مشترك رئيسي",
-          phone: team.leaderPhone || team.phone || ""
-        });
-      }
-
-      return list;
-    }
-
-    function getValidTeams() {
-      const entries = Object.entries(state.teams || {});
-      return entries
-        .filter(([key, team]) => {
-          if (!key || key.includes("_tr_")) return false;
-          if (!team || typeof team !== "object") return false;
-          return true;
-        })
-        .map(([teamId, team]) => {
-          const teamName = team.name || team.teamName || team.title || `مجموعة (${teamId})`;
-          const points = Number(team.points ?? team.score ?? 0);
-          const members = extractMembers(team);
-          return { teamId, team, teamName, points, members };
-        });
-    }
-
-    window.renderSubscribers = function () {
-      const container = document.getElementById("subscribersContainer");
-      const search = (document.getElementById("subscriberSearch")?.value || "").trim().toLowerCase();
-      const allTeams = getValidTeams();
-
-      const filtered = allTeams.filter((item) => {
-        if (!search) return true;
-        const inTeam = item.teamName.toLowerCase().includes(search);
-        const inMembers = item.members.some(
-          (m) =>
-            (m.name || "").toLowerCase().includes(search) ||
-            (m.phone || "").toLowerCase().includes(search)
-        );
-        return inTeam || inMembers;
-      });
-
-      const totalMembersCount = allTeams.reduce(
-        (acc, t) => acc + (t.members.length > 0 ? t.members.length : 1),
-        0
-      );
-      document.getElementById("subscribersCount").textContent = totalMembersCount;
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state">لا توجد مجموعات أو مشتركين مطابقين للبحث حالياً.</div>`;
-        return;
-      }
-
-      container.innerHTML = filtered
-        .map((group) => {
-          const membersHtml =
-            group.members.length > 0
-              ? group.members
-                  .map(
-                    (m, idx) => `
-                  <div class="member-box">
-                    <div class="member-info">
-                      <strong>${idx + 1}. ${escapeHtml(m.name)}</strong>
-                      <span>${m.phone ? `📱 ${escapeHtml(m.phone)}` : "بدون رقم هاتف مسجل"}</span>
-                    </div>
-                    <button
-                      class="btn-info"
-                      onclick='openMemberMessageModal(${JSON.stringify(group.teamId)}, ${JSON.stringify(group.teamName)}, ${JSON.stringify(m)})'
-                    >
-                      ✉️ رسالة للعضو
-                    </button>
-                  </div>
-                `
-                  )
-                  .join("")
-              : `<div class="member-box"><div class="member-info"><span>لا توجد قائمة أعضاء تفصيلية — يمكنك إرسال رسالة للمجموعة مباشرة.</span></div></div>`;
-
-          return `
-            <div class="card">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-                <h3 class="card-title">👥 ${escapeHtml(group.teamName)}</h3>
-                <span class="badge success">${group.points} نقطة</span>
-              </div>
-              <div style="color:var(--muted); font-size:0.85rem;">
-                عدد المشتركين في المجموعة: <strong>${group.members.length}</strong>
-              </div>
-              <div>${membersHtml}</div>
-              <div class="actions">
-                <button
-                  class="btn-primary"
-                  style="width:100%;"
-                  onclick='openGroupMessageModal(${JSON.stringify(group.teamId)}, ${JSON.stringify(group.teamName)}, ${group.members.length})'
-                >
-                  📢 إرسال رسالة لكل المجموعة (${group.members.length} مشترك)
-                </button>
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-    };
-
-    window.openGroupMessageModal = function (teamId, teamName, memberCount) {
-      pendingMessageTarget = { mode: "group", teamId, teamName, memberCount };
-      document.getElementById("modalTitle").textContent = `📢 رسالة لكل مجموعة: ${teamName}`;
-      document.getElementById("modalSubtitle").textContent =
-        `سيتم إرسال هذه الرسالة إلى المجموعة بالكامل (${memberCount} مشترك).`;
-      document.getElementById("messageTextInput").value = "";
-      document.getElementById("messageModal").classList.add("open");
-    };
-
-    window.openMemberMessageModal = function (teamId, teamName, member) {
-      pendingMessageTarget = { mode: "member", teamId, teamName, member };
-      document.getElementById("modalTitle").textContent = `✉️ رسالة للعضو: ${member.name}`;
-      document.getElementById("modalSubtitle").textContent =
-        `المجموعة: ${teamName}${member.phone ? ` — الهاتف: ${member.phone}` : ""}`;
-      document.getElementById("messageTextInput").value = "";
-      document.getElementById("messageModal").classList.add("open");
-    };
-
-    window.closeMessageModal = function () {
-      pendingMessageTarget = null;
-      document.getElementById("messageModal").classList.remove("open");
-    };
-
-    window.confirmSendMessage = async function () {
-      const text = document.getElementById("messageTextInput").value.trim();
-      if (!text) {
-        showToast("⚠️ من فضلك اكتب نص الرسالة أولاً.");
-        return;
-      }
-      if (!pendingMessageTarget) return;
-
-      const payload = {
-        text,
-        scope: pendingMessageTarget.mode,
-        teamId: pendingMessageTarget.teamId,
-        teamName: pendingMessageTarget.teamName,
-        memberId: pendingMessageTarget.member?.id || null,
-        memberName: pendingMessageTarget.member?.name || null,
-        memberPhone: pendingMessageTarget.member?.phone || null,
-        sentAt: Date.now()
+  function compressImage(file, callback, maxW = 800, quality = 0.7) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        callback(canvas.toDataURL("image/jpeg", quality));
       };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 
-      try {
-        await push(ref(db, `teamRewards/${pendingMessageTarget.teamId}`), payload);
-        if (pendingMessageTarget.mode === "group") {
-          showToast(`✅ تم إرسال الرسالة إلى مجموعة "${pendingMessageTarget.teamName}".`);
-        } else {
-          showToast(`✅ تم إرسال الرسالة إلى "${pendingMessageTarget.member.name}".`);
-        }
-        closeMessageModal();
-      } catch (err) {
-        console.error(err);
-        showToast("❌ تعذر إرسال الرسالة، تحقق من الاتصال أو الصلاحيات.");
+  let allTeamsCache = {};
+  let showAllTeamsDirectory = false;
+
+  function isValidTeam(teamId, team) {
+    return team && typeof team === "object" && !String(teamId).includes("_tr_");
+  }
+
+  onValue(ref(db, "teams"), (snap) => {
+    const raw = snap.val() || {};
+    allTeamsCache = {};
+    Object.entries(raw).forEach(([k, v]) => {
+      if (isValidTeam(k, v)) allTeamsCache[k] = v;
+    });
+
+    const regContainer = document.getElementById("regRequestsList");
+    const subContainer = document.getElementById("subscribersList");
+    regContainer.innerHTML = "";
+    subContainer.innerHTML = "";
+
+    let pendingRegCount = 0;
+    let pendingReceiptCount = 0;
+    const validTeamsEntries = Object.entries(allTeamsCache);
+    document.getElementById("badgeTeamsDir").innerText = validTeamsEntries.length;
+
+    validTeamsEntries.forEach(([teamId, team]) => {
+      const membersHtml = (team.members || []).map((m, idx) =>
+        `<div class="member-item">👤 ${idx + 1}. <b>${m.name}</b> — 📱 ${m.phone}</div>`
+      ).join("");
+
+      if (team.status === "pending_registration") {
+        pendingRegCount++;
+        regContainer.innerHTML += `
+          <div class="card" style="background:#0f172a;">
+            <div class="row-flex" style="justify-content:space-between;">
+              <strong style="color:var(--primary);">فريق: ${team.teamName || team.members?.[0]?.name || teamId}</strong>
+              <span style="color:var(--muted); font-size:0.8rem;">${team.createdAt || ""}</span>
+            </div>
+            <div class="member-list">${membersHtml}</div>
+            <div class="row-flex">
+              <button class="btn btn-success" onclick="approveRegistration('${teamId}')">✅ قبول الطلب</button>
+              <button class="btn btn-danger" onclick="rejectRegistration('${teamId}')">❌ رفض الطلب</button>
+            </div>
+          </div>
+        `;
       }
+
+      if (team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
+        if (team.status === "receipt_uploaded") pendingReceiptCount++;
+        const statusLabel = {
+          receipt_uploaded: "⏳ بانتظار اعتماد الإيصال",
+          in_challenge: "✅ مشترك داخل التحدي",
+          won: "🏆 فائز بالتحدي",
+          lost: "💔 خاسر (مؤهل لمكافأة الخاسر)"
+        }[team.status] || team.status;
+
+        subContainer.innerHTML += `
+          <div class="card" style="background:#0f172a;">
+            <div class="row-flex" style="justify-content:space-between;">
+              <strong>فريق: ${team.teamName || team.members?.[0]?.name}</strong>
+              <span style="color:var(--primary); font-weight:bold;">${statusLabel}</span>
+            </div>
+            <div class="member-list">${membersHtml}</div>
+            ${team.receiptImage ? `
+              <div>
+                <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
+                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" />
+              </div>
+            ` : `<p style="color:var(--danger);">لم يتم رفع إيصال</p>`}
+            ${team.status === "receipt_uploaded" ? `
+              <button class="btn btn-success" onclick="approveReceipt('${teamId}')">✅ قبول الإيصال ونقل للتحدي</button>
+            ` : ""}
+          </div>
+        `;
+      }
+    });
+
+    document.getElementById("badgeReg").innerText = pendingRegCount;
+    document.getElementById("countRegTitle").innerText = pendingRegCount;
+    document.getElementById("badgeSub").innerText = pendingReceiptCount;
+
+    if (!regContainer.innerHTML) regContainer.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تسجيل جديدة حالياً.</p>";
+    if (!subContainer.innerHTML) subContainer.innerHTML = "<p style='color:var(--muted);'>لا يوجد مشتركين أو إيصالات حالياً.</p>";
+
+    if (showAllTeamsDirectory) renderAllAppTeamsList();
+  });
+
+  window.approveRegistration = (teamId) => update(ref(db, `teams/${teamId}`), { status: "approved_for_payment" });
+  window.rejectRegistration = (teamId) => {
+    if (confirm("هل أنت متأكد من رفض طلب هذا الفريق؟")) update(ref(db, `teams/${teamId}`), { status: "rejected" });
+  };
+  window.approveReceipt = (teamId) => update(ref(db, `teams/${teamId}`), { status: "in_challenge", joinedChallengeAt: Date.now() });
+
+  window.toggleAllAppTeamsList = () => {
+    showAllTeamsDirectory = !showAllTeamsDirectory;
+    const box = document.getElementById("allAppTeamsContainer");
+    box.style.display = showAllTeamsDirectory ? "block" : "none";
+    if (showAllTeamsDirectory) renderAllAppTeamsList();
+  };
+
+  function renderAllAppTeamsList() {
+    const box = document.getElementById("allAppTeamsContainer");
+    const entries = Object.entries(allTeamsCache);
+    if (entries.length === 0) {
+      box.innerHTML = "<p style='color:var(--muted);'>لا توجد فرق مسجلة في التطبيق.</p>";
+      return;
+    }
+
+    box.innerHTML = entries.map(([teamId, team], tIdx) => {
+      const members = team.members || [];
+      return `
+        <div class="card" style="background:#0f172a; margin-bottom:12px;">
+          <div class="row-flex" style="justify-content:space-between; cursor:pointer;" onclick="toggleTeamMembersExpand('${teamId}')">
+            <strong style="color:var(--primary);">${tIdx + 1}. ${team.teamName || "فريق"}</strong>
+            <span style="color:var(--info); font-weight:bold;">عدد الأعضاء: ${members.length} ▾</span>
+          </div>
+          <div id="teamMembersBox_${teamId}" style="margin-top:10px;">
+            ${members.map((m, mIdx) => `
+              <div class="member-item">
+                <div style="margin-bottom:6px;">
+                  <b>${mIdx + 1}. ${m.name}</b> — 📱 <span>${m.phone || "لا يوجد"}</span>
+                </div>
+                <div class="row-flex">
+                  <input type="text" id="msgInput_${teamId}_${mIdx}" maxlength="500" placeholder="اكتب نصاً (حد أقصى 500 حرف)..." style="margin-bottom:0; flex:1; min-width:180px;" />
+                  <button class="btn btn-info btn-sm" onclick="sendMemberText('${teamId}', ${mIdx})">إرسال</button>
+                  <button class="btn btn-purple btn-sm" onclick="openMemberGiftPanel('${teamId}', ${mIdx})" title="إرسال نقاط أو تحويل كاش أو صورة">🎁</button>
+                </div>
+                <div id="giftPanel_${teamId}_${mIdx}" style="display:none; background:#162033; padding:10px; border-radius:8px; margin-top:8px;">
+                  <div class="grid-2">
+                    <input type="number" id="giftPts_${teamId}_${mIdx}" placeholder="عدد النقاط (مثال: 10)" style="margin-bottom:6px;" />
+                    <input type="text" id="giftCash_${teamId}_${mIdx}" placeholder="تحويل كاش (مثال: 100 جنيه)" style="margin-bottom:6px;" />
+                  </div>
+                  <input type="file" id="giftImg_${teamId}_${mIdx}" accept="image/*" style="margin-bottom:8px;" />
+                  <button class="btn btn-success btn-sm" onclick="sendMemberGift('${teamId}', ${mIdx})">تأكيد إرسال الهدية</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.toggleTeamMembersExpand = (teamId) => {
+    const el = document.getElementById(`teamMembersBox_${teamId}`);
+    if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+  };
+
+  window.sendMemberText = async (teamId, mIdx) => {
+    const team = allTeamsCache[teamId];
+    const member = team?.members?.[mIdx];
+    const txt = (document.getElementById(`msgInput_${teamId}_${mIdx}`)?.value || "").trim().slice(0, 500);
+    if (!txt) {
+      alert("⚠️ اكتب نص الرسالة أولاً.");
+      return;
+    }
+    await push(ref(db, `teamRewards/${teamId}`), {
+      scope: "member",
+      memberName: member?.name || "",
+      memberPhone: member?.phone || "",
+      text: txt,
+      sentAt: Date.now()
+    });
+    document.getElementById(`msgInput_${teamId}_${mIdx}`).value = "";
+    alert("✅ تم إرسال الرسالة للعضو.");
+  };
+
+  window.openMemberGiftPanel = (teamId, mIdx) => {
+    const el = document.getElementById(`giftPanel_${teamId}_${mIdx}`);
+    if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+  };
+
+  window.sendMemberGift = async (teamId, mIdx) => {
+    const team = allTeamsCache[teamId];
+    const member = team?.members?.[mIdx];
+    const ptsVal = parseInt(document.getElementById(`giftPts_${teamId}_${mIdx}`)?.value || "0", 10) || 0;
+    const cashVal = (document.getElementById(`giftCash_${teamId}_${mIdx}`)?.value || "").trim();
+    const fileInput = document.getElementById(`giftImg_${teamId}_${mIdx}`);
+    const file = fileInput?.files?.[0];
+
+    const finishGift = async (imgBase64) => {
+      if (ptsVal > 0) {
+        const curPts = team?.points || 0;
+        await update(ref(db, `teams/${teamId}`), { points: curPts + ptsVal });
+      }
+      await push(ref(db, `teamRewards/${teamId}`), {
+        scope: "member",
+        memberName: member?.name || "",
+        memberPhone: member?.phone || "",
+        points: ptsVal,
+        cashReward: cashVal,
+        image: imgBase64 || "",
+        sentAt: Date.now()
+      });
+      alert("✅ تم إرسال الهدية بنجاح!");
     };
 
-    window.renderCompletedTasks = function () {
-      const container = document.getElementById("completedTasksContainer");
-      const entries = Object.entries(state.completedTasks || {});
-      document.getElementById("completedTasksCount").textContent = entries.length;
+    if (file) {
+      compressImage(file, (b64) => finishGift(b64));
+    } else {
+      await finishGift("");
+    }
+  };
 
-      if (entries.length === 0) {
-        container.innerHTML = `<div class="empty-state">لا توجد مهام مكتملة حالياً.</div>`;
+  // أرقام الكاش
+  const cashContainer = document.getElementById("cashInputsContainer");
+  for (let i = 0; i < 7; i++) {
+    cashContainer.innerHTML += `
+      <div class="cash-row">
+        <input type="checkbox" id="cashChk_${i}" onchange="enforceMaxThreeCash(this)" />
+        <input type="text" id="cashNum_${i}" placeholder="رقم كاش مصري رقم ${i + 1} (مثال: 010xxxxxxxx)" />
+      </div>
+    `;
+  }
+
+  window.enforceMaxThreeCash = (chk) => {
+    const checked = document.querySelectorAll("#cashInputsContainer input[type='checkbox']:checked");
+    if (checked.length > 3) {
+      chk.checked = false;
+      alert("⚠️ يمكنك تحديد 3 أرقام فقط لتظهر للمستخدمين في صفحة الدفع.");
+    }
+  };
+
+  onValue(ref(db, "settings/cashNumbers"), (snap) => {
+    const list = snap.val() || [];
+    for (let i = 0; i < 7; i++) {
+      if (list[i]) {
+        document.getElementById(`cashNum_${i}`).value = list[i].number || "";
+        document.getElementById(`cashChk_${i}`).checked = !!list[i].active;
+      }
+    }
+  });
+
+  window.saveCashNumbers = () => {
+    const allNumbers = [];
+    const activeNumbers = [];
+    for (let i = 0; i < 7; i++) {
+      const number = document.getElementById(`cashNum_${i}`).value.trim();
+      const active = document.getElementById(`cashChk_${i}`).checked;
+      if (active && !number) {
+        alert(`⚠️ الخانة رقم ${i + 1} محددة بعلامة صح ولكنها فارغة!`);
         return;
       }
+      allNumbers.push({ number, active });
+      if (active && number) activeNumbers.push(number);
+    }
+    if (activeNumbers.length === 0) {
+      alert("⚠️ يرجى تحديد رقم واحد على الأقل (بحد أقصى 3 أرقام).");
+      return;
+    }
+    set(ref(db, "settings/cashNumbers"), allNumbers);
+    set(ref(db, "settings/activeCashNumbers"), activeNumbers);
+    alert("✅ تم حفظ الأرقام المحددة بنجاح وستظهر الآن للمشتركين.");
+  };
 
-      container.innerHTML = entries
-        .map(([taskId, task]) => {
-          const item = typeof task === "object" && task !== null ? task : { title: String(task) };
-          const title = item.title || item.taskTitle || item.name || item.text || `مهمة (${taskId})`;
-          const teamLabel = item.teamName || item.acceptedByTeamName || item.teamId || "غير محدد";
-          const completedAt = item.completedAt
-            ? new Date(item.completedAt).toLocaleString("ar-EG")
-            : "مكتملة";
+  // التحدي اليومي والخريطة
+  let mapInstance = null;
+  let tempMarker = null;
+  let selectedLatLng = null;
+  let mapMarkersLayer = null;
 
-          return `
-            <div class="card">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-                <h3 class="card-title">✅ ${escapeHtml(title)}</h3>
-                <span class="badge">${escapeHtml(teamLabel)}</span>
-              </div>
-              <div style="color:var(--muted); font-size:0.85rem;">
-                الوقت: ${escapeHtml(completedAt)}
-              </div>
-              ${item.proofNote ? `<div style="font-size:0.9rem;">${escapeHtml(item.proofNote)}</div>` : ""}
-              <div class="actions">
-                <button class="btn-danger" onclick='deleteCompletedTask(${JSON.stringify(taskId)})'>
-                  🗑️ حذف
-                </button>
+  function initAdminMap() {
+    mapInstance = L.map("adminMap").setView([27.2579, 33.8116], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(mapInstance);
+    mapMarkersLayer = L.layerGroup().addTo(mapInstance);
+    mapInstance.on("click", (e) => {
+      selectedLatLng = e.latlng;
+      document.getElementById("pickedCoords").value = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      if (tempMarker) mapInstance.removeLayer(tempMarker);
+      tempMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapInstance).bindPopup("موقع المفتاح الجديد").openPopup();
+    });
+  }
+  initAdminMap();
+
+  window.toggleChallengeTypeUI = () => {
+    const type = document.getElementById("challengeTypeSelect").value;
+    document.getElementById("keysConfigBox").style.display = type === "keys" ? "block" : "none";
+    if (type === "keys" && mapInstance) setTimeout(() => mapInstance.invalidateSize(), 200);
+  };
+
+  onValue(ref(db, "settings/challenge"), (snap) => {
+    const c = snap.val() || {};
+    document.getElementById("maxTeamsInput").value = c.maxTeams ?? "";
+    document.getElementById("nextChallengeTimeInput").value = c.nextChallengeTime || "";
+    document.getElementById("challengeTypeSelect").value = c.type || "photo";
+    document.getElementById("challengeTextInput").value = c.description || "";
+    document.getElementById("requiredKeysCount").value = c.requiredKeys || 3;
+    document.getElementById("keyRadiusMeters").value = c.keyRadius || 30;
+    toggleChallengeTypeUI();
+  });
+
+  window.saveChallengeSettings = () => {
+    const rawMax = document.getElementById("maxTeamsInput").value.trim();
+    const parsedMax = rawMax === "" ? null : (parseInt(rawMax, 10) || null);
+    const payload = {
+      maxTeams: parsedMax,
+      nextChallengeTime: document.getElementById("nextChallengeTimeInput").value.trim(),
+      type: document.getElementById("challengeTypeSelect").value,
+      description: document.getElementById("challengeTextInput").value.trim(),
+      requiredKeys: parseInt(document.getElementById("requiredKeysCount").value) || 3,
+      keyRadius: parseInt(document.getElementById("keyRadiusMeters").value) || 30,
+      updatedAt: Date.now()
+    };
+    set(ref(db, "settings/challenge"), payload);
+    alert("✅ تم حفظ ونشر إعدادات التحدي بنجاح!");
+  };
+
+  onValue(ref(db, "gpsCoins"), (snap) => {
+    const keys = snap.val() || {};
+    const listEl = document.getElementById("adminKeysList");
+    listEl.innerHTML = "";
+    if (mapMarkersLayer) mapMarkersLayer.clearLayers();
+    const radius = parseInt(document.getElementById("keyRadiusMeters").value) || 30;
+
+    Object.entries(keys).forEach(([keyId, k], index) => {
+      listEl.innerHTML += `
+        <div class="key-item">
+          <div>
+            <strong>🗝️ مفتاح #${index + 1}: ${k.label || "موقع محدد"}</strong><br/>
+            <span style="color:var(--muted); font-size:0.8rem;">Lat: ${k.lat}, Lng: ${k.lng}</span>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteMapKey('${keyId}')">حذف</button>
+        </div>
+      `;
+      if (mapMarkersLayer) {
+        L.marker([k.lat, k.lng]).addTo(mapMarkersLayer).bindPopup(`🗝️ ${k.label || "مفتاح #" + (index + 1)}`);
+        L.circle([k.lat, k.lng], { radius, color: "#f59e0b", fillOpacity: 0.2 }).addTo(mapMarkersLayer);
+      }
+    });
+    if (!listEl.innerHTML) listEl.innerHTML = "<p style='color:var(--muted); font-size:0.85rem;'>لم يتم إضافة مفاتيح بعد.</p>";
+  });
+
+  window.addKeyFromMap = () => {
+    if (!selectedLatLng) {
+      alert("⚠️ اضغط على الخريطة أولاً لتحديد مكان المفتاح.");
+      return;
+    }
+    const label = document.getElementById("manualKeyName").value.trim() || "مفتاح سري";
+    push(ref(db, "gpsCoins"), { lat: selectedLatLng.lat, lng: selectedLatLng.lng, label });
+    document.getElementById("manualKeyName").value = "";
+    document.getElementById("pickedCoords").value = "";
+    if (tempMarker) mapInstance.removeLayer(tempMarker);
+    selectedLatLng = null;
+  };
+
+  window.deleteMapKey = (keyId) => remove(ref(db, `gpsCoins/${keyId}`));
+
+  // صور التحدي واعتماد الفائز
+  onValue(ref(db, "challengeSubmissions"), (snap) => {
+    const subs = snap.val() || {};
+    const container = document.getElementById("challengePhotosList");
+    container.innerHTML = "";
+    const entries = Object.entries(subs).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+    document.getElementById("badgePhotos").innerText = entries.length;
+
+    entries.forEach(([subKey, item], idx) => {
+      const targetTeamId = item.teamId || subKey;
+      const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
+      container.innerHTML += `
+        <div class="card" style="background:#0f172a; border-color:${item.isWinner ? 'var(--success)' : 'var(--card-light)'};">
+          <div class="row-flex" style="justify-content:space-between;">
+            <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
+            <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
+          </div>
+          <img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />
+          <div class="row-flex">
+            ${item.isWinner
+              ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
+              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${targetTeamId}', '${subKey}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
+            }
+          </div>
+        </div>
+      `;
+    });
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
+  });
+
+  window.confirmChallengeWinner = async (winnerTeamId, subKey = "") => {
+    if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
+    if (winnerTeamId && winnerTeamId !== "guest") {
+      const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
+      const winnerData = winnerSnap.val() || {};
+      await update(ref(db, `teams/${winnerTeamId}`), {
+        status: "won",
+        points: (winnerData.points || 0) + 10
+      });
+    }
+    if (subKey) {
+      await update(ref(db, `challengeSubmissions/${subKey}`), { isWinner: true });
+    }
+    const allTeamsSnap = await get(ref(db, "teams"));
+    const allTeams = allTeamsSnap.val() || {};
+    for (const [tId, tData] of Object.entries(allTeams)) {
+      if (tId !== winnerTeamId && tData.status === "in_challenge") {
+        await update(ref(db, `teams/${tId}`), { status: "lost" });
+      }
+    }
+    alert("🎉 تم اعتماد الفريق الفائز ومنحه 10 نقاط، وتم إشعار باقي الفرق!");
+  };
+
+  // رابحو المفاتيح
+  onValue(ref(db, "keyWinners"), (snap) => {
+    const winners = snap.val() || {};
+    const container = document.getElementById("keyWinnersList");
+    container.innerHTML = "";
+    const entries = Object.entries(winners).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+    document.getElementById("badgeKeys").innerText = entries.length;
+
+    entries.forEach(([wId, w], idx) => {
+      const targetTeamId = w.teamId || wId;
+      const timeStr = w.timestamp ? new Date(w.timestamp).toLocaleTimeString("ar-EG") : "";
+      container.innerHTML += `
+        <div class="card" style="background:#0f172a;">
+          <div class="row-flex" style="justify-content:space-between;">
+            <strong>🏆 #${idx + 1} — فريق: ${w.teamName} (📱 ${w.phone})</strong>
+            <span style="color:var(--success);">أتم تجميع ${w.keysCount} مفاتيح — ⏱️ ${timeStr}</span>
+          </div>
+          ${!w.confirmed ? `
+            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${targetTeamId}'); update(ref(db, 'keyWinners/${wId}'), {confirmed:true});">
+              ✅ اعتماد الفوز ومنح المكافأة
+            </button>
+          ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
+        </div>
+      `;
+    });
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا يوجد رابحون للمفاتيح حتى الآن.</p>";
+  });
+
+  // المكافآت والتحويلات
+  onValue(ref(db, "settings/prizeAmount"), (snap) => {
+    document.getElementById("cashPrizeAmount").value = snap.val() || "";
+  });
+  window.savePrizeAmount = () => {
+    set(ref(db, "settings/prizeAmount"), document.getElementById("cashPrizeAmount").value.trim());
+    alert("✅ تم حفظ قيمة المكافأة النقدية.");
+  };
+
+  onValue(ref(db, "payoutRequests"), (snap) => {
+    const reqs = snap.val() || {};
+    const container = document.getElementById("payoutRequestsList");
+    container.innerHTML = "";
+    let pendingCount = 0;
+    Object.entries(reqs).forEach(([id, r]) => {
+      if (!r.sent) pendingCount++;
+      container.innerHTML += `
+        <div class="key-item">
+          <div>
+            <strong>📱 رقم الاستلام: ${r.walletPhone}</strong> — <span style="color:var(--primary); font-weight:bold;">المبلغ: ${r.amount}</span><br/>
+            <span style="color:var(--muted); font-size:0.82rem;">الفريق: ${r.teamName}</span>
+          </div>
+          ${r.sent
+            ? `<span style="color:var(--success); font-weight:bold;">✅ تم التحويل</span>`
+            : `<button class="btn btn-success btn-sm" onclick="markPayoutSent('${id}')">💸 تأكيد إرسال التحويل</button>`
+          }
+        </div>
+      `;
+    });
+    document.getElementById("badgePayouts").innerText = pendingCount;
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تحويل نقدي حالياً.</p>";
+  });
+  window.markPayoutSent = (id) => update(ref(db, `payoutRequests/${id}`), { sent: true, sentAt: Date.now() });
+
+  // وجبات الطعام وطلبات الفائزين والخاسرين في سطر واحد يتوسع عند الضغط
+  window.uploadMealImage = (event, dbKey) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    compressImage(file, (base64) => {
+      set(ref(db, `settings/meals/${dbKey}`), base64);
+      alert("✅ تم رفع وحفظ صورة قائمة الطعام بنجاح!");
+    });
+  };
+
+  onValue(ref(db, "settings/meals"), (snap) => {
+    const meals = snap.val() || {};
+    if (meals.freeMealImg) {
+      document.getElementById("previewFreeMeal").innerHTML = `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`;
+    }
+    if (meals.halfMealImg) {
+      document.getElementById("previewHalfMeal").innerHTML = `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`;
+    }
+  });
+
+  onValue(ref(db, "mealOrders"), (snap) => {
+    const orders = snap.val() || {};
+    const container = document.getElementById("mealOrdersList");
+    const entries = Object.entries(orders).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    document.getElementById("badgeMeals").innerText = entries.length;
+
+    if (entries.length === 0) {
+      container.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات وجبات بعد.</p>";
+      return;
+    }
+
+    container.innerHTML = entries.map(([ordId, o]) => {
+      const kindBadge = o.mealType === "free_meal" ? "🏆 رابح" : "💔 خاسر";
+      const teamName = o.teamName || "فريق";
+      const phone = o.firstMemberPhone || "بدون رقم";
+      const addr = o.address || "بدون عنوان";
+      const choices = o.orderText || "";
+      return `
+        <div class="meal-order-row" onclick="this.classList.toggle('expanded')">
+          <div class="meal-order-summary">
+            <span style="color:var(--primary); font-weight:bold;">[${kindBadge}]</span>
+            <strong>${teamName}</strong>
+            <span>— 📱 ${phone}</span>
+            <span>— 📍 ${addr}</span>
+            <span>— 🍽️ ${choices}</span>
+          </div>
+          <div class="meal-order-details">
+            <div><b>الفريق:</b> ${teamName} (${kindBadge})</div>
+            <div><b>📱 رقم التليفون (أول اسم في المجموعة):</b> ${phone}</div>
+            <div><b>📍 العنوان:</b> ${addr}</div>
+            <div><b>🍽️ اختيارات الطعام:</b><br/>${choices}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  });
+
+  // صفحة (طلبات) التفاعلية
+  onValue(ref(db, "customOrders"), (snap) => {
+    const orders = snap.val() || {};
+    const container = document.getElementById("customOrdersList");
+    const entries = Object.entries(orders).sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+    document.getElementById("badgeOrders").innerText = entries.length;
+
+    if (entries.length === 0) {
+      container.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات حالياً.</p>";
+      return;
+    }
+
+    container.innerHTML = entries.map(([orderId, o], index) => `
+      <div class="card" style="background:#0f172a;">
+        <div class="row-flex" style="justify-content:space-between;">
+          <strong style="color:var(--primary);">طلب #${index + 1} — المشترك: ${o.subscriberName || "غير معروف"}</strong>
+          <span>📱 ${o.subscriberPhone || "بدون رقم"}</span>
+        </div>
+        <p style="margin:10px 0; white-space:pre-wrap;">${o.orderText || ""}</p>
+        <div class="row-flex">
+          <input type="text" id="adminReply_${orderId}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="margin-bottom:0; flex:1; min-width:200px;" />
+          <button class="btn btn-info btn-sm" onclick="sendOrderMessageToUser('${orderId}')">إرسال</button>
+          <button class="btn btn-success btn-sm" onclick="markOrderReceived('${orderId}')">تم استلام الطلب</button>
+          <span style="color:var(--muted); font-size:0.82rem;">اضغط الزرار بعد تسليم الطلب</span>
+        </div>
+        ${o.received ? `<div style="color:var(--success); font-size:0.85rem; margin-top:8px;">✅ تم استلام الطلب</div>` : ""}
+      </div>
+    `).join("");
+  });
+
+  window.sendOrderMessageToUser = async (orderId) => {
+    const msg = (document.getElementById(`adminReply_${orderId}`)?.value || "").trim();
+    if (!msg) {
+      alert("⚠️ اكتب الرسالة أو الاستفسار أولاً.");
+      return;
+    }
+    await update(ref(db, `customOrders/${orderId}`), {
+      adminMessage: msg,
+      adminMessageAt: Date.now()
+    });
+    alert("✅ تم إرسال الرسالة للمشترك صاحب الطلب.");
+  };
+
+  window.markOrderReceived = async (orderId) => {
+    await update(ref(db, `customOrders/${orderId}`), {
+      received: true,
+      receivedAt: Date.now()
+    });
+    alert("✅ تم تأكيد استلام الطلب.");
+  };
+
+  // صفحة (المهام) مع توليد صفحات تلقائية عند امتلاء الصفحة (كل صفحة 4 مهام) و checkbox للحذف/الإتمام
+  let adminTasksCache = {};
+  onValue(ref(db, "adminTasks"), (snap) => {
+    adminTasksCache = snap.val() || {};
+    renderAdminTasksPages();
+  });
+
+  window.addAdminTask = async () => {
+    const text = (document.getElementById("newTaskText").value || "").trim().slice(0, 500);
+    const duration = (document.getElementById("newTaskDuration").value || "").trim() || "غير محدد";
+    const file = document.getElementById("newTaskImageFile").files[0];
+
+    if (!text) {
+      alert("⚠️ يرجى كتابة نص المهمة (بحد أقصى 500 حرف).");
+      return;
+    }
+
+    const saveTask = async (imgBase64) => {
+      await push(ref(db, "adminTasks"), {
+        text,
+        duration,
+        image: imgBase64 || "",
+        status: "available",
+        createdAt: Date.now()
+      });
+      document.getElementById("newTaskText").value = "";
+      document.getElementById("newTaskCharCnt").innerText = "0";
+      document.getElementById("newTaskDuration").value = "";
+      document.getElementById("newTaskImageFile").value = "";
+      alert("✅ تم إضافة المهمة بنجاح.");
+    };
+
+    if (file) {
+      compressImage(file, (b64) => saveTask(b64));
+    } else {
+      await saveTask("");
+    }
+  };
+
+  function renderAdminTasksPages() {
+    const container = document.getElementById("adminTasksPagesContainer");
+    const entries = Object.entries(adminTasksCache).sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+    if (entries.length === 0) {
+      container.innerHTML = "<p style='color:var(--muted);'>لا توجد مهام مضافة حالياً.</p>";
+      return;
+    }
+
+    const TASKS_PER_PAGE = 4;
+    const totalPages = Math.ceil(entries.length / TASKS_PER_PAGE);
+    let html = "";
+
+    for (let p = 0; p < totalPages; p++) {
+      const slice = entries.slice(p * TASKS_PER_PAGE, (p + 1) * TASKS_PER_PAGE);
+      html += `
+        <div class="task-page-box">
+          <div style="color:var(--primary); font-weight:bold; margin-bottom:10px;">📄 صفحة المهام #${p + 1}</div>
+          ${slice.map(([taskId, t]) => `
+            <div class="key-item">
+              <div style="flex:1;">
+                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:var(--text);">
+                  <input type="checkbox" style="width:20px; height:20px; accent-color:var(--success);" onchange="completeAndDeleteAdminTask('${taskId}', this)" />
+                  <span><b>${t.text}</b></span>
+                </label>
+                <div style="color:var(--info); font-size:0.82rem; margin-top:4px;">⏱️ وقت الإتمام: ${t.duration || "غير محدد"} | الحالة: ${t.status === "accepted" ? `مقبولة بواسطة (${t.acceptedByTeamName || "فريق"})` : "متاحة"}</div>
+                ${t.image ? `<img src="${t.image}" class="thumb-img" style="max-height:140px;" onclick="openModal('${t.image}')" />` : ""}
               </div>
             </div>
-          `;
-        })
-        .join("");
-    };
+          `).join("")}
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  }
 
-    window.deleteCompletedTask = async function (taskId) {
-      if (!taskId) return;
-      const ok = confirm("هل أنت متأكد من حذف هذه المهمة المكتملة؟");
-      if (!ok) return;
+  window.completeAndDeleteAdminTask = async (taskId, chkEl) => {
+    if (!chkEl.checked) return;
+    const taskObj = adminTasksCache[taskId];
+    if (!taskObj) return;
 
-      try {
-        await remove(ref(db, `completedAdminTasks/${taskId}`));
-        showToast("🗑️ تم حذف المهمة المكتملة.");
-      } catch (err) {
-        console.error(err);
-        showToast("❌ حدث خطأ أثناء حذف المهمة.");
-      }
-    };
+    const teamObj = allTeamsCache[taskObj.acceptedByTeamId] || {};
+    const phonesList = (teamObj.members || []).map(m => m.phone).filter(Boolean).join(" / ") || taskObj.acceptedByPhones || "غير متوفر";
 
-    window.deleteAllCompletedTasks = async function () {
-      const count = Object.keys(state.completedTasks || {}).length;
-      if (count === 0) {
-        showToast("لا توجد مهام مكتملة لحذفها.");
-        return;
-      }
-      const ok = confirm(`هل أنت متأكد من حذف جميع المهام المكتملة (${count} مهمة)؟`);
-      if (!ok) return;
+    await set(ref(db, `completedAdminTasks/${taskId}`), {
+      ...taskObj,
+      teamName: taskObj.acceptedByTeamName || teamObj.teamName || "لم يُسند لفريق بعد",
+      phones: phonesList,
+      completedAt: Date.now()
+    });
+    await remove(ref(db, `adminTasks/${taskId}`));
+  };
 
-      try {
-        await remove(ref(db, "completedAdminTasks"));
-        showToast("🗑️ تم حذف جميع المهام المكتملة بنجاح.");
-      } catch (err) {
-        console.error(err);
-        showToast("❌ حدث خطأ أثناء حذف المهام المكتملة.");
-      }
-    };
+  // صفحة (المهام المكتملة)
+  let completedTasksCache = {};
+  onValue(ref(db, "completedAdminTasks"), (snap) => {
+    completedTasksCache = snap.val() || {};
+    renderCompletedTasks();
+  });
 
-    window.cleanOldTransferRecords = async function () {
-      try {
-        const snap = await get(ref(db, "teams"));
-        const teams = snap.val() || {};
-        let deletedCount = 0;
+  function renderCompletedTasks() {
+    const container = document.getElementById("completedTasksList");
+    const entries = Object.entries(completedTasksCache).sort((a, b) => (b[1].completedAt || 0) - (a[1].completedAt || 0));
+    document.getElementById("badgeCompletedTasks").innerText = entries.length;
 
-        for (const key of Object.keys(teams)) {
-          if (key.includes("_tr_")) {
-            await remove(ref(db, `teams/${key}`));
-            deletedCount++;
-          }
-        }
-
-        if (deletedCount > 0) {
-          showToast(`🧹 تم حذف ${deletedCount} من سجلات _tr_ القديمة.`);
-        } else {
-          showToast("لا توجد سجلات _tr_ قديمة داخل teams.");
-        }
-      } catch (err) {
-        console.error(err);
-        showToast("❌ تعذر تنظيف السجلات القديمة.");
-      }
-    };
-
-    function fillUpdateForm(data) {
-      const upd = data || {};
-      document.getElementById("updateVersion").value = upd.version || "";
-      document.getElementById("updateMessage").value = upd.message || "";
-      document.getElementById("updateActive").value = String(Boolean(upd.active));
+    if (entries.length === 0) {
+      container.innerHTML = "<p style='color:var(--muted);'>لا توجد مهام مكتملة حالياً.</p>";
+      return;
     }
 
-    window.saveAppUpdate = async function () {
-      const version = document.getElementById("updateVersion").value.trim() || `v_${Date.now()}`;
-      const message =
-        document.getElementById("updateMessage").value.trim() ||
-        "يتوفر تحديث جديد للتطبيق، يُرجى التحديث للحصول على أحدث المميزات.";
-      const active = document.getElementById("updateActive").value === "true";
+    container.innerHTML = entries.map(([taskId, t]) => `
+      <div class="card" style="background:#0f172a;">
+        <div class="row-flex" style="justify-content:space-between;">
+          <strong style="color:var(--success);">✅ ${t.text || "مهمة"}</strong>
+          <button class="btn btn-danger btn-sm" onclick="deleteSingleCompletedTask('${taskId}')">حذف</button>
+        </div>
+        <div style="margin-top:8px; font-size:0.88rem; line-height:1.7;">
+          <div><b>👥 اسم الفريق:</b> ${t.teamName || t.acceptedByTeamName || "غير محدد"}</div>
+          <div><b>📱 أرقام التليفونات الممكنة:</b> ${t.phones || t.acceptedByPhones || "غير متوفر"}</div>
+          <div><b>⏱️ الوقت المحدد للإتمام:</b> ${t.duration || "غير محدد"}</div>
+          ${t.proofNote ? `<div><b>📝 ملاحظة الفريق:</b> ${t.proofNote}</div>` : ""}
+          ${t.adminFeedback ? `<div style="color:var(--info);"><b>📩 ملاحظة الإدارة المرسلة:</b> ${t.adminFeedback}</div>` : ""}
+        </div>
+        ${t.proofPhoto ? `<div><img src="${t.proofPhoto}" class="thumb-img" onclick="openModal('${t.proofPhoto}')" /></div>` : ""}
 
-      try {
-        await set(ref(db, "settings/appUpdate"), {
-          version,
-          message,
-          active,
-          updatedAt: Date.now()
+        <div style="margin-top:10px; border-top:1px solid var(--card-light); padding-top:10px;">
+          <label>إرفاق صورة من الاستوديو للفريق الذي أدى المهمة:</label>
+          <input type="file" id="compProofImg_${taskId}" accept="image/*" />
+          <label>رسالة أو ملاحظات إلى الفريق الذي أدى المهمة:</label>
+          <div class="row-flex">
+            <input type="text" id="compNoteInput_${taskId}" value="${t.adminFeedback || ""}" placeholder="اكتب رسالة أو ملاحظة للفريق..." style="margin-bottom:0; flex:1;" />
+            <button class="btn btn-info btn-sm" onclick="sendCompletedTaskFeedback('${taskId}')">إرسال للفريق</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  window.sendCompletedTaskFeedback = async (taskId) => {
+    const t = completedTasksCache[taskId];
+    if (!t) return;
+    const note = (document.getElementById(`compNoteInput_${taskId}`)?.value || "").trim();
+    const file = document.getElementById(`compProofImg_${taskId}`)?.files?.[0];
+
+    const saveFeedback = async (imgBase64) => {
+      await update(ref(db, `completedAdminTasks/${taskId}`), {
+        adminFeedback: note,
+        adminFeedbackImage: imgBase64 || t.adminFeedbackImage || ""
+      });
+      if (t.acceptedByTeamId) {
+        await push(ref(db, `teamRewards/${t.acceptedByTeamId}`), {
+          scope: "group",
+          text: note ? `ملاحظة بخصوص المهمة: ${note}` : "تم إرسال صورة بخصوص المهمة المكتملة.",
+          image: imgBase64 || "",
+          sentAt: Date.now()
         });
-        showToast("✅ تم حفظ إعدادات التحديث بنجاح.");
-      } catch (err) {
-        console.error(err);
-        showToast("❌ فشل حفظ إعدادات التحديث.");
       }
+      alert("✅ تم إرسال الملاحظة/الصورة للفريق.");
     };
 
-    window.disableAppUpdate = async function () {
-      try {
-        await set(ref(db, "settings/appUpdate/active"), false);
-        document.getElementById("updateActive").value = "false";
-        showToast("🔕 تم إيقاف إشعار التحديث للمستخدمين.");
-      } catch (err) {
-        console.error(err);
-        showToast("❌ تعذر إيقاف التحديث.");
-      }
-    };
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+    if (file) {
+      compressImage(file, (b64) => saveFeedback(b64));
+    } else {
+      await saveFeedback("");
     }
+  };
 
-    onValue(ref(db, "teams"), (snap) => {
-      state.teams = snap.val() || {};
-      renderSubscribers();
-    });
+  window.deleteSingleCompletedTask = async (taskId) => {
+    if (!confirm("حذف هذه المهمة المكتملة؟")) return;
+    await remove(ref(db, `completedAdminTasks/${taskId}`));
+  };
 
-    onValue(ref(db, "completedAdminTasks"), (snap) => {
-      state.completedTasks = snap.val() || {};
-      renderCompletedTasks();
-    });
+  window.deleteAllCompletedTasks = async () => {
+    if (!confirm("حذف كل المهام المكتملة؟")) return;
+    await remove(ref(db, "completedAdminTasks"));
+  };
 
-    onValue(ref(db, "settings/appUpdate"), (snap) => {
-      state.appUpdate = snap.val() || {};
-      fillUpdateForm(state.appUpdate);
-    });
+  // صفحة (التحديثات)
+  onValue(ref(db, "settings/appUpdate"), (snap) => {
+    const u = snap.val() || {};
+    if (u.message) document.getElementById("appUpdateMsgInput").value = u.message;
+  });
 
-    onValue(ref(db, "settings/cashSlotsFive"), (snap) => {
-      state.cashSlotsFive = normalizeFiveCashSlots(snap.val());
-      fillFiveCashInputs(state.cashSlotsFive);
+  window.activateAppUpdate = async () => {
+    const msg = (document.getElementById("appUpdateMsgInput").value || "").trim() || "يجب تحديث التطبيق";
+    await set(ref(db, "settings/appUpdate"), {
+      id: `upd_${Date.now()}`,
+      active: true,
+      message: msg,
+      updatedAt: Date.now()
     });
-  </script>
+    alert("✅ تم تفعيل إشعار تحديث التطبيق للمستخدمين.");
+  };
+
+  window.deactivateAppUpdate = async () => {
+    await update(ref(db, "settings/appUpdate"), { active: false });
+    alert("🔕 تم إيقاف إشعار تحديث التطبيق.");
+  };
+
+  window.cleanOldTransferRecords = async () => {
+    const snap = await get(ref(db, "teams"));
+    const raw = snap.val() || {};
+    let cnt = 0;
+    for (const k of Object.keys(raw)) {
+      if (k.includes("_tr_")) {
+        await remove(ref(db, `teams/${k}`));
+        cnt++;
+      }
+    }
+    alert(cnt > 0 ? `🧹 تم حذف ${cnt} سجل قديم.` : "لا توجد سجلات _tr_ قديمة.");
+  };
+
+  window.resetRoundData = async () => {
+    if (!confirm("⚠️ هل تريد مسح صور التحدي ورابحو المفاتيح لبدء جولة تحدي جديدة؟")) return;
+    await remove(ref(db, "challengeSubmissions"));
+    await remove(ref(db, "keyWinners"));
+    alert("✅ تم تصفير بيانات الجولة الحالية بنجاح.");
+  };
+</script>
 </body>
 </html>
