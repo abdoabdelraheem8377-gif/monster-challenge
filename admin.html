@@ -343,28 +343,28 @@
       <div class="card" style="max-width:640px;">
         <h2 style="margin:0;">💳 أرقام الموبايل لتحويل الكاش (5 خانات)</h2>
         <p style="margin:0; color:var(--muted); font-size:0.9rem;">
-          أدخل أرقام الموبايل في الخانات الخمس التالية لتظهر للمشترك عند اختيار «تحدي» والانتقال إلى صفحة تحويل الكاش.
+          أدخل أرقام الموبايل في الخانات الخمس التالية لتظهر للمشترك في صفحة الاشتراك وصفحة تحويل الكاش.
         </p>
 
         <div class="form-group">
           <label for="cashSlot0">الخانة رقم 1:</label>
-          <input type="text" id="cashSlot0" placeholder="مثال: 010xxxxxxxx" />
+          <input type="tel" id="cashSlot0" placeholder="مثال: 010xxxxxxxx" />
         </div>
         <div class="form-group">
           <label for="cashSlot1">الخانة رقم 2:</label>
-          <input type="text" id="cashSlot1" placeholder="مثال: 011xxxxxxxx" />
+          <input type="tel" id="cashSlot1" placeholder="مثال: 011xxxxxxxx" />
         </div>
         <div class="form-group">
           <label for="cashSlot2">الخانة رقم 3:</label>
-          <input type="text" id="cashSlot2" placeholder="مثال: 012xxxxxxxx" />
+          <input type="tel" id="cashSlot2" placeholder="مثال: 012xxxxxxxx" />
         </div>
         <div class="form-group">
           <label for="cashSlot3">الخانة رقم 4:</label>
-          <input type="text" id="cashSlot3" placeholder="مثال: 015xxxxxxxx" />
+          <input type="tel" id="cashSlot3" placeholder="مثال: 015xxxxxxxx" />
         </div>
         <div class="form-group">
           <label for="cashSlot4">الخانة رقم 5:</label>
-          <input type="text" id="cashSlot4" placeholder="مثال: 010xxxxxxxx" />
+          <input type="tel" id="cashSlot4" placeholder="مثال: 010xxxxxxxx" />
         </div>
 
         <div class="actions">
@@ -468,6 +468,16 @@
 
     let pendingMessageTarget = null;
 
+    function normalizeFiveCashSlots(val) {
+      if (Array.isArray(val)) {
+        return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
+      }
+      if (val && typeof val === "object") {
+        return Array.from({ length: 5 }, (_, i) => String(val[i] ?? val[`slot${i}`] ?? "").trim());
+      }
+      return ["", "", "", "", ""];
+    }
+
     function showToast(msg) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
@@ -493,6 +503,7 @@
 
       try {
         await set(ref(db, "settings/cashSlotsFive"), slots);
+        state.cashSlotsFive = slots;
         showToast("✅ تم حفظ الخانات الخمس لأرقام الكاش بنجاح.");
       } catch (err) {
         console.error(err);
@@ -501,9 +512,10 @@
     };
 
     function fillFiveCashInputs(arr) {
+      const normalized = normalizeFiveCashSlots(arr);
       for (let i = 0; i < 5; i++) {
         const el = document.getElementById(`cashSlot${i}`);
-        if (el) el.value = Array.isArray(arr) ? (arr[i] || "") : "";
+        if (el) el.value = normalized[i] || "";
       }
     }
 
@@ -857,7 +869,7 @@
     });
 
     onValue(ref(db, "settings/cashSlotsFive"), (snap) => {
-      state.cashSlotsFive = snap.val() || ["", "", "", "", ""];
+      state.cashSlotsFive = normalizeFiveCashSlots(snap.val());
       fillFiveCashInputs(state.cashSlotsFive);
     });
   </script>
