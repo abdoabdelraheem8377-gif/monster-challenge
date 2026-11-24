@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>لوحة تحكم الأدمن - صراع الوحوش</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -103,7 +105,6 @@
       background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
       border: 1px solid var(--card-light);
     }
-    /* سطر طلب الطعام المختصر الذي يكبر عند الضغط عليه */
     .meal-order-row {
       background: #0f172a; border: 1px solid var(--card-light); border-radius: 10px;
       padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s;
@@ -137,9 +138,10 @@
   <div class="login-box">
     <h2 style="color:var(--primary); margin-top:0;">🛡️ لوحة تحكم صراع الوحوش</h2>
     <p style="color:var(--muted); font-size:0.9rem;">أدخل كلمة مرور الأدمن للمتابعة</p>
-    <input type="password" id="adminPassInput" placeholder="كلمة المرور..." />
+    <input type="password" id="adminPassInput" placeholder="كلمة المرور..." onkeydown="if(event.key==='Enter') checkAdminLogin()" />
     <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="checkAdminLogin()">دخول</button>
     <p id="loginErr" style="color:var(--danger); font-size:0.85rem; display:none; margin-top:10px;">كلمة المرور غير صحيحة!</p>
+    <p id="lockoutErr" style="color:var(--danger); font-size:0.82rem; display:none; margin-top:8px;"></p>
   </div>
 </div>
 
@@ -199,7 +201,6 @@
 
 <div class="container">
 
-  <!-- 1. طلبات التسجيل -->
   <div id="regRequests" class="section active">
     <div class="card">
       <h2>طلبات تسجيل الفرق الجديدة (<span id="countRegTitle">0</span>)</h2>
@@ -208,7 +209,6 @@
     </div>
   </div>
 
-  <!-- 2. الاشتراك في التحدي (أرقام الكاش) -->
   <div id="cashSettings" class="section">
     <div class="card">
       <h2>أرقام استقبال تحويلات الكاش (اختر 3 أرقام فقط)</h2>
@@ -218,7 +218,6 @@
     </div>
   </div>
 
-  <!-- 3. المشتركين في التحدي -->
   <div id="subscribers" class="section">
     <div class="card">
       <h2>مراجعة إيصالات الدفع والمشتركين</h2>
@@ -227,7 +226,6 @@
     </div>
   </div>
 
-  <!-- 4. صفحة الفرق -->
   <div id="teamsDirectoryTab" class="section">
     <div class="card">
       <h2>👥 إدارة الفرق</h2>
@@ -236,7 +234,6 @@
     </div>
   </div>
 
-  <!-- 5. التحدي اليومي -->
   <div id="dailyChallenge" class="section">
     <div class="card">
       <h2>إعدادات التحدي اليومي وعدد الفرق</h2>
@@ -293,7 +290,6 @@
     </div>
   </div>
 
-  <!-- 6. صور التحدي -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <h2>صور التحدي المرسلة من الفرق</h2>
@@ -301,7 +297,6 @@
     </div>
   </div>
 
-  <!-- 7. رابحو المفاتيح -->
   <div id="keyWinners" class="section">
     <div class="card">
       <h2>🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
@@ -309,7 +304,6 @@
     </div>
   </div>
 
-  <!-- 8. المكافآت والتحويلات -->
   <div id="rewardsTab" class="section">
     <div class="card">
       <h2>تحديد قيمة المكافأة النقدية للفائز</h2>
@@ -324,7 +318,6 @@
     </div>
   </div>
 
-  <!-- 9. وجبات الطعام -->
   <div id="mealsTab" class="section">
     <div class="card">
       <h2>🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
@@ -347,7 +340,6 @@
     </div>
   </div>
 
-  <!-- 10. صفحة (طلبات) -->
   <div id="ordersTab" class="section">
     <div class="card">
       <h2>📦 صفحة الطلبات</h2>
@@ -355,7 +347,6 @@
     </div>
   </div>
 
-  <!-- 11. صفحة (المهام) -->
   <div id="adminTasksTab" class="section">
     <div class="card">
       <h2>📌 صفحة المهام</h2>
@@ -381,7 +372,6 @@
     </div>
   </div>
 
-  <!-- 12. صفحة (المهام المكتملة) -->
   <div id="completedTasksTab" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -392,7 +382,6 @@
     </div>
   </div>
 
-  <!-- 13. صفحة (التحديثات) -->
   <div id="appUpdateTab" class="section">
     <div class="card">
       <h2>🔄 إشعار تحديث التطبيق</h2>
@@ -426,14 +415,54 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const ADMIN_PASSWORD = "admin123";
+  // ==========================================
+  // إعدادات الأمان وتنظيف النصوص (XSS Guard)
+  // ==========================================
+  const ADMIN_PASSWORD = "38512385";
+  let failedAttempts = 0;
+  let lockoutUntil = 0;
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function isSafeImageDataUrl(src) {
+    if (!src || typeof src !== "string") return false;
+    return /^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/i.test(src) && src.length < 2500000;
+  }
+
   window.checkAdminLogin = () => {
-    const val = document.getElementById("adminPassInput").value;
+    const now = Date.now();
+    const lockEl = document.getElementById("lockoutErr");
+    if (now < lockoutUntil) {
+      const rem = Math.ceil((lockoutUntil - now) / 1000);
+      lockEl.textContent = `تم إيقاف المحاولات مؤقتاً لمدة ${rem} ثانية بسبب تكرار المحاولات الخاطئة.`;
+      lockEl.style.display = "block";
+      return;
+    }
+
+    const val = document.getElementById("adminPassInput").value.trim();
     if (val === ADMIN_PASSWORD) {
+      failedAttempts = 0;
+      lockoutUntil = 0;
       document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("loginErr").style.display = "none";
+      lockEl.style.display = "none";
       sessionStorage.setItem("mc_admin_auth", "1");
     } else {
+      failedAttempts++;
       document.getElementById("loginErr").style.display = "block";
+      if (failedAttempts >= 5) {
+        lockoutUntil = Date.now() + 30000;
+        failedAttempts = 0;
+        lockEl.textContent = "تم تجاوز الحد المسموح. انتظر 30 ثانية ثم حاول مجدداً.";
+        lockEl.style.display = "block";
+      }
     }
   };
   if (sessionStorage.getItem("mc_admin_auth") === "1") {
@@ -451,11 +480,16 @@
   };
 
   window.openModal = (src) => {
+    if (!isSafeImageDataUrl(src)) return;
     document.getElementById("modalImgSrc").src = src;
     document.getElementById("imgModal").style.display = "flex";
   };
 
   function compressImage(file, callback, maxW = 800, quality = 0.7) {
+    if (!file || !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+      alert("⚠️ يرجى اختيار صورة صالحة بحجم أقل من 10 ميجابايت.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -498,8 +532,9 @@
     document.getElementById("badgeTeamsDir").innerText = validTeamsEntries.length;
 
     validTeamsEntries.forEach(([teamId, team]) => {
+      const safeTeamId = escapeHtml(teamId);
       const membersHtml = (team.members || []).map((m, idx) =>
-        `<div class="member-item">👤 ${idx + 1}. <b>${m.name}</b> — 📱 ${m.phone}</div>`
+        `<div class="member-item">👤 ${idx + 1}. <b>${escapeHtml(m.name)}</b> — 📱 ${escapeHtml(m.phone)}</div>`
       ).join("");
 
       if (team.status === "pending_registration") {
@@ -507,13 +542,13 @@
         regContainer.innerHTML += `
           <div class="card" style="background:#0f172a;">
             <div class="row-flex" style="justify-content:space-between;">
-              <strong style="color:var(--primary);">فريق: ${team.teamName || team.members?.[0]?.name || teamId}</strong>
-              <span style="color:var(--muted); font-size:0.8rem;">${team.createdAt || ""}</span>
+              <strong style="color:var(--primary);">فريق: ${escapeHtml(team.teamName || team.members?.[0]?.name || safeTeamId)}</strong>
+              <span style="color:var(--muted); font-size:0.8rem;">${escapeHtml(team.createdAt || "")}</span>
             </div>
             <div class="member-list">${membersHtml}</div>
             <div class="row-flex">
-              <button class="btn btn-success" onclick="approveRegistration('${teamId}')">✅ قبول الطلب</button>
-              <button class="btn btn-danger" onclick="rejectRegistration('${teamId}')">❌ رفض الطلب</button>
+              <button class="btn btn-success" onclick="approveRegistration('${safeTeamId}')">✅ قبول الطلب</button>
+              <button class="btn btn-danger" onclick="rejectRegistration('${safeTeamId}')">❌ رفض الطلب</button>
             </div>
           </div>
         `;
@@ -526,23 +561,25 @@
           in_challenge: "✅ مشترك داخل التحدي",
           won: "🏆 فائز بالتحدي",
           lost: "💔 خاسر (مؤهل لمكافأة الخاسر)"
-        }[team.status] || team.status;
+        }[team.status] || escapeHtml(team.status);
+
+        const safeReceipt = isSafeImageDataUrl(team.receiptImage) ? team.receiptImage : "";
 
         subContainer.innerHTML += `
           <div class="card" style="background:#0f172a;">
             <div class="row-flex" style="justify-content:space-between;">
-              <strong>فريق: ${team.teamName || team.members?.[0]?.name}</strong>
+              <strong>فريق: ${escapeHtml(team.teamName || team.members?.[0]?.name)}</strong>
               <span style="color:var(--primary); font-weight:bold;">${statusLabel}</span>
             </div>
             <div class="member-list">${membersHtml}</div>
-            ${team.receiptImage ? `
+            ${safeReceipt ? `
               <div>
                 <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
-                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" />
+                <img src="${safeReceipt}" class="thumb-img" onclick="openModal('${safeReceipt}')" />
               </div>
             ` : `<p style="color:var(--danger);">لم يتم رفع إيصال</p>`}
             ${team.status === "receipt_uploaded" ? `
-              <button class="btn btn-success" onclick="approveReceipt('${teamId}')">✅ قبول الإيصال ونقل للتحدي</button>
+              <button class="btn btn-success" onclick="approveReceipt('${safeTeamId}')">✅ قبول الإيصال ونقل للتحدي</button>
             ` : ""}
           </div>
         `;
@@ -582,30 +619,31 @@
 
     box.innerHTML = entries.map(([teamId, team], tIdx) => {
       const members = team.members || [];
+      const safeId = escapeHtml(teamId);
       return `
         <div class="card" style="background:#0f172a; margin-bottom:12px;">
-          <div class="row-flex" style="justify-content:space-between; cursor:pointer;" onclick="toggleTeamMembersExpand('${teamId}')">
-            <strong style="color:var(--primary);">${tIdx + 1}. ${team.teamName || "فريق"}</strong>
+          <div class="row-flex" style="justify-content:space-between; cursor:pointer;" onclick="toggleTeamMembersExpand('${safeId}')">
+            <strong style="color:var(--primary);">${tIdx + 1}. ${escapeHtml(team.teamName || "فريق")}</strong>
             <span style="color:var(--info); font-weight:bold;">عدد الأعضاء: ${members.length} ▾</span>
           </div>
-          <div id="teamMembersBox_${teamId}" style="margin-top:10px;">
+          <div id="teamMembersBox_${safeId}" style="margin-top:10px;">
             ${members.map((m, mIdx) => `
               <div class="member-item">
                 <div style="margin-bottom:6px;">
-                  <b>${mIdx + 1}. ${m.name}</b> — 📱 <span>${m.phone || "لا يوجد"}</span>
+                  <b>${mIdx + 1}. ${escapeHtml(m.name)}</b> — 📱 <span>${escapeHtml(m.phone || "لا يوجد")}</span>
                 </div>
                 <div class="row-flex">
-                  <input type="text" id="msgInput_${teamId}_${mIdx}" maxlength="500" placeholder="اكتب نصاً (حد أقصى 500 حرف)..." style="margin-bottom:0; flex:1; min-width:180px;" />
-                  <button class="btn btn-info btn-sm" onclick="sendMemberText('${teamId}', ${mIdx})">إرسال</button>
-                  <button class="btn btn-purple btn-sm" onclick="openMemberGiftPanel('${teamId}', ${mIdx})" title="إرسال نقاط أو تحويل كاش أو صورة">🎁</button>
+                  <input type="text" id="msgInput_${safeId}_${mIdx}" maxlength="500" placeholder="اكتب نصاً (حد أقصى 500 حرف)..." style="margin-bottom:0; flex:1; min-width:180px;" />
+                  <button class="btn btn-info btn-sm" onclick="sendMemberText('${safeId}', ${mIdx})">إرسال</button>
+                  <button class="btn btn-purple btn-sm" onclick="openMemberGiftPanel('${safeId}', ${mIdx})" title="إرسال نقاط أو تحويل كاش أو صورة">🎁</button>
                 </div>
-                <div id="giftPanel_${teamId}_${mIdx}" style="display:none; background:#162033; padding:10px; border-radius:8px; margin-top:8px;">
+                <div id="giftPanel_${safeId}_${mIdx}" style="display:none; background:#162033; padding:10px; border-radius:8px; margin-top:8px;">
                   <div class="grid-2">
-                    <input type="number" id="giftPts_${teamId}_${mIdx}" placeholder="عدد النقاط (مثال: 10)" style="margin-bottom:6px;" />
-                    <input type="text" id="giftCash_${teamId}_${mIdx}" placeholder="تحويل كاش (مثال: 100 جنيه)" style="margin-bottom:6px;" />
+                    <input type="number" id="giftPts_${safeId}_${mIdx}" placeholder="عدد النقاط (مثال: 10)" style="margin-bottom:6px;" />
+                    <input type="text" id="giftCash_${safeId}_${mIdx}" placeholder="تحويل كاش (مثال: 100 جنيه)" style="margin-bottom:6px;" />
                   </div>
-                  <input type="file" id="giftImg_${teamId}_${mIdx}" accept="image/*" style="margin-bottom:8px;" />
-                  <button class="btn btn-success btn-sm" onclick="sendMemberGift('${teamId}', ${mIdx})">تأكيد إرسال الهدية</button>
+                  <input type="file" id="giftImg_${safeId}_${mIdx}" accept="image/*" style="margin-bottom:8px;" />
+                  <button class="btn btn-success btn-sm" onclick="sendMemberGift('${safeId}', ${mIdx})">تأكيد إرسال الهدية</button>
                 </div>
               </div>
             `).join("")}
@@ -676,7 +714,6 @@
     }
   };
 
-  // أرقام الكاش
   const cashContainer = document.getElementById("cashInputsContainer");
   for (let i = 0; i < 7; i++) {
     cashContainer.innerHTML += `
@@ -727,7 +764,6 @@
     alert("✅ تم حفظ الأرقام المحددة بنجاح وستظهر الآن للمشتركين.");
   };
 
-  // التحدي اليومي والخريطة
   let mapInstance = null;
   let tempMarker = null;
   let selectedLatLng = null;
@@ -787,17 +823,18 @@
     const radius = parseInt(document.getElementById("keyRadiusMeters").value) || 30;
 
     Object.entries(keys).forEach(([keyId, k], index) => {
+      const safeKeyId = escapeHtml(keyId);
       listEl.innerHTML += `
         <div class="key-item">
           <div>
-            <strong>🗝️ مفتاح #${index + 1}: ${k.label || "موقع محدد"}</strong><br/>
-            <span style="color:var(--muted); font-size:0.8rem;">Lat: ${k.lat}, Lng: ${k.lng}</span>
+            <strong>🗝️ مفتاح #${index + 1}: ${escapeHtml(k.label || "موقع محدد")}</strong><br/>
+            <span style="color:var(--muted); font-size:0.8rem;">Lat: ${Number(k.lat)}, Lng: ${Number(k.lng)}</span>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteMapKey('${keyId}')">حذف</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMapKey('${safeKeyId}')">حذف</button>
         </div>
       `;
       if (mapMarkersLayer) {
-        L.marker([k.lat, k.lng]).addTo(mapMarkersLayer).bindPopup(`🗝️ ${k.label || "مفتاح #" + (index + 1)}`);
+        L.marker([k.lat, k.lng]).addTo(mapMarkersLayer).bindPopup(`🗝️ ${escapeHtml(k.label || "مفتاح #" + (index + 1))}`);
         L.circle([k.lat, k.lng], { radius, color: "#f59e0b", fillOpacity: 0.2 }).addTo(mapMarkersLayer);
       }
     });
@@ -819,7 +856,6 @@
 
   window.deleteMapKey = (keyId) => remove(ref(db, `gpsCoins/${keyId}`));
 
-  // صور التحدي واعتماد الفائز
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
     const container = document.getElementById("challengePhotosList");
@@ -828,19 +864,21 @@
     document.getElementById("badgePhotos").innerText = entries.length;
 
     entries.forEach(([subKey, item], idx) => {
-      const targetTeamId = item.teamId || subKey;
+      const targetTeamId = escapeHtml(item.teamId || subKey);
+      const safeSubKey = escapeHtml(subKey);
       const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
+      const safePhoto = isSafeImageDataUrl(item.photo) ? item.photo : "";
       container.innerHTML += `
         <div class="card" style="background:#0f172a; border-color:${item.isWinner ? 'var(--success)' : 'var(--card-light)'};">
           <div class="row-flex" style="justify-content:space-between;">
-            <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
-            <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
+            <strong>#${idx + 1} — فريق: ${escapeHtml(item.teamName)} (📱 ${escapeHtml(item.phone)})</strong>
+            <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${escapeHtml(timeStr)}</span>
           </div>
-          <img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />
+          ${safePhoto ? `<img src="${safePhoto}" class="thumb-img" onclick="openModal('${safePhoto}')" />` : ""}
           <div class="row-flex">
             ${item.isWinner
               ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
-              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${targetTeamId}', '${subKey}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
+              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${targetTeamId}', '${safeSubKey}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
             }
           </div>
         </div>
@@ -851,7 +889,7 @@
 
   window.confirmChallengeWinner = async (winnerTeamId, subKey = "") => {
     if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
-    if (winnerTeamId && winnerTeamId !== "guest") {
+    if (winnerTeamId && winnerTeamId !== "guest" && allTeamsCache[winnerTeamId]) {
       const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
       const winnerData = winnerSnap.val() || {};
       await update(ref(db, `teams/${winnerTeamId}`), {
@@ -872,7 +910,6 @@
     alert("🎉 تم اعتماد الفريق الفائز ومنحه 10 نقاط، وتم إشعار باقي الفرق!");
   };
 
-  // رابحو المفاتيح
   onValue(ref(db, "keyWinners"), (snap) => {
     const winners = snap.val() || {};
     const container = document.getElementById("keyWinnersList");
@@ -881,16 +918,17 @@
     document.getElementById("badgeKeys").innerText = entries.length;
 
     entries.forEach(([wId, w], idx) => {
-      const targetTeamId = w.teamId || wId;
+      const targetTeamId = escapeHtml(w.teamId || wId);
+      const safeWId = escapeHtml(wId);
       const timeStr = w.timestamp ? new Date(w.timestamp).toLocaleTimeString("ar-EG") : "";
       container.innerHTML += `
         <div class="card" style="background:#0f172a;">
           <div class="row-flex" style="justify-content:space-between;">
-            <strong>🏆 #${idx + 1} — فريق: ${w.teamName} (📱 ${w.phone})</strong>
-            <span style="color:var(--success);">أتم تجميع ${w.keysCount} مفاتيح — ⏱️ ${timeStr}</span>
+            <strong>🏆 #${idx + 1} — فريق: ${escapeHtml(w.teamName)} (📱 ${escapeHtml(w.phone)})</strong>
+            <span style="color:var(--success);">أتم تجميع ${Number(w.keysCount || 0)} مفاتيح — ⏱️ ${escapeHtml(timeStr)}</span>
           </div>
           ${!w.confirmed ? `
-            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${targetTeamId}'); update(ref(db, 'keyWinners/${wId}'), {confirmed:true});">
+            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${targetTeamId}'); update(ref(db, 'keyWinners/${safeWId}'), {confirmed:true});">
               ✅ اعتماد الفوز ومنح المكافأة
             </button>
           ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
@@ -900,7 +938,6 @@
     if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا يوجد رابحون للمفاتيح حتى الآن.</p>";
   });
 
-  // المكافآت والتحويلات
   onValue(ref(db, "settings/prizeAmount"), (snap) => {
     document.getElementById("cashPrizeAmount").value = snap.val() || "";
   });
@@ -916,15 +953,16 @@
     let pendingCount = 0;
     Object.entries(reqs).forEach(([id, r]) => {
       if (!r.sent) pendingCount++;
+      const safeId = escapeHtml(id);
       container.innerHTML += `
         <div class="key-item">
           <div>
-            <strong>📱 رقم الاستلام: ${r.walletPhone}</strong> — <span style="color:var(--primary); font-weight:bold;">المبلغ: ${r.amount}</span><br/>
-            <span style="color:var(--muted); font-size:0.82rem;">الفريق: ${r.teamName}</span>
+            <strong>📱 رقم الاستلام: ${escapeHtml(r.walletPhone)}</strong> — <span style="color:var(--primary); font-weight:bold;">المبلغ: ${escapeHtml(r.amount)}</span><br/>
+            <span style="color:var(--muted); font-size:0.82rem;">الفريق: ${escapeHtml(r.teamName)}</span>
           </div>
           ${r.sent
             ? `<span style="color:var(--success); font-weight:bold;">✅ تم التحويل</span>`
-            : `<button class="btn btn-success btn-sm" onclick="markPayoutSent('${id}')">💸 تأكيد إرسال التحويل</button>`
+            : `<button class="btn btn-success btn-sm" onclick="markPayoutSent('${safeId}')">💸 تأكيد إرسال التحويل</button>`
           }
         </div>
       `;
@@ -934,7 +972,6 @@
   });
   window.markPayoutSent = (id) => update(ref(db, `payoutRequests/${id}`), { sent: true, sentAt: Date.now() });
 
-  // وجبات الطعام وطلبات الفائزين والخاسرين في سطر واحد يتوسع عند الضغط
   window.uploadMealImage = (event, dbKey) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -946,10 +983,10 @@
 
   onValue(ref(db, "settings/meals"), (snap) => {
     const meals = snap.val() || {};
-    if (meals.freeMealImg) {
+    if (isSafeImageDataUrl(meals.freeMealImg)) {
       document.getElementById("previewFreeMeal").innerHTML = `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`;
     }
-    if (meals.halfMealImg) {
+    if (isSafeImageDataUrl(meals.halfMealImg)) {
       document.getElementById("previewHalfMeal").innerHTML = `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`;
     }
   });
@@ -965,12 +1002,12 @@
       return;
     }
 
-    container.innerHTML = entries.map(([ordId, o]) => {
+    container.innerHTML = entries.map(([, o]) => {
       const kindBadge = o.mealType === "free_meal" ? "🏆 رابح" : "💔 خاسر";
-      const teamName = o.teamName || "فريق";
-      const phone = o.firstMemberPhone || "بدون رقم";
-      const addr = o.address || "بدون عنوان";
-      const choices = o.orderText || "";
+      const teamName = escapeHtml(o.teamName || "فريق");
+      const phone = escapeHtml(o.firstMemberPhone || "بدون رقم");
+      const addr = escapeHtml(o.address || "بدون عنوان");
+      const choices = escapeHtml(o.orderText || "");
       return `
         <div class="meal-order-row" onclick="this.classList.toggle('expanded')">
           <div class="meal-order-summary">
@@ -991,7 +1028,6 @@
     }).join("");
   });
 
-  // صفحة (طلبات) التفاعلية
   onValue(ref(db, "customOrders"), (snap) => {
     const orders = snap.val() || {};
     const container = document.getElementById("customOrdersList");
@@ -1003,22 +1039,25 @@
       return;
     }
 
-    container.innerHTML = entries.map(([orderId, o], index) => `
+    container.innerHTML = entries.map(([orderId, o], index) => {
+      const safeId = escapeHtml(orderId);
+      return `
       <div class="card" style="background:#0f172a;">
         <div class="row-flex" style="justify-content:space-between;">
-          <strong style="color:var(--primary);">طلب #${index + 1} — المشترك: ${o.subscriberName || "غير معروف"}</strong>
-          <span>📱 ${o.subscriberPhone || "بدون رقم"}</span>
+          <strong style="color:var(--primary);">طلب #${index + 1} — المشترك: ${escapeHtml(o.subscriberName || "غير معروف")}</strong>
+          <span>📱 ${escapeHtml(o.subscriberPhone || "بدون رقم")}</span>
         </div>
-        <p style="margin:10px 0; white-space:pre-wrap;">${o.orderText || ""}</p>
+        <p style="margin:10px 0; white-space:pre-wrap;">${escapeHtml(o.orderText || "")}</p>
         <div class="row-flex">
-          <input type="text" id="adminReply_${orderId}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="margin-bottom:0; flex:1; min-width:200px;" />
-          <button class="btn btn-info btn-sm" onclick="sendOrderMessageToUser('${orderId}')">إرسال</button>
-          <button class="btn btn-success btn-sm" onclick="markOrderReceived('${orderId}')">تم استلام الطلب</button>
+          <input type="text" id="adminReply_${safeId}" value="${escapeHtml(o.adminMessage || "")}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="margin-bottom:0; flex:1; min-width:200px;" />
+          <button class="btn btn-info btn-sm" onclick="sendOrderMessageToUser('${safeId}')">إرسال</button>
+          <button class="btn btn-success btn-sm" onclick="markOrderReceived('${safeId}')">تم استلام الطلب</button>
           <span style="color:var(--muted); font-size:0.82rem;">اضغط الزرار بعد تسليم الطلب</span>
         </div>
         ${o.received ? `<div style="color:var(--success); font-size:0.85rem; margin-top:8px;">✅ تم استلام الطلب</div>` : ""}
       </div>
-    `).join("");
+    `;
+    }).join("");
   });
 
   window.sendOrderMessageToUser = async (orderId) => {
@@ -1042,7 +1081,6 @@
     alert("✅ تم تأكيد استلام الطلب.");
   };
 
-  // صفحة (المهام) مع توليد صفحات تلقائية عند امتلاء الصفحة (كل صفحة 4 مهام) و checkbox للحذف/الإتمام
   let adminTasksCache = {};
   onValue(ref(db, "adminTasks"), (snap) => {
     adminTasksCache = snap.val() || {};
@@ -1098,18 +1136,22 @@
       html += `
         <div class="task-page-box">
           <div style="color:var(--primary); font-weight:bold; margin-bottom:10px;">📄 صفحة المهام #${p + 1}</div>
-          ${slice.map(([taskId, t]) => `
+          ${slice.map(([taskId, t]) => {
+            const safeTaskId = escapeHtml(taskId);
+            const safeImg = isSafeImageDataUrl(t.image) ? t.image : "";
+            return `
             <div class="key-item">
               <div style="flex:1;">
                 <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:var(--text);">
-                  <input type="checkbox" style="width:20px; height:20px; accent-color:var(--success);" onchange="completeAndDeleteAdminTask('${taskId}', this)" />
-                  <span><b>${t.text}</b></span>
+                  <input type="checkbox" style="width:20px; height:20px; accent-color:var(--success);" onchange="completeAndDeleteAdminTask('${safeTaskId}', this)" />
+                  <span><b>${escapeHtml(t.text)}</b></span>
                 </label>
-                <div style="color:var(--info); font-size:0.82rem; margin-top:4px;">⏱️ وقت الإتمام: ${t.duration || "غير محدد"} | الحالة: ${t.status === "accepted" ? `مقبولة بواسطة (${t.acceptedByTeamName || "فريق"})` : "متاحة"}</div>
-                ${t.image ? `<img src="${t.image}" class="thumb-img" style="max-height:140px;" onclick="openModal('${t.image}')" />` : ""}
+                <div style="color:var(--info); font-size:0.82rem; margin-top:4px;">⏱️ وقت الإتمام: ${escapeHtml(t.duration || "غير محدد")} | الحالة: ${t.status === "accepted" ? `مقبولة بواسطة (${escapeHtml(t.acceptedByTeamName || "فريق")})` : "متاحة"}</div>
+                ${safeImg ? `<img src="${safeImg}" class="thumb-img" style="max-height:140px;" onclick="openModal('${safeImg}')" />` : ""}
               </div>
             </div>
-          `).join("")}
+          `;
+          }).join("")}
         </div>
       `;
     }
@@ -1133,7 +1175,6 @@
     await remove(ref(db, `adminTasks/${taskId}`));
   };
 
-  // صفحة (المهام المكتملة)
   let completedTasksCache = {};
   onValue(ref(db, "completedAdminTasks"), (snap) => {
     completedTasksCache = snap.val() || {};
@@ -1150,32 +1191,36 @@
       return;
     }
 
-    container.innerHTML = entries.map(([taskId, t]) => `
+    container.innerHTML = entries.map(([taskId, t]) => {
+      const safeTaskId = escapeHtml(taskId);
+      const safeProof = isSafeImageDataUrl(t.proofPhoto) ? t.proofPhoto : "";
+      return `
       <div class="card" style="background:#0f172a;">
         <div class="row-flex" style="justify-content:space-between;">
-          <strong style="color:var(--success);">✅ ${t.text || "مهمة"}</strong>
-          <button class="btn btn-danger btn-sm" onclick="deleteSingleCompletedTask('${taskId}')">حذف</button>
+          <strong style="color:var(--success);">✅ ${escapeHtml(t.text || "مهمة")}</strong>
+          <button class="btn btn-danger btn-sm" onclick="deleteSingleCompletedTask('${safeTaskId}')">حذف</button>
         </div>
         <div style="margin-top:8px; font-size:0.88rem; line-height:1.7;">
-          <div><b>👥 اسم الفريق:</b> ${t.teamName || t.acceptedByTeamName || "غير محدد"}</div>
-          <div><b>📱 أرقام التليفونات الممكنة:</b> ${t.phones || t.acceptedByPhones || "غير متوفر"}</div>
-          <div><b>⏱️ الوقت المحدد للإتمام:</b> ${t.duration || "غير محدد"}</div>
-          ${t.proofNote ? `<div><b>📝 ملاحظة الفريق:</b> ${t.proofNote}</div>` : ""}
-          ${t.adminFeedback ? `<div style="color:var(--info);"><b>📩 ملاحظة الإدارة المرسلة:</b> ${t.adminFeedback}</div>` : ""}
+          <div><b>👥 اسم الفريق:</b> ${escapeHtml(t.teamName || t.acceptedByTeamName || "غير محدد")}</div>
+          <div><b>📱 أرقام التليفونات الممكنة:</b> ${escapeHtml(t.phones || t.acceptedByPhones || "غير متوفر")}</div>
+          <div><b>⏱️ الوقت المحدد للإتمام:</b> ${escapeHtml(t.duration || "غير محدد")}</div>
+          ${t.proofNote ? `<div><b>📝 ملاحظة الفريق:</b> ${escapeHtml(t.proofNote)}</div>` : ""}
+          ${t.adminFeedback ? `<div style="color:var(--info);"><b>📩 ملاحظة الإدارة المرسلة:</b> ${escapeHtml(t.adminFeedback)}</div>` : ""}
         </div>
-        ${t.proofPhoto ? `<div><img src="${t.proofPhoto}" class="thumb-img" onclick="openModal('${t.proofPhoto}')" /></div>` : ""}
+        ${safeProof ? `<div><img src="${safeProof}" class="thumb-img" onclick="openModal('${safeProof}')" /></div>` : ""}
 
         <div style="margin-top:10px; border-top:1px solid var(--card-light); padding-top:10px;">
           <label>إرفاق صورة من الاستوديو للفريق الذي أدى المهمة:</label>
-          <input type="file" id="compProofImg_${taskId}" accept="image/*" />
+          <input type="file" id="compProofImg_${safeTaskId}" accept="image/*" />
           <label>رسالة أو ملاحظات إلى الفريق الذي أدى المهمة:</label>
           <div class="row-flex">
-            <input type="text" id="compNoteInput_${taskId}" value="${t.adminFeedback || ""}" placeholder="اكتب رسالة أو ملاحظة للفريق..." style="margin-bottom:0; flex:1;" />
-            <button class="btn btn-info btn-sm" onclick="sendCompletedTaskFeedback('${taskId}')">إرسال للفريق</button>
+            <input type="text" id="compNoteInput_${safeTaskId}" value="${escapeHtml(t.adminFeedback || "")}" placeholder="اكتب رسالة أو ملاحظة للفريق..." style="margin-bottom:0; flex:1;" />
+            <button class="btn btn-info btn-sm" onclick="sendCompletedTaskFeedback('${safeTaskId}')">إرسال للفريق</button>
           </div>
         </div>
       </div>
-    `).join("");
+    `;
+    }).join("");
   }
 
   window.sendCompletedTaskFeedback = async (taskId) => {
@@ -1217,7 +1262,6 @@
     await remove(ref(db, "completedAdminTasks"));
   };
 
-  // صفحة (التحديثات)
   onValue(ref(db, "settings/appUpdate"), (snap) => {
     const u = snap.val() || {};
     if (u.message) document.getElementById("appUpdateMsgInput").value = u.message;
