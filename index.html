@@ -306,7 +306,7 @@
   </div>
 
   <div class="card">
-    <h2>بيانات الفريق</h2>
+    <h2>بيانات الاشتراك</h2>
     <label>نوع التسجيل:</label>
     <select id="regTypeSelect" onchange="toggleRegMembersMode()">
       <option value="group">👥 فريق مجموعة</option>
@@ -330,6 +330,12 @@
 
     <button id="btnAddMoreMembers" class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="addMemberRow()">➕ إضافة عضو آخر</button>
     <button class="btn btn-primary" style="width:100%;" onclick="submitTeamRegistration()">إرسال طلب التسجيل</button>
+  </div>
+
+  <div class="card">
+    <h3>💳 أرقام الموبايل المحددة من الأدمن لتحويل الكاش (5 خانات)</h3>
+    <p style="color:var(--muted); font-size:0.88rem;">تظهر هنا الأرقام التي يحددها الأدمن في لوحة الإدارة:</p>
+    <div id="regFiveCashSlotsList"></div>
   </div>
 </div>
 
@@ -638,6 +644,16 @@
   let activeDirectoryFilter = null;
   let cashSlotsData = ["", "", "", "", ""];
 
+  function normalizeFiveCashSlots(val) {
+    if (Array.isArray(val)) {
+      return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
+    }
+    if (val && typeof val === "object") {
+      return Array.from({ length: 5 }, (_, i) => String(val[i] ?? val[`slot${i}`] ?? "").trim());
+    }
+    return ["", "", "", "", ""];
+  }
+
   function isValidTeamRecord(teamId, t) {
     if (!t || typeof t !== "object") return false;
     if (!teamId || String(teamId).includes("_tr_")) return false;
@@ -805,7 +821,7 @@
     });
     const target = document.getElementById(screenId);
     if (target) target.classList.add("active");
-    if (screenId === "cashTransferScreen") {
+    if (screenId === "cashTransferScreen" || screenId === "regScreen") {
       renderFiveCashSlots();
     }
     if (screenId === "challengeScreen" && challengeSettings.type === "keys") {
@@ -1130,12 +1146,10 @@
     });
   }
 
-  // عرض 5 خانات لأرقام الموبايل المحددة من الأدمن
+  // عرض 5 خانات لأرقام الموبايل المحددة من الأدمن في صفحة تحويل الكاش وبطاقة الاشتراك
   function renderFiveCashSlots() {
-    const el = document.getElementById("fiveCashSlotsList");
-    if (!el) return;
-
-    el.innerHTML = Array.from({ length: 5 }, (_, idx) => {
+    const targets = ["fiveCashSlotsList", "regFiveCashSlotsList"];
+    const html = Array.from({ length: 5 }, (_, idx) => {
       const num = (cashSlotsData[idx] || "").trim();
       return `
         <div class="cash-slot-card">
@@ -1147,15 +1161,15 @@
         </div>
       `;
     }).join("");
+
+    targets.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
   }
 
   onValue(ref(db, "settings/cashSlotsFive"), (snap) => {
-    const val = snap.val();
-    if (Array.isArray(val)) {
-      cashSlotsData = Array.from({ length: 5 }, (_, i) => (val[i] || "").trim());
-    } else {
-      cashSlotsData = ["", "", "", "", ""];
-    }
+    cashSlotsData = normalizeFiveCashSlots(snap.val());
     renderFiveCashSlots();
   });
 
