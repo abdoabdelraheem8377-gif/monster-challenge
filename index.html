@@ -30,7 +30,7 @@
       color: var(--text);
       min-height: 100vh;
     }
-    .screen { display: none; max-width: 780px; margin: 0 auto; padding: 20px 15px 60px; }
+    .screen { display: none; max-width: 820px; margin: 0 auto; padding: 20px 15px 60px; }
     .screen.active { display: block; }
 
     /* شاشة البداية (30 ثانية كاملة + شريط تحميل يصل 100%) */
@@ -82,18 +82,46 @@
     .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-sm { padding: 8px 13px; font-size: 0.85rem; }
 
+    /* الشريط العلوي مع الخانتين فوق خانة عدد النقاط */
     .top-bar {
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
       padding: 12px 16px; margin-bottom: 16px;
+    }
+    .top-right-cluster {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    }
+    .top-teams-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .top-team-pill-btn {
+      background: #0b1120; border: 1px solid var(--primary); color: var(--primary);
+      padding: 5px 11px; border-radius: 999px; font-size: 0.8rem; font-weight: bold;
+      cursor: pointer; transition: 0.15s;
+    }
+    .top-team-pill-btn.active-pill {
+      background: var(--primary); color: #000;
     }
     .points-badge {
       background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success);
       color: var(--success); padding: 6px 14px; border-radius: 999px; font-weight: bold;
     }
+
+    /* لوحة عرض الفرق عند الضغط على إحدى الخانتين */
+    .teams-directory-panel {
+      display: none;
+      background: var(--card); border: 1px solid var(--primary); border-radius: 14px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .team-list-row {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      background: #0b1120; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; margin-bottom: 8px;
+    }
+
     .cash-card {
       background: #0b1120; border: 1px solid var(--border); border-radius: 12px;
-      padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
       margin-bottom: 10px;
     }
 
@@ -259,6 +287,15 @@
   </div>
 </div>
 
+<!-- لوحة مشتركة تظهر عند الضغط على خانة "الفرق في التطبيق" أو "فرق التحدي اليومي" -->
+<div id="teamsDirectoryPanel" class="screen teams-directory-panel">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <h3 id="teamsDirectoryPanelTitle" style="margin:0; color:var(--primary);">قائمة الفرق</h3>
+    <button class="btn btn-outline btn-sm" onclick="closeTeamsDirectoryPanel()">إغلاق</button>
+  </div>
+  <div id="teamsDirectoryPanelBody">جاري التحميل...</div>
+</div>
+
 <!-- 1. شاشة الاختيار بعد اكتمال التحميل 100%: (تسجيل) أو (مشترك) -->
 <div id="welcomeChoiceScreen" class="screen">
   <div class="card" style="text-align:center; padding:32px 20px; margin-top:40px;">
@@ -349,9 +386,15 @@
       <strong id="stTeamTitle">فريقي</strong>
       <span id="stStatusBadge" style="display:block; color:var(--primary); font-size:0.85rem;"></span>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="points-badge">⭐ <span id="stPointsVal">0</span> نقطة</span>
-      <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="points-badge">⭐ <span id="stPointsVal">0</span> نقطة</span>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+      </div>
     </div>
   </div>
 
@@ -383,9 +426,15 @@
       <strong id="hubTeamTitle">فريقي</strong>
       <span id="hubPlayerSub" style="display:block; color:var(--primary); font-size:0.84rem;"></span>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="points-badge">⭐ <span id="hubPointsVal">0</span> نقطة</span>
-      <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="points-badge">⭐ <span id="hubPointsVal">0</span> نقطة</span>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+      </div>
     </div>
   </div>
 
@@ -409,9 +458,15 @@
 <div id="subscriberTasksScreen" class="screen">
   <div class="top-bar">
     <strong>📌 المهام المتاحة بمكافآت</strong>
-    <div style="display:flex; gap:8px;">
-      <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">رجوع</button>
-      <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">رجوع</button>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج</button>
+      </div>
     </div>
   </div>
 
@@ -440,16 +495,22 @@
   </div>
 </div>
 
-<!-- 7. شاشة التحدي اليومي (صور أو مفاتيح GPS) -->
+<!-- 7. شاشة التحدي اليومي -->
 <div id="challengeScreen" class="screen">
   <div class="top-bar">
     <div>
       <strong id="chTeamTitle">فريقي</strong>
       <span id="chModeLabel" style="display:block; color:var(--primary); font-size:0.85rem;"></span>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="points-badge">⭐ <span id="chPointsVal">0</span> نقطة</span>
-      <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">التحدي والمهام</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="points-badge">⭐ <span id="chPointsVal">0</span> نقطة</span>
+        <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">التحدي والمهام</button>
+      </div>
     </div>
   </div>
 
@@ -458,11 +519,25 @@
     <p id="challengeDescriptionText" style="line-height:1.7; font-size:1rem;">جاري تحميل التحدي...</p>
   </div>
 
+  <!-- قسم التحدي اليومي: 3 خانات أرقام موبايل للكاش + زر كاميرا/استوديو + زر تأكيد -->
   <div id="photoChallengeBox" class="card" style="display:none;">
-    <h3>📸 إرسال صورة التحدي</h3>
+    <h3>💳 تحويل الكاش وإرسال صورة التحويل</h3>
     <div id="rejectedPhotoAlert" style="display:none; background:rgba(239,68,68,0.15); border:1px solid var(--danger); padding:12px; border-radius:10px; margin-bottom:12px; color:#fecaca;"></div>
-    <input type="file" id="challengePhotoInput" accept="image/*" />
-    <button class="btn btn-primary" style="width:100%;" onclick="submitChallengePhoto()">📤 إرسال صورة التحدي</button>
+
+    <!-- الـ 3 خانات لأرقام الموبايل التي يمكن للمشترك تحويل كاش إليها -->
+    <label style="color:var(--primary); font-weight:bold;">📱 أرقام الموبايل لتحويل الكاش إليها (اختر أو أدخل الرقم):</label>
+    <div id="challengeThreePhonesList"></div>
+
+    <!-- زر كاميرا / استوديو لالتقاط صورة أو سحب صورة من الاستوديو -->
+    <input type="file" id="challengePhotoInput" accept="image/*" style="display:none;" onchange="handleChallengePhotoPicked(this)" />
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0;">
+      <button type="button" class="btn btn-info" onclick="document.getElementById('challengePhotoInput').click()">📷 كاميرا / استوديو</button>
+      <span id="challengePickedFileName" style="color:var(--primary); font-size:0.88rem;">لم يتم اختيار صورة بعد</span>
+    </div>
+    <img id="challengePickedPreview" class="menu-img" style="display:none; max-height:220px;" onclick="zoomMenuImage(this.src)" />
+
+    <!-- زر تأكيد الرئيسي لإرسال الصورة والرقم -->
+    <button type="button" class="btn btn-success" style="width:100%; margin-top:8px;" onclick="confirmChallengeTransferSubmission()">✅ تأكيد</button>
     <p id="photoSentMsg" style="color:var(--success); font-weight:bold; margin-top:10px;"></p>
   </div>
 
@@ -484,9 +559,15 @@
       <strong id="loserTeamTitle">فريقي</strong>
       <span style="display:block; color:var(--primary); font-size:0.85rem;">صفحة المكافأة</span>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="points-badge">⭐ <span id="loserPointsVal">0</span> نقطة</span>
-      <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="points-badge">⭐ <span id="loserPointsVal">0</span> نقطة</span>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+      </div>
     </div>
   </div>
 
@@ -527,9 +608,15 @@
 <div id="freeMealScreen" class="screen">
   <div class="top-bar">
     <strong>🏆 وجبات مجانية للفائز</strong>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="points-badge">⭐ <span id="freeMealPointsVal">0</span> نقطة</span>
-      <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+    <div class="top-right-cluster">
+      <div class="top-teams-row">
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('all', this)">👥 الفرق في التطبيق (<span class="cnt-all-teams">0</span>)</button>
+        <button class="top-team-pill-btn" onclick="openTeamsListPanel('daily', this)">🔥 فرق التحدي اليومي (<span class="cnt-daily-teams">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="points-badge">⭐ <span id="freeMealPointsVal">0</span> نقطة</span>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
+      </div>
     </div>
   </div>
 
@@ -573,7 +660,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // الجلسة الحالية في الذاكرة فقط: بمجرد خروج اللاعب أو إعادة فتح التطبيق يُطلب الاسم ورقم التليفون
   let sessionState = {
     teamId: "",
     playMode: "group",
@@ -585,15 +671,87 @@
 
   let allTeamsMap = {};
   let challengeSettings = {};
+  let activeCashNums = [];
+  let selectedCashTargetPhone = "";
   let activeVoteUnsub = null;
   let voteCountdownInterval = null;
   let splashFinished = false;
+  let activeDirectoryFilter = null;
 
   window.zoomMenuImage = (src) => {
     if (!src) return;
     document.getElementById("zoomedMenuImg").src = src;
     document.getElementById("menuZoomModal").style.display = "flex";
   };
+
+  // ==========================================
+  // الخانتان فوق خانة عدد النقاط: الفرق في التطبيق / فرق التحدي اليومي
+  // ==========================================
+  window.openTeamsListPanel = (mode, btnEl) => {
+    activeDirectoryFilter = mode;
+    document.querySelectorAll(".top-team-pill-btn").forEach(b => b.classList.remove("active-pill"));
+    if (btnEl) btnEl.classList.add("active-pill");
+    renderTeamsDirectoryPanel();
+    const panel = document.getElementById("teamsDirectoryPanel");
+    panel.style.display = "block";
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+
+  window.closeTeamsDirectoryPanel = () => {
+    activeDirectoryFilter = null;
+    document.querySelectorAll(".top-team-pill-btn").forEach(b => b.classList.remove("active-pill"));
+    document.getElementById("teamsDirectoryPanel").style.display = "none";
+  };
+
+  function renderTeamsDirectoryPanel() {
+    if (!activeDirectoryFilter) return;
+    const titleEl = document.getElementById("teamsDirectoryPanelTitle");
+    const bodyEl = document.getElementById("teamsDirectoryPanelBody");
+    const entries = Object.entries(allTeamsMap);
+
+    const filtered = activeDirectoryFilter === "daily"
+      ? entries.filter(([, t]) => t && (t.status === "in_challenge" || t.status === "won"))
+      : entries;
+
+    titleEl.innerText = activeDirectoryFilter === "daily"
+      ? `🔥 الفرق المشتركة في التحدي اليومي (${filtered.length})`
+      : `👥 كل الفرق المشاركة في التطبيق (${filtered.length})`;
+
+    if (filtered.length === 0) {
+      bodyEl.innerHTML = "<p style='color:var(--muted); margin:0;'>لا توجد فرق مطابقة حالياً.</p>";
+      return;
+    }
+
+    bodyEl.innerHTML = filtered.map(([, t], i) => {
+      const mNames = (t.members || []).map(m => m.name).filter(Boolean).join("، ");
+      const statusBadge = t.status === "won" ? "🏆 فائز"
+        : t.status === "in_challenge" ? "🔥 في التحدي اليومي"
+        : t.status === "lost" ? "🎁 صفحة المكافأة"
+        : "مشترك";
+      return `
+        <div class="team-list-row">
+          <div>
+            <strong style="color:var(--primary);">${i + 1}. ${t.teamName || "فريق"}</strong>
+            <span style="color:var(--muted); font-size:0.82rem; margin-right:6px;">(${(t.members || []).length} أعضاء)</span>
+            ${mNames ? `<div style="color:var(--muted); font-size:0.82rem; margin-top:2px;">الأعضاء: ${mNames}</div>` : ""}
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="color:var(--info); font-size:0.82rem;">${statusBadge}</span>
+            <span class="points-badge">⭐ ${t.points || 0} نقطة</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function updateTopBarTeamCounts() {
+    const entries = Object.values(allTeamsMap);
+    const allCount = entries.length;
+    const dailyCount = entries.filter(t => t && (t.status === "in_challenge" || t.status === "won")).length;
+    document.querySelectorAll(".cnt-all-teams").forEach(el => { el.innerText = allCount; });
+    document.querySelectorAll(".cnt-daily-teams").forEach(el => { el.innerText = dailyCount; });
+    renderTeamsDirectoryPanel();
+  }
 
   // ==========================================
   // إشعار تحديث التطبيق (نعم / لا)
@@ -669,10 +827,14 @@
 
   window.showScreen = (screenId) => {
     if (!splashFinished && screenId !== "splashScreen") return;
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    document.getElementById(screenId).classList.add("active");
-    if (screenId === "challengeScreen" && challengeSettings.type === "keys") {
-      setTimeout(() => initPlayerMap(), 200);
+    document.querySelectorAll(".screen").forEach(s => {
+      if (s.id !== "teamsDirectoryPanel") s.classList.remove("active");
+    });
+    const target = document.getElementById(screenId);
+    if (target) target.classList.add("active");
+    if (screenId === "challengeScreen") {
+      renderChallengeThreePhones();
+      if (challengeSettings.type === "keys") setTimeout(() => initPlayerMap(), 200);
     }
   };
 
@@ -681,6 +843,7 @@
     if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
     document.getElementById("voteOverlayModal").style.display = "none";
     document.getElementById("celebrationModal").style.display = "none";
+    window.closeTeamsDirectoryPanel();
     sessionState = { teamId: "", playMode: "group", soloTeamName: "", playerName: "", playerPhone: "", memberIndex: 0 };
     document.getElementById("loginTeamNameInput").value = "";
     document.getElementById("loginPlayerNameInput").value = "";
@@ -753,7 +916,7 @@
   };
 
   // ==========================================
-  // الدخول للمشترك (فردي أو مجموعة + تصويت الأعضاء + إقصاء/إعادة انضمام)
+  // الدخول للمشترك
   // ==========================================
   window.toggleLoginModeUI = () => {
     const mode = document.getElementById("loginPlayMode").value;
@@ -774,6 +937,7 @@
     const snap = await get(ref(db, "teams"));
     const teams = snap.val() || {};
     allTeamsMap = teams;
+    updateTopBarTeamCounts();
 
     let matchedTeamId = "";
     let matchedTeam = null;
@@ -879,7 +1043,7 @@
   };
 
   // ==========================================
-  // نظام التصويت الفوري + العد التنازلي 60 ثانية + الساعة الرملية + مظاهر الخطر + الفصل/الإقصاء
+  // نظام التصويت الفوري + العد التنازلي 60 ثانية + الساعة الرملية + مظاهر الخطر
   // ==========================================
   function listenToTeamVoteSession(teamId) {
     if (activeVoteUnsub) activeVoteUnsub();
@@ -1160,6 +1324,8 @@
   // ==========================================
   onValue(ref(db, "teams"), (snap) => {
     allTeamsMap = snap.val() || {};
+    updateTopBarTeamCounts();
+
     const tId = sessionState.teamId;
     if (!tId || !allTeamsMap[tId]) return;
 
@@ -1252,22 +1418,54 @@
   }
 
   // ==========================================
-  // أرقام الكاش ورفع الإيصال
+  // أرقام الكاش ورفع الإيصال + 3 خانات أرقام الموبايل في صفحة التحدي اليومي
   // ==========================================
   onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
     const nums = snap.val() || [];
+    activeCashNums = nums;
+    if (nums.length > 0 && !selectedCashTargetPhone) {
+      selectedCashTargetPhone = nums[0];
+    }
     const el = document.getElementById("activeCashList");
     if (!nums.length) {
       el.innerHTML = "<p style='color:var(--muted);'>لا توجد أرقام كاش مفعلة حالياً.</p>";
-      return;
+    } else {
+      el.innerHTML = nums.map(n => `
+        <div class="cash-card">
+          <strong>📱 ${n}</strong>
+          <button class="btn btn-outline btn-sm" onclick="navigator.clipboard?.writeText('${n}'); alert('تم نسخ الرقم: ${n}');">نسخ</button>
+        </div>
+      `).join("");
     }
-    el.innerHTML = nums.map(n => `
-      <div class="cash-card">
-        <strong>📱 ${n}</strong>
-        <button class="btn btn-outline btn-sm" onclick="navigator.clipboard?.writeText('${n}'); alert('تم نسخ الرقم: ${n}');">نسخ</button>
-      </div>
-    `).join("");
+    renderChallengeThreePhones();
   });
+
+  function renderChallengeThreePhones() {
+    const container = document.getElementById("challengeThreePhonesList");
+    if (!container) return;
+    container.innerHTML = "";
+
+    for (let i = 0; i < 3; i++) {
+      const val = activeCashNums[i] || "";
+      const isSelected = selectedCashTargetPhone && val && selectedCashTargetPhone === val;
+      container.innerHTML += `
+        <div class="cash-card" style="border-color:${isSelected ? 'var(--success)' : 'var(--border)'};">
+          <input type="tel" id="chTransferPhone_${i}" value="${val}" placeholder="رقم الموبايل رقم ${i + 1} لتحويل الكاش" style="margin-bottom:0; flex:1;" oninput="selectCashPhoneSlot(${i})" />
+          <button type="button" class="btn ${isSelected ? 'btn-success' : 'btn-outline'} btn-sm" onclick="selectCashPhoneSlot(${i})">
+            ${isSelected ? '✓ محدد' : 'اختيار'}
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  window.selectCashPhoneSlot = (idx) => {
+    const inp = document.getElementById(`chTransferPhone_${idx}`);
+    if (inp && inp.value.trim()) {
+      selectedCashTargetPhone = inp.value.trim();
+      renderChallengeThreePhones();
+    }
+  };
 
   function readFileAsBase64(file, maxW = 800, quality = 0.7) {
     return new Promise((resolve) => {
@@ -1287,6 +1485,66 @@
       reader.readAsDataURL(file);
     });
   }
+
+  window.handleChallengePhotoPicked = async (input) => {
+    const file = input.files?.[0];
+    const nameEl = document.getElementById("challengePickedFileName");
+    const prevEl = document.getElementById("challengePickedPreview");
+    if (!file) {
+      nameEl.innerText = "لم يتم اختيار صورة بعد";
+      prevEl.style.display = "none";
+      return;
+    }
+    nameEl.innerText = `📎 الصورة المختارة: ${file.name}`;
+    const b64 = await readFileAsBase64(file);
+    prevEl.src = b64;
+    prevEl.style.display = "block";
+  };
+
+  // زر تأكيد إرسال صورة التحويل إلى رقم الموبايل المحدد
+  window.confirmChallengeTransferSubmission = async () => {
+    const file = document.getElementById("challengePhotoInput").files[0];
+    const p0 = (document.getElementById("chTransferPhone_0")?.value || "").trim();
+    const p1 = (document.getElementById("chTransferPhone_1")?.value || "").trim();
+    const p2 = (document.getElementById("chTransferPhone_2")?.value || "").trim();
+    const chosenPhone = selectedCashTargetPhone || p0 || p1 || p2;
+
+    if (!file) {
+      alert("⚠️ اضغط على زر (كاميرا / استوديو) لالتقاط صورة أو سحب صورة من الاستوديو أولاً.");
+      return;
+    }
+    if (!chosenPhone) {
+      alert("⚠️ اختر أو أدخل رقم موبايل لتحويل الكاش إليه.");
+      return;
+    }
+
+    const base64 = await readFileAsBase64(file);
+    const team = allTeamsMap[sessionState.teamId] || {};
+    const teamName = sessionState.playMode === "solo" ? sessionState.soloTeamName : (team.teamName || "فريق");
+    const senderPhone = sessionState.playerPhone || team.phone || "";
+    const subKey = sessionState.teamId ? `${sessionState.teamId}_tr_${Date.now()}` : `guest_tr_${Date.now()}`;
+
+    await set(ref(db, `challengeSubmissions/${subKey}`), {
+      teamId: sessionState.teamId || "guest",
+      teamName,
+      phone: senderPhone,
+      transferPhone: chosenPhone,
+      submissionKind: "transfer_photo",
+      photo: base64,
+      status: "pending",
+      isWinner: false,
+      timestamp: Date.now()
+    });
+
+    if (sessionState.teamId) {
+      await update(ref(db, `teams/${sessionState.teamId}`), {
+        challengePhotoStatus: "pending",
+        challengePhotoRejectReason: ""
+      });
+    }
+
+    document.getElementById("photoSentMsg").innerText = `✅ تم تأكيد وإرسال صورة التحويل على الرقم (${chosenPhone})!`;
+  };
 
   window.uploadReceiptImage = async () => {
     const file = document.getElementById("receiptFileInput").files[0];
@@ -1311,10 +1569,11 @@
       challengeSettings.description || "التحدي اليومي قيد التجهيز...";
 
     const isKeys = challengeSettings.type === "keys";
-    document.getElementById("chModeLabel").innerText = isKeys ? "🗝️ تحدي المفاتيح (GPS)" : "📸 تحدي إرسال صورة";
+    document.getElementById("chModeLabel").innerText = isKeys ? "🗝️ تحدي المفاتيح (GPS)" : "💳 تحدي تحويل الكاش والصورة";
     document.getElementById("photoChallengeBox").style.display = isKeys ? "none" : "block";
     document.getElementById("keysChallengeBox").style.display = isKeys ? "block" : "none";
     document.getElementById("requiredKeysTarget").innerText = challengeSettings.requiredKeys || 3;
+    renderChallengeThreePhones();
   });
 
   window.attemptEnterNewChallenge = async (noticeBoxId = "hubChallengeNoticeBox") => {
@@ -1490,37 +1749,8 @@
   };
 
   // ==========================================
-  // إرسال صورة التحدي + تحدي المفاتيح GPS
+  // تحدي المفاتيح GPS
   // ==========================================
-  window.submitChallengePhoto = async () => {
-    const file = document.getElementById("challengePhotoInput").files[0];
-    if (!file || !sessionState.teamId) {
-      alert("⚠️ اختر صورة التحدي أولاً.");
-      return;
-    }
-    const base64 = await readFileAsBase64(file);
-    const team = allTeamsMap[sessionState.teamId] || {};
-    const teamName = sessionState.playMode === "solo" ? sessionState.soloTeamName : (team.teamName || "فريق");
-    const phone = sessionState.playerPhone || team.phone || "";
-
-    await set(ref(db, `challengeSubmissions/${sessionState.teamId}`), {
-      teamId: sessionState.teamId,
-      teamName,
-      phone,
-      photo: base64,
-      status: "pending",
-      isWinner: false,
-      timestamp: Date.now()
-    });
-
-    await update(ref(db, `teams/${sessionState.teamId}`), {
-      challengePhotoStatus: "pending",
-      challengePhotoRejectReason: ""
-    });
-
-    document.getElementById("photoSentMsg").innerText = "✅ تم إرسال صورة التحدي بنجاح!";
-  };
-
   let playerMap = null;
   let gpsKeysList = [];
   let collectedKeyIds = new Set();
@@ -1659,7 +1889,7 @@
   };
 
   // ==========================================
-  // نافذة الاحتفال: لا تظهر في البداية مطلقاً، وتظهر فقط بعد دخول اللاعب وبعد نشر إعلان جديد
+  // نافذة الاحتفال: لا تظهر في البداية مطلقاً
   // ==========================================
   let latestAnnouncement = null;
   const pageOpenedAt = Date.now();
