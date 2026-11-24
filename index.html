@@ -33,7 +33,7 @@
     .screen { display: none; max-width: 780px; margin: 0 auto; padding: 20px 15px 60px; }
     .screen.active { display: block; }
 
-    /* شاشة البداية (30 ثانية + شريط تحميل يكتمل 100%) */
+    /* شاشة البداية (30 ثانية كاملة + شريط تحميل يصل 100%) */
     #splashScreen {
       position: fixed; inset: 0; z-index: 9000;
       background: radial-gradient(circle at top, #1e293b, #090d16);
@@ -49,12 +49,12 @@
       padding: 8px 18px; border-radius: 999px; font-weight: bold; margin-bottom: 14px;
     }
     .progress-wrap {
-      width: 100%; max-width: 340px; height: 14px; background: #0f172a;
+      width: 100%; max-width: 340px; height: 16px; background: #0f172a;
       border-radius: 999px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 8px;
     }
     .progress-fill {
       height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success));
-      transition: width 0.25s linear;
+      transition: width 0.2s linear;
     }
 
     .card {
@@ -165,7 +165,7 @@
     }
     #menuZoomModal img { max-width: 96%; max-height: 92vh; border-radius: 12px; }
 
-    /* نافذة الاحتفال بالفائزين فقط */
+    /* نافذة الاحتفال بالفائزين (مخفية افتراضياً ولا تظهر في البداية مطلقاً) */
     #celebrationModal {
       display: none; position: fixed; inset: 0; z-index: 9500;
       background: rgba(5, 10, 22, 0.92); align-items: center; justify-content: center; padding: 20px;
@@ -234,32 +234,32 @@
   </div>
 </div>
 
-<!-- نافذة الاحتفال بالفائزين فقط -->
-<div id="celebrationModal">
+<!-- نافذة الاحتفال بالفائزين (مخفية تماماً في البداية) -->
+<div id="celebrationModal" style="display:none;">
   <div class="celebration-box">
     <div style="font-size:3rem;">🏆🎊🏆</div>
-    <h2 id="celTitle" style="color:var(--primary); margin:8px 0;">احتفال أبطال التحدي</h2>
+    <h2 id="celTitle" style="color:var(--primary); margin:8px 0;">احتفال الأبطال</h2>
     <p id="celSubtitle" style="color:var(--muted); margin-bottom:16px;"></p>
     <div id="celWinnersList"></div>
     <button class="btn btn-primary" style="width:100%; margin-top:14px;" onclick="closeCelebrationModal()">متابعة</button>
   </div>
 </div>
 
-<!-- شاشة البداية (30 ثانية + شريط تحميل يكتمل 100%) -->
+<!-- شاشة البداية: عداد 30 ثانية كاملة + شريط تحميل يصل 100% -->
 <div id="splashScreen">
   <div class="splash-logo">⚔️🛡️</div>
   <h1 class="splash-title">صراع التحديات</h1>
   <p class="splash-sub">كوّن فريقك أو العب فردياً، واجه التحديات والمهام اليومية واكسب النقاط والمكافآت والوجبات!</p>
-  <div class="timer-pill">⏳ جاري التحميل: <span id="splashCountdown">30</span> ثانية</div>
+  <div class="timer-pill">⏳ بدء التحدي خلال: <span id="splashCountdown">30</span> ثانية</div>
   <div class="progress-wrap">
     <div id="splashProgressFill" class="progress-fill"></div>
   </div>
-  <div style="color:var(--primary); font-weight:bold; font-size:0.95rem;">
+  <div style="color:var(--primary); font-weight:bold; font-size:1rem;">
     <span id="splashPercentText">0</span>%
   </div>
 </div>
 
-<!-- 1. شاشة الاختيار بعد اكتمال التحميل: (تسجيل) أو (مشترك) -->
+<!-- 1. شاشة الاختيار بعد اكتمال التحميل 100%: (تسجيل) أو (مشترك) -->
 <div id="welcomeChoiceScreen" class="screen">
   <div class="card" style="text-align:center; padding:32px 20px; margin-top:40px;">
     <div style="font-size:3rem; margin-bottom:10px;">⚔️</div>
@@ -420,17 +420,19 @@
       اختر مهمة واحدة فقط وبعد إتمامها يمكنك اختيار مهمة أخرى
     </div>
 
-    <!-- المهمة المقبولة حالياً للفريق (تختفي من القائمة العامة وتظهر هنا فقط مع زر كاميرا/استوديو وزر تأكيد) -->
     <div id="myActiveTaskBox" style="display:none; background:#0b1120; border:2px solid var(--success); border-radius:12px; padding:14px; margin-bottom:16px;">
       <h3 style="color:var(--success); margin-top:0;">🔥 مهمتك الحالية قيد التنفيذ</h3>
       <p id="myActiveTaskText" style="white-space:pre-wrap; line-height:1.6;"></p>
       <p style="color:var(--info); font-size:0.88rem;">⏱️ وقت الإتمام المحدد: <b id="myActiveTaskDuration"></b></p>
       <img id="myActiveTaskAdminImg" class="menu-img" style="display:none; max-height:220px;" />
 
-      <label>📸 أرفق صورة من الكاميرا أو الاستوديو لإثبات إتمام المهمة:</label>
-      <input type="file" id="taskProofPhotoInput" accept="image/*" />
-      <input type="text" id="taskProofNoteInput" maxlength="500" placeholder="ملاحظة مرافقة للإدارة (اختياري)..." />
-      <button class="btn btn-success" style="width:100%;" onclick="confirmMyTaskCompletion()">✅ تأكيد إتمام المهمة</button>
+      <input type="file" id="taskProofPhotoInput" accept="image/*" style="display:none;" onchange="handleTaskProofPhotoSelected(this)" />
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+        <button type="button" class="btn btn-info" onclick="document.getElementById('taskProofPhotoInput').click()">📷 كاميرا / استوديو</button>
+        <button type="button" class="btn btn-success" onclick="confirmMyTaskCompletion()">✅ تأكيد</button>
+      </div>
+      <p id="taskSelectedPhotoName" style="color:var(--primary); font-size:0.84rem; margin-top:8px;"></p>
+      <input type="text" id="taskProofNoteInput" maxlength="500" placeholder="ملاحظة مرافقة للإدارة (اختياري)..." style="margin-top:8px;" />
     </div>
 
     <h3>قائمة المهام المتاحة</h3>
@@ -501,7 +503,6 @@
     <div id="loserNoticeBox" style="display:none; margin-top:14px; background:#0b1120; border:1px solid var(--primary); padding:14px; border-radius:12px;"></div>
   </div>
 
-  <!-- ١- وجبات بنصف الثمن مع صورة القائمة ورمز العنوان وكتابة الطلبات حتى 500 حرف -->
   <div id="loserHalfMealSection" class="card" style="display:none;">
     <p style="text-align:center; color:var(--muted); margin-top:0;">اضغط على صورة القائمة لتكبيرها</p>
     <img id="loserHalfMealImg" class="menu-img" src="" alt="قائمة الوجبات بنصف الثمن" style="display:none;" onclick="zoomMenuImage(this.src)" />
@@ -575,7 +576,7 @@
   // الجلسة الحالية في الذاكرة فقط: بمجرد خروج اللاعب أو إعادة فتح التطبيق يُطلب الاسم ورقم التليفون
   let sessionState = {
     teamId: "",
-    playMode: "group", // group | solo
+    playMode: "group",
     soloTeamName: "",
     playerName: "",
     playerPhone: "",
@@ -586,6 +587,7 @@
   let challengeSettings = {};
   let activeVoteUnsub = null;
   let voteCountdownInterval = null;
+  let splashFinished = false;
 
   window.zoomMenuImage = (src) => {
     if (!src) return;
@@ -604,7 +606,7 @@
     if (!upd || !upd.active || !upd.id) return;
     currentUpdateData = upd;
     const acceptedId = localStorage.getItem("mc_accepted_update_id");
-    if (acceptedId !== upd.id) {
+    if (acceptedId !== upd.id && splashFinished) {
       document.getElementById("updateAlertText").innerText = upd.message || "يجب تحديث التطبيق";
       document.getElementById("updateNoReminder").style.display = userDeclinedUpdate ? "block" : "none";
       document.getElementById("forceUpdateModal").style.display = "flex";
@@ -633,27 +635,40 @@
   };
 
   // ==========================================
-  // شاشة البداية: توقيت 30 ثانية + شريط تحميل يكتمل 100%
+  // شاشة البداية: عداد 30 ثانية كاملة + شريط تحميل يصل 100%
   // ==========================================
-  const SPLASH_TOTAL_MS = 30000;
-  const splashStart = Date.now();
-  const splashInterval = setInterval(() => {
-    const elapsed = Date.now() - splashStart;
-    const pct = Math.min(100, Math.round((elapsed / SPLASH_TOTAL_MS) * 100));
-    const remSec = Math.max(0, Math.ceil((SPLASH_TOTAL_MS - elapsed) / 1000));
+  const SPLASH_DURATION_SEC = 30;
+  let remainingSplashSec = SPLASH_DURATION_SEC;
 
-    document.getElementById("splashCountdown").innerText = remSec;
+  document.getElementById("splashCountdown").innerText = SPLASH_DURATION_SEC;
+  document.getElementById("splashPercentText").innerText = "0";
+  document.getElementById("splashProgressFill").style.width = "0%";
+
+  const splashTimer = setInterval(() => {
+    remainingSplashSec--;
+    const elapsedSec = SPLASH_DURATION_SEC - Math.max(0, remainingSplashSec);
+    const pct = Math.min(100, Math.round((elapsedSec / SPLASH_DURATION_SEC) * 100));
+
+    document.getElementById("splashCountdown").innerText = Math.max(0, remainingSplashSec);
     document.getElementById("splashPercentText").innerText = pct;
     document.getElementById("splashProgressFill").style.width = pct + "%";
 
-    if (elapsed >= SPLASH_TOTAL_MS) {
-      clearInterval(splashInterval);
-      document.getElementById("splashScreen").style.display = "none";
-      window.showScreen("welcomeChoiceScreen");
+    if (remainingSplashSec <= 0) {
+      clearInterval(splashTimer);
+      document.getElementById("splashCountdown").innerText = "0";
+      document.getElementById("splashPercentText").innerText = "100";
+      document.getElementById("splashProgressFill").style.width = "100%";
+
+      setTimeout(() => {
+        splashFinished = true;
+        document.getElementById("splashScreen").style.display = "none";
+        window.showScreen("welcomeChoiceScreen");
+      }, 250);
     }
-  }, 200);
+  }, 1000);
 
   window.showScreen = (screenId) => {
+    if (!splashFinished && screenId !== "splashScreen") return;
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
     if (screenId === "challengeScreen" && challengeSettings.type === "keys") {
@@ -661,11 +676,11 @@
     }
   };
 
-  // زر الخروج من اللعبة -> يمسح الجلسة ويطلب الاسم ورقم التليفون عند الدخول مرة أخرى
   window.exitGameLogout = () => {
     if (activeVoteUnsub) { activeVoteUnsub(); activeVoteUnsub = null; }
     if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
     document.getElementById("voteOverlayModal").style.display = "none";
+    document.getElementById("celebrationModal").style.display = "none";
     sessionState = { teamId: "", playMode: "group", soloTeamName: "", playerName: "", playerPhone: "", memberIndex: 0 };
     document.getElementById("loginTeamNameInput").value = "";
     document.getElementById("loginPlayerNameInput").value = "";
@@ -760,7 +775,6 @@
     const teams = snap.val() || {};
     allTeamsMap = teams;
 
-    // البحث عن الفريق والعضو
     let matchedTeamId = "";
     let matchedTeam = null;
     let memberIndex = -1;
@@ -793,7 +807,6 @@
     const members = matchedTeam.members || [];
     const orderNum = memberIndex + 1;
 
-    // 1) الدخول الفردي لعضو من مجموعة: يظل عضواً في فريقه الأصلي ويحفظ اسمه الفردي = اسم اللاعب + ترتيبه (مثل عمر2)
     if (playMode === "solo") {
       const soloGeneratedName = `${playerName}${orderNum}`;
       sessionState = {
@@ -820,7 +833,6 @@
       return;
     }
 
-    // 2) الدخول كمجموعة: التحقق إذا كان العضو مقصياً سابقاً ويريد الانضمام لمجموعته مرة أخرى
     const excludedMap = matchedTeam.excludedMembers || {};
     if (excludedMap[memberIndex]) {
       if (confirm(`كنت قد أُقصيت سابقاً من مجموعة (${matchedTeam.teamName}). هل تريد الانضمام لمجموعتك مرة أخرى؟`)) {
@@ -839,24 +851,22 @@
       memberIndex
     };
 
-    // إذا كان الفريق مكوناً من عضو واحد فقط يدخل مباشرة
     if (members.length <= 1) {
       window.showScreen("challengeAndTasksHubScreen");
       return;
     }
 
-    // التحقق من وجود جلسة تصويت نشطة أو إنشاء جلسة تصويت جديدة لباقي أعضاء الفريق
     const voteRef = ref(db, `teamVotes/${matchedTeamId}`);
     const existingVoteSnap = await get(voteRef);
     const existingVote = existingVoteSnap.val();
 
     if (!existingVote || existingVote.resolved) {
       const votesObj = {};
-      votesObj[memberIndex] = "yes"; // قائد الفريق / المبادر بالدخول يصوت بـ نعم تلقائياً
+      votesObj[memberIndex] = "yes";
       await set(voteRef, {
         initiatorIndex: memberIndex,
         initiatorName: playerName,
-        phase: "initial_consent", // initial_consent | split_decision
+        phase: "initial_consent",
         votes: votesObj,
         splitVotes: {},
         createdAt: Date.now(),
@@ -876,7 +886,7 @@
     activeVoteUnsub = onValue(ref(db, `teamVotes/${teamId}`), async (snap) => {
       const voteData = snap.val();
       const team = allTeamsMap[teamId];
-      if (!voteData || !team || voteData.resolved) {
+      if (!voteData || !team || voteData.resolved || !sessionState.teamId) {
         stopVoteCountdown();
         document.getElementById("voteOverlayModal").style.display = "none";
         return;
@@ -884,11 +894,9 @@
 
       const members = team.members || [];
       const myIdx = sessionState.memberIndex;
-      const myName = sessionState.playerName;
       const votes = voteData.votes || {};
       const splitVotes = voteData.splitVotes || {};
 
-      // حساب المؤيدين (نعم) والمعارضين (لا)
       const yesIndices = [];
       const noIndices = [];
       members.forEach((m, idx) => {
@@ -907,7 +915,6 @@
       const dangerEl = document.getElementById("voteDangerBanner");
       const hgBlock = document.getElementById("voteHourglassBlock");
 
-      // إذا وافق كل أعضاء الفريق بـ نعم -> ينتقل الفريق إلى صفحة (التحدي والمهام)
       if (yesIndices.length === members.length) {
         await update(ref(db, `teamVotes/${teamId}`), { resolved: true });
         stopVoteCountdown();
@@ -918,13 +925,11 @@
 
       modal.style.display = "flex";
 
-      // المرحلة الأولى: سؤال الموافقة لباقي أعضاء الفريق + مهلة 60 ثانية لمن لم يصوت
       if (voteData.phase === "initial_consent" && noIndices.length === 0) {
         box.classList.remove("danger-mode");
         dangerEl.style.display = "none";
         hgBlock.style.display = "block";
         startVoteCountdown(voteData.deadlineAt, async () => {
-          // مضت دقيقة ولم يختر العضو نعم -> يتم إقصاؤه من المجموعة (ويمكنه الانضمام مرة أخرى)
           const excludedUpdates = {};
           members.forEach((m, idx) => {
             if (!votes[idx]) excludedUpdates[idx] = { name: m.name, excludedAt: Date.now() };
@@ -958,18 +963,15 @@
         return;
       }
 
-      // المرحلة الثانية: رفض أحد الأعضاء (لا) -> منطق الأغلبية / التساوي / زر (عودة) / مظاهر الخطر 60 ثانية
       const isEqualTie = yesIndices.length === noIndices.length && yesIndices.length > 0;
-      const isMinorityYes = yesIndices.length > 0 && noIndices.length > yesIndices.length; // مثل 3 لا مقابل 2 نعم
+      const isMinorityYes = yesIndices.length > 0 && noIndices.length > yesIndices.length;
 
-      // إذا تحولت الأغلبية لـ لا (مثلاً انضم أحدهم للمعارضين فأصبحوا 3 مقابل 2)
       if (isMinorityYes) {
         box.classList.add("danger-mode");
         dangerEl.style.display = "block";
         hgBlock.style.display = "block";
 
         startVoteCountdown(voteData.deadlineAt || (Date.now() + 60000), async () => {
-          // انتهاء الـ 60 ثانية -> فصل اللاعبين (المؤيدين الأقلية)
           const excludedUpdates = {};
           yesIndices.forEach(i => {
             excludedUpdates[i] = { name: members[i]?.name, excludedAt: Date.now() };
@@ -999,14 +1001,12 @@
         return;
       }
 
-      // حالة تساوي نعم مع لا (عدد نعم = عدد لا)
       if (isEqualTie) {
         box.classList.add("danger-mode");
         dangerEl.style.display = "block";
         hgBlock.style.display = "block";
 
         startVoteCountdown(voteData.deadlineAt || (Date.now() + 60000), async () => {
-          // انتهاء 60 ثانية مع استمرار التساوي -> فصل المجموعة
           const excludedUpdates = {};
           members.forEach((m, i) => {
             excludedUpdates[i] = { name: m.name, excludedAt: Date.now() };
@@ -1028,7 +1028,6 @@
         return;
       }
 
-      // حالة وجود رافض (لا) وأغلبية ما زالت مع (نعم) -> سؤال المصوتين بـ نعم: هل تريد فصل العضو؟
       box.classList.remove("danger-mode");
       dangerEl.style.display = "none";
       hgBlock.style.display = "none";
@@ -1039,7 +1038,6 @@
         if (allYesVotedSplit) {
           const anySplitNo = yesIndices.some(i => splitVotes[i] === "no");
           if (!anySplitNo) {
-            // صوتوا بـ نعم -> يتم فصل العضو الرافض من المجموعة
             const excludedUpdates = {};
             noIndices.forEach(i => { excludedUpdates[i] = { name: members[i]?.name, excludedAt: Date.now() }; });
             await update(ref(db, `teams/${teamId}/excludedMembers`), excludedUpdates);
@@ -1047,7 +1045,6 @@
             alert(`✅ تم فصل (${noNames}) من المجموعة ويمكنهم التسجيل من جديد كفريق مجموعة أو فريق فردي.`);
             window.showScreen("challengeAndTasksHubScreen");
           } else {
-            // صوت أحد الأعضاء بـ لا -> يتم فصل العضوين تلقائياً وتصل إليهما رسالة بفصلهما وإمكانية تكوين مجموعة بمفردهما
             const splitNoMemberIdx = yesIndices.find(i => splitVotes[i] === "no");
             const twoSeparated = [...new Set([...noIndices, splitNoMemberIdx])];
             const excludedUpdates = {};
@@ -1112,7 +1109,6 @@
     alert("✅ تم تأكيد الفصل. يمكن للأعضاء المفصولين التسجيل من جديد كفريق مجموعة أو فريق فردي.");
   };
 
-  // زر (عودة): ينقل موقف اللاعب إلى المعارضين ويبدأ عداد 60 ثانية للمعارض الآخر
   window.pressReturnToOpponents = async (teamId, memberIdx) => {
     const team = allTeamsMap[teamId];
     if (!team) return;
@@ -1206,10 +1202,12 @@
     document.getElementById("goChallengeBtnBox").style.display =
       (team.status === "in_challenge" || team.status === "won" || team.status === "lost") ? "block" : "none";
 
-    if (team.status === "won") {
-      window.showScreen("freeMealScreen");
-    } else if (team.status === "lost") {
-      window.showScreen("loserScreen");
+    if (splashFinished) {
+      if (team.status === "won") {
+        window.showScreen("freeMealScreen");
+      } else if (team.status === "lost") {
+        window.showScreen("loserScreen");
+      }
     }
 
     if (team.challengePhotoStatus === "rejected") {
@@ -1358,7 +1356,7 @@
   };
 
   // ==========================================
-  // صفحة (المهام) للمشتركين: مهمة واحدة فقط + اختفاء المهمة عند القبول + كاميرا/استوديو وتأكيد
+  // صفحة (المهام) للمشتركين
   // ==========================================
   let allAvailableTasksMap = {};
 
@@ -1366,6 +1364,11 @@
     allAvailableTasksMap = snap.val() || {};
     renderSubscriberTasks();
   });
+
+  window.handleTaskProofPhotoSelected = (input) => {
+    const f = input.files?.[0];
+    document.getElementById("taskSelectedPhotoName").innerText = f ? `📎 تم اختيار الصورة: ${f.name}` : "";
+  };
 
   function renderSubscriberTasks() {
     const myTeamId = sessionState.teamId;
@@ -1402,7 +1405,6 @@
       myActiveBox.dataset.taskId = "";
     }
 
-    // المهام المتاحة (التي لم يقبلها أي فريق بعد؛ بمجرد قبولها تختفي من القائمة العامة)
     Object.entries(allAvailableTasksMap).forEach(([taskId, t]) => {
       if (t.status !== "available") return;
       listEl.innerHTML += `
@@ -1431,7 +1433,6 @@
       ? `${myTeamId}_solo_${sessionState.memberIndex}`
       : myTeamId;
 
-    // التحقق من أن الفريق لم يأخذ مهمة أخرى قيد التنفيذ
     const alreadyHasTask = Object.values(allAvailableTasksMap).some(
       t => t.status === "accepted" && t.acceptedByTeamId === myEffectiveTeamId
     );
@@ -1476,6 +1477,7 @@
       await remove(ref(db, `adminTasks/${taskId}`));
       document.getElementById("taskProofPhotoInput").value = "";
       document.getElementById("taskProofNoteInput").value = "";
+      document.getElementById("taskSelectedPhotoName").innerText = "";
       alert("✅ تم تأكيد إتمام المهمة وإرسالها للإدارة! يمكنك الآن اختيار مهمة أخرى.");
     };
 
@@ -1600,7 +1602,7 @@
   };
 
   // ==========================================
-  // قوائم الطعام وإرسال الطلبات (اسم الفريق + رقم أول اسم في المجموعة + العنوان + اختيارات الطعام 500 حرف)
+  // قوائم الطعام وإرسال الطلبات
   // ==========================================
   onValue(ref(db, "settings/meals"), (snap) => {
     const meals = snap.val() || {};
@@ -1657,16 +1659,25 @@
   };
 
   // ==========================================
-  // الاحتفال بالفائزين فقط
+  // نافذة الاحتفال: لا تظهر في البداية مطلقاً، وتظهر فقط بعد دخول اللاعب وبعد نشر إعلان جديد
   // ==========================================
   let latestAnnouncement = null;
+  const pageOpenedAt = Date.now();
+
   onValue(ref(db, "settings/winnersAnnouncement"), (snap) => {
     const ann = snap.val();
-    if (!ann || !ann.winners || ann.winners.length === 0) return;
+    if (!ann || !ann.winners || ann.winners.length === 0) {
+      document.getElementById("celebrationModal").style.display = "none";
+      return;
+    }
     latestAnnouncement = ann;
+
+    const hasActiveSession = Boolean(sessionState && sessionState.teamId);
+    const isFreshAnnouncement = (ann.announcedAt || 0) > pageOpenedAt;
     const seenId = sessionStorage.getItem("mc_seen_celebration");
-    if (seenId !== ann.id) {
-      document.getElementById("celTitle").innerText = ann.title || "🎉 احتفال أبطال التحدي 🎉";
+
+    if (splashFinished && hasActiveSession && isFreshAnnouncement && seenId !== ann.id) {
+      document.getElementById("celTitle").innerText = ann.title || "🎉 احتفال الأبطال 🎉";
       document.getElementById("celSubtitle").innerText = ann.subtitle || "ألف مبروك للفرق الفائزة!";
       document.getElementById("celWinnersList").innerHTML = (ann.winners || [])
         .map(w => `<div class="winner-chip">🏆 ${w.teamName} — ${w.points || 10} نقطة</div>`)
@@ -1676,7 +1687,9 @@
   });
 
   window.closeCelebrationModal = () => {
-    if (latestAnnouncement?.id) sessionStorage.setItem("mc_seen_celebration", latestAnnouncement.id);
+    if (latestAnnouncement?.id) {
+      sessionStorage.setItem("mc_seen_celebration", latestAnnouncement.id);
+    }
     document.getElementById("celebrationModal").style.display = "none";
   };
 </script>
