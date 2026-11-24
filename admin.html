@@ -212,6 +212,7 @@
     <button class="btn btn-primary btn-sm" onclick="publishWinnersAnnouncement()">🎉 الاحتفال بالفائزين</button>
     <button class="btn btn-info btn-sm" onclick="finishRoundAndMarkLosers()">🏁 إنهاء الجولة</button>
     <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteAllTeams()">🗑️ حذف كل الفرق</button>
     <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة</button>
   </div>
 </header>
@@ -254,7 +255,6 @@
 
 <div class="container">
 
-  <!-- 1. طلبات التسجيل -->
   <div id="regRequests" class="section active">
     <div class="card">
       <h2>طلبات تسجيل الفرق الجديدة (<span id="countRegTitle">0</span>)</h2>
@@ -263,20 +263,21 @@
     </div>
   </div>
 
-  <!-- 2. صفحة (الفرق) -->
   <div id="teamsDirectoryTab" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:12px;">
         <h2 style="margin:0;">👥 إدارة الفرق والأعضاء</h2>
-        <button class="btn btn-primary" onclick="toggleRegisteredTeamsList()">
-          📋 الفرق المشتركة في التطبيق (<span id="dirTotalTeamsCount">0</span>)
-        </button>
+        <div class="row-flex">
+          <button class="btn btn-primary" onclick="toggleRegisteredTeamsList()">
+            📋 الفرق المشتركة في التطبيق (<span id="dirTotalTeamsCount">0</span>)
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllTeams()">🗑️ حذف كل الفرق</button>
+        </div>
       </div>
       <div id="teamsDirectoryContainer" style="display:block;">جاري التحميل...</div>
     </div>
   </div>
 
-  <!-- 3. أرقام الكاش -->
   <div id="cashSettings" class="section">
     <div class="card">
       <h2>أرقام استقبال تحويلات الكاش (اختر 3 أرقام فقط)</h2>
@@ -286,7 +287,6 @@
     </div>
   </div>
 
-  <!-- 4. المشتركين في التحدي -->
   <div id="subscribers" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -297,7 +297,6 @@
     </div>
   </div>
 
-  <!-- 5. التحدي والمواعيد -->
   <div id="dailyChallenge" class="section">
     <div class="card">
       <h2>إعدادات التحدي اليومي وعدد الفرق والمواعيد</h2>
@@ -398,7 +397,6 @@
     </div>
   </div>
 
-  <!-- 6. صفحة (المهام) الخاصة بالأدمن -->
   <div id="tasksAdminTab" class="section">
     <div class="card">
       <h2>📌 إضافة مهمة جديدة للمشتركين</h2>
@@ -431,7 +429,6 @@
     </div>
   </div>
 
-  <!-- 7. صفحة (المهام المكتملة) الخاصة بالأدمن -->
   <div id="completedTasksTab" class="section">
     <div class="card">
       <h2>✅ المهام المكتملة والمحذوفة من قائمة المهام</h2>
@@ -439,7 +436,6 @@
     </div>
   </div>
 
-  <!-- 8. صور التحدي وصور التحويل (مع أزرار قبول ورفض) -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -454,7 +450,6 @@
     </div>
   </div>
 
-  <!-- 9. رابحو المفاتيح -->
   <div id="keyWinners" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -468,7 +463,6 @@
     </div>
   </div>
 
-  <!-- 10. وجبات الطعام -->
   <div id="mealsTab" class="section">
     <div class="card">
       <h2>🍔 إدارة صور قوائم الطعام</h2>
@@ -492,7 +486,6 @@
     </div>
   </div>
 
-  <!-- 11. صفحة طلبات الوجبات -->
   <div id="mealOrdersScreenTab" class="section">
     <div class="card">
       <h2>🧾 طلبات الوجبات (الفريق الخاسر والرابح)</h2>
@@ -523,6 +516,14 @@
   const db = getDatabase(app);
 
   const ADMIN_PASSWORD = "38512385";
+
+  function isValidTeam(teamId, team) {
+    if (!team || typeof team !== "object") return false;
+    if (!teamId || String(teamId).includes("_tr_")) return false;
+    const hasName = typeof team.teamName === "string" && team.teamName.trim().length > 0;
+    const hasMembers = Array.isArray(team.members) && team.members.length > 0;
+    return hasName || hasMembers;
+  }
 
   window.checkAdminLogin = () => {
     const val = document.getElementById("adminPassInput").value;
@@ -573,6 +574,15 @@
 
   const locationPinSvg = `<svg width="18" height="22" viewBox="0 0 64 78" style="vertical-align:middle;"><polygon points="32,56 38,63 50,64 41,70 44,77 32,73 20,77 23,70 14,64 26,63" fill="#facc15" stroke="#ca8a04" stroke-width="2"/><path d="M32 4C18 4 8 14 8 28c0 17 24 38 24 38s24-21 24-38C56 14 46 4 32 4z" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/><circle cx="32" cy="27" r="10" fill="#ffffff"/></svg>`;
 
+  window.deleteAllTeams = async () => {
+    if (!confirm("⚠️ هل أنت متأكد من حذف كل الفرق من قاعدة البيانات؟")) return;
+    await remove(ref(db, "teams"));
+    await remove(ref(db, "teamVotes"));
+    await remove(ref(db, "teamRewards"));
+    await remove(ref(db, "soloEntries"));
+    alert("✅ تم حذف كل الفرق بنجاح.");
+  };
+
   window.triggerAppUpdatePrompt = async () => {
     const msg = prompt("رسالة إشعار التحديث للمستخدمين:", "يجب تحديث التطبيق") || "يجب تحديث التطبيق";
     const versionId = "upd_" + Date.now();
@@ -601,7 +611,12 @@
   };
 
   onValue(ref(db, "teams"), (snap) => {
-    const data = snap.val() || {};
+    const raw = snap.val() || {};
+    const data = {};
+    Object.entries(raw).forEach(([k, v]) => {
+      if (isValidTeam(k, v)) data[k] = v;
+    });
+
     latestTeamsData = data;
     const regContainer = document.getElementById("regRequestsList");
     const subContainer = document.getElementById("subscribersList");
@@ -619,7 +634,7 @@
     document.getElementById("dirTotalTeamsCount").innerText = allEntries.length;
 
     allEntries.forEach(([teamId, team]) => {
-      const teamLabel = team.teamName || team.members?.[0]?.name || teamId;
+      const teamLabel = (team.teamName || "").trim() || team.members?.[0]?.name || "فريق";
       const pts = team.points || 0;
       const members = team.members || [];
 
@@ -1308,7 +1323,7 @@
     const allTeamsSnap = await get(ref(db, "teams"));
     const allTeams = allTeamsSnap.val() || {};
     const wonTeams = Object.entries(allTeams)
-      .filter(([, t]) => t && t.status === "won")
+      .filter(([tId, t]) => isValidTeam(tId, t) && t.status === "won")
       .map(([tId, t]) => ({
         teamId: tId,
         teamName: t.teamName || t.members?.[0]?.name || "فريق فائز",
@@ -1335,7 +1350,7 @@
     const allTeamsSnap = await get(ref(db, "teams"));
     const allTeams = allTeamsSnap.val() || {};
     for (const [tId, tData] of Object.entries(allTeams)) {
-      if (tData.status === "in_challenge") {
+      if (isValidTeam(tId, tData) && tData.status === "in_challenge") {
         await update(ref(db, `teams/${tId}`), { status: "lost" });
       }
     }
