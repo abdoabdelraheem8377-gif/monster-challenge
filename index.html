@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>صراع التحديات - Monster Challenge</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -30,7 +30,7 @@
       color: var(--text);
       min-height: 100vh;
     }
-    .screen { display: none; max-width: 820px; margin: 0 auto; padding: 20px 15px 60px; }
+    .screen { display: none; max-width: 820px; margin: 0 auto; padding: 20px 15px 70px; }
     .screen.active { display: block; }
 
     /* شاشة البداية */
@@ -64,7 +64,7 @@
     }
     .card h2, .card h3 { margin-top: 0; color: var(--primary); }
     label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
-    input[type="text"], input[type="tel"], textarea, select {
+    input[type="text"], input[type="tel"], input[type="password"], textarea, select {
       width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
       background: #0b1120; color: var(--text); font-size: 0.95rem; margin-bottom: 12px;
     }
@@ -88,59 +88,40 @@
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
       padding: 12px 16px; margin-bottom: 16px;
     }
-    .top-right-cluster {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-    }
-    .top-teams-row {
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
+    .top-right-cluster { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .top-teams-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .top-team-pill-btn {
       background: #0b1120; border: 1px solid var(--primary); color: var(--primary);
-      padding: 5px 11px; border-radius: 999px; font-size: 0.8rem; font-weight: bold;
-      cursor: pointer; transition: 0.15s;
+      padding: 5px 11px; border-radius: 999px; font-size: 0.8rem; font-weight: bold; cursor: pointer;
     }
-    .top-team-pill-btn.active-pill {
-      background: var(--primary); color: #000;
-    }
+    .top-team-pill-btn.active-pill { background: var(--primary); color: #000; }
     .points-badge {
       background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success);
       color: var(--success); padding: 6px 14px; border-radius: 999px; font-weight: bold;
     }
 
     .teams-directory-panel {
-      display: none;
-      background: var(--card); border: 1px solid var(--primary); border-radius: 14px;
-      padding: 16px; margin-bottom: 16px;
+      display: none; background: var(--card); border: 1px solid var(--primary);
+      border-radius: 14px; padding: 16px; margin-bottom: 16px;
     }
     .team-list-row {
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
       background: #0b1120; border: 1px solid var(--border); border-radius: 10px;
       padding: 10px 12px; margin-bottom: 8px;
     }
-
     .cash-slot-card {
       background: #0b1120; border: 1px solid var(--border); border-radius: 12px;
       padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
       margin-bottom: 10px;
     }
-    .cash-slot-label {
-      color: var(--muted); font-size: 0.82rem; margin-bottom: 2px;
-    }
+    .cash-slot-label { color: var(--muted); font-size: 0.82rem; margin-bottom: 2px; }
 
     .reward-hero-card {
-      background: var(--rose-banner-bg);
-      border: 1px solid var(--rose-banner-border);
-      border-radius: 16px;
-      padding: 20px 16px;
-      text-align: center;
-      margin-bottom: 16px;
+      background: var(--rose-banner-bg); border: 1px solid var(--rose-banner-border);
+      border-radius: 16px; padding: 20px 16px; text-align: center; margin-bottom: 16px;
     }
     .reward-hero-title {
-      margin: 0;
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--rose-banner-title);
-      line-height: 1.5;
+      margin: 0; font-size: 1.35rem; font-weight: 800; color: var(--rose-banner-title); line-height: 1.5;
     }
 
     .menu-img {
@@ -158,33 +139,40 @@
       padding: 12px; margin-bottom: 10px;
     }
 
+    /* نافذة التصويت والخطر والساعة الرملية */
     #voteOverlayModal {
       display: none; position: fixed; inset: 0; z-index: 11500;
       background: rgba(5, 8, 18, 0.94); align-items: center; justify-content: center; padding: 20px;
     }
     .vote-box {
       background: var(--card); border: 2px solid var(--primary); border-radius: 18px;
-      max-width: 460px; width: 100%; padding: 24px; text-align: center;
+      max-width: 480px; width: 100%; padding: 24px; text-align: center;
       box-shadow: 0 0 35px rgba(245, 158, 11, 0.25);
     }
     .vote-box.danger-mode {
       border-color: var(--danger);
-      background: linear-gradient(160deg, #3b0d14, #14080c);
-      box-shadow: 0 0 45px rgba(239, 68, 68, 0.65);
-      animation: dangerPulse 0.9s infinite;
+      background: linear-gradient(160deg, #450a14, #140508);
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.8);
+      animation: dangerPulse 0.85s infinite;
     }
     @keyframes dangerPulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+      50% { transform: scale(1.025); }
     }
     .hourglass-icon {
-      font-size: 3rem; display: inline-block; animation: flipHourglass 2s infinite ease-in-out;
+      font-size: 3.2rem; display: inline-block; animation: flipHourglass 1.8s infinite ease-in-out;
     }
     @keyframes flipHourglass {
       0% { transform: rotate(0deg); }
       50% { transform: rotate(180deg); }
       100% { transform: rotate(360deg); }
     }
+    .choice-pill-btn {
+      padding: 10px 18px; border-radius: 10px; border: 2px solid var(--border);
+      background: #0b1120; color: var(--text); font-weight: bold; cursor: pointer;
+    }
+    .choice-pill-btn.selected-yes { border-color: var(--success); background: rgba(16,185,129,0.25); }
+    .choice-pill-btn.selected-no { border-color: var(--danger); background: rgba(239,68,68,0.25); }
 
     #menuZoomModal {
       display: none; position: fixed; inset: 0; z-index: 11000;
@@ -239,19 +227,21 @@
   </div>
 </div>
 
+<!-- نافذة التصويت التفاعلي والخطر والساعة الرملية (60 ثانية) -->
 <div id="voteOverlayModal">
   <div id="voteModalBox" class="vote-box">
     <div id="voteDangerBanner" style="display:none; color:#fecaca; font-weight:900; font-size:1.1rem; margin-bottom:8px;">
-      🚨 تنبيه خطر على عضويتك في المجموعة 🚨
+      🚨 ⚠️ تحذير خطر قصوى ⚠️ 🚨
     </div>
     <div id="voteHourglassBlock" style="display:none; margin-bottom:10px;">
       <div class="hourglass-icon">⏳</div>
-      <div style="font-size:1.5rem; font-weight:900; color:#fca5a5;">
-        الوقت المتبقي: <span id="voteCountdownSec">60</span> ثانية
+      <div style="font-size:1.6rem; font-weight:900; color:#fca5a5;">
+        العد التنازلي: <span id="voteCountdownSec">60</span> ثانية
       </div>
     </div>
-    <h3 id="voteModalTitle" style="color:var(--primary); margin-top:0;">تصويت المجموعة</h3>
+    <h3 id="voteModalTitle" style="color:var(--primary); margin-top:0;">إشعار المجموعة</h3>
     <p id="voteModalMessage" style="line-height:1.65; font-size:0.98rem;"></p>
+    <div id="voteModalCustomBody" style="margin-top:10px;"></div>
     <div id="voteModalButtons" style="display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;"></div>
   </div>
 </div>
@@ -266,8 +256,9 @@
   </div>
 </div>
 
+<!-- شاشة البداية (30 ثانية + شريط تحميل 100%) -->
 <div id="splashScreen">
-  <div class="splash-logo">⚔️🛡️</div>
+  <div class="splash-logo">⚔️🏆</div>
   <h1 class="splash-title">صراع التحديات</h1>
   <p class="splash-sub">كوّن فريقك أو العب فردياً، واجه التحديات والمهام اليومية واكسب النقاط والمكافآت والوجبات!</p>
   <div class="timer-pill">⏳ بدء التحدي خلال: <span id="splashCountdown">30</span> ثانية</div>
@@ -287,6 +278,7 @@
   <div id="teamsDirectoryPanelBody">جاري التحميل...</div>
 </div>
 
+<!-- شاشة الاختيار بعد انتهاء الـ 30 ثانية -->
 <div id="welcomeChoiceScreen" class="screen">
   <div class="card" style="text-align:center; padding:32px 20px; margin-top:40px;">
     <div style="font-size:3rem; margin-bottom:10px;">⚔️</div>
@@ -299,6 +291,7 @@
   </div>
 </div>
 
+<!-- شاشة التسجيل -->
 <div id="regScreen" class="screen">
   <div class="top-bar">
     <strong>📝 تسجيل فريق جديد</strong>
@@ -315,6 +308,9 @@
 
     <label>اسم الفريق:</label>
     <input type="text" id="teamNameInput" placeholder="أدخل اسم الفريق" />
+
+    <label>كلمة سر الفريق (اختياري للدخول بعد الخروج):</label>
+    <input type="password" id="regTeamPasswordInput" placeholder="أدخل كلمة سر للفريق (اختياري)" />
 
     <div id="membersInputs">
       <label>العضو الأول (قائد الفريق):</label>
@@ -339,6 +335,7 @@
   </div>
 </div>
 
+<!-- شاشة دخول المشتركين -->
 <div id="memberLoginScreen" class="screen">
   <div class="top-bar">
     <strong>🔑 دخول المشتركين</strong>
@@ -348,31 +345,56 @@
   <div class="card">
     <h2>أدخل بيانات الدخول</h2>
     <p style="color:var(--muted); font-size:0.88rem;">
-      أدخل بياناتك للانتقال مباشرة إلى صفحة التحدي والمهام.
+      عند دخول تحدي مجموعة يلزم إدخال أسماء وأرقام هواتف جميع أعضاء الفريق؛ وعند اللعب الفردي يكفي اسمك ورقم تليفونك.
     </p>
 
     <label>نمط اللعب:</label>
     <select id="loginPlayMode" onchange="toggleLoginModeUI()">
-      <option value="group">👥 الدخول باسم الفريق (مجموعة)</option>
-      <option value="solo">👤 الدخول في تحدي فردي (عضو من مجموعة)</option>
+      <option value="group">👥 الدخول باسم الفريق (مجموعة — يتطلب كل الأعضاء وأرقامهم)</option>
+      <option value="solo">👤 الدخول في تحدي فردي (باسمك ورقم تليفونك)</option>
     </select>
 
     <div id="loginGroupNameBox">
       <label>اسم الفريق (مجموعة):</label>
       <input type="text" id="loginTeamNameInput" placeholder="أدخل اسم الفريق المسجل" />
+
+      <label>كلمة سر الفريق (إن وُجدت):</label>
+      <input type="password" id="loginTeamPasswordInput" placeholder="أدخل كلمة سر الفريق إن كانت مضبوطة" />
+
+      <div style="background:#0b1120; border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:12px;">
+        <div style="color:var(--primary); font-weight:bold; font-size:0.9rem; margin-bottom:8px;">
+          أسماء وأرقام هواتف جميع أعضاء الفريق (العضو الأول هو القائد):
+        </div>
+        <div id="loginGroupMembersList">
+          <div class="login-g-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="text" class="lg-name" placeholder="اسم العضو الأول (القائد)" />
+            <input type="tel" class="lg-phone" placeholder="رقم تليفون العضو الأول" />
+          </div>
+          <div class="login-g-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="text" class="lg-name" placeholder="اسم العضو الثاني" />
+            <input type="tel" class="lg-phone" placeholder="رقم تليفون العضو الثاني" />
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addLoginGroupMemberRow()">➕ إضافة عضو آخر للمجموعة</button>
+      </div>
     </div>
 
-    <label>اسم اللاعب (أو قائد الفريق):</label>
-    <input type="text" id="loginPlayerNameInput" placeholder="أدخل الاسم" />
+    <div id="loginSoloFieldsBox" style="display:none;">
+      <label>اسم اللاعب:</label>
+      <input type="text" id="loginSoloNameInput" placeholder="أدخل اسمك" />
 
-    <label>رقم التليفون:</label>
-    <input type="tel" id="loginPhoneInput" placeholder="010xxxxxxxx" />
+      <label>رقم التليفون:</label>
+      <input type="tel" id="loginSoloPhoneInput" placeholder="010xxxxxxxx" />
+
+      <label>كلمة سر الفريق (إن وُجدت):</label>
+      <input type="password" id="loginSoloPasswordInput" placeholder="أدخل كلمة سر الفريق إن كانت مضبوطة" />
+    </div>
 
     <button class="btn btn-success" style="width:100%;" onclick="handleSubscriberLogin()">دخول</button>
   </div>
 </div>
 
-<!-- صفحة التحدي والمهام (تظهر مباشرة بعد تسجيل البيانات أو الدخول) -->
+<!-- صفحة التحدي والمهام -->
 <div id="challengeAndTasksHubScreen" class="screen">
   <div class="top-bar">
     <div>
@@ -400,14 +422,17 @@
     <h2>⚔️ صفحة التحدي والمهام</h2>
     <p style="color:var(--muted); margin-bottom:18px;">اختر وجهتك الآن:</p>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-      <button class="btn btn-primary" style="padding:16px; font-size:1.05rem;" onclick="goToCashTransferScreen()">🎯 تحدي</button>
-      <button class="btn btn-purple" style="padding:16px; font-size:1.05rem;" onclick="showScreen('subscriberTasksScreen')">📌 مهام</button>
+      <button class="btn btn-primary" style="padding:16px; font-size:1.05rem;" onclick="handleNewChallengeAction('hubChallengeNoticeBox')">🎯 تحدي جديد</button>
+      <button class="btn btn-purple" style="padding:16px; font-size:1.05rem;" onclick="showScreen('subscriberTasksScreen')">📌 مهام بمكافئات</button>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-outline btn-sm" onclick="goToCashTransferScreen()">💳 صفحة تحويل الكاش ورفع الإيصال</button>
     </div>
     <div id="hubChallengeNoticeBox" style="display:none; margin-top:14px; background:#0b1120; border:1px solid var(--primary); padding:14px; border-radius:12px;"></div>
   </div>
 </div>
 
-<!-- صفحة تحويل الكاش (تظهر عند اختيار "تحدي") وتضم 5 خانات لأرقام الموبايل المحددة من الأدمن -->
+<!-- صفحة تحويل الكاش -->
 <div id="cashTransferScreen" class="screen">
   <div class="top-bar">
     <div>
@@ -417,7 +442,7 @@
     <div class="top-right-cluster">
       <div style="display:flex; gap:8px; align-items:center;">
         <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">رجوع للتحدي والمهام</button>
-        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج</button>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
       </div>
     </div>
   </div>
@@ -436,7 +461,7 @@
   </div>
 </div>
 
-<!-- صفحة المهام (تظهر مباشرة عند اختيار "مهام") -->
+<!-- صفحة المهام للمشتركين -->
 <div id="subscriberTasksScreen" class="screen">
   <div class="top-bar">
     <strong>📌 صفحة المهام</strong>
@@ -447,14 +472,14 @@
       </div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-outline btn-sm" onclick="showScreen('challengeAndTasksHubScreen')">رجوع</button>
-        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج</button>
+        <button class="btn btn-danger btn-sm" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
       </div>
     </div>
   </div>
 
   <div class="card">
     <div style="background:rgba(245,158,11,0.12); border:1px solid var(--primary); color:var(--primary); padding:10px 14px; border-radius:10px; font-weight:bold; margin-bottom:14px;">
-      اختر مهمة واحدة فقط وبعد إتمامها يمكنك اختيار مهمة أخرى
+      اختر مهمه واحده فقط وبعد اتمامها يمكنك اختيار مهمه اخرى
     </div>
 
     <div id="myActiveTaskBox" style="display:none; background:#0b1120; border:2px solid var(--success); border-radius:12px; padding:14px; margin-bottom:16px;">
@@ -527,6 +552,7 @@
   </div>
 </div>
 
+<!-- صفحة المكافأة عند الخسارة -->
 <div id="loserScreen" class="screen">
   <div class="top-bar">
     <div>
@@ -553,8 +579,9 @@
     <h2>اختر مكافأتك</h2>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <button class="btn btn-primary" onclick="openLoserHalfMealSection()">١- وجبات بنصف الثمن</button>
-      <button class="btn btn-info" onclick="goToCashTransferScreen()">٢- الدخول في تحدي جديد</button>
+      <button class="btn btn-info" onclick="handleNewChallengeAction('loserNoticeBox')">٢- الدخول فى تحدى جديد</button>
     </div>
+    <button class="btn btn-danger" style="width:100%; margin-top:12px;" onclick="exitGameLogout()">🚪 الخروج من اللعبة</button>
     <div id="loserNoticeBox" style="display:none; margin-top:14px; background:#0b1120; border:1px solid var(--primary); padding:14px; border-radius:12px;"></div>
   </div>
 
@@ -570,11 +597,12 @@
     <textarea id="halfMealItemsInput" maxlength="500" rows="4" placeholder="اكتب أنواع وعدد السندوتشات أو الوجبات المطلوبة..." oninput="updateCharCounter('halfMealItemsInput', 'halfMealCounter')"></textarea>
     <div class="char-counter"><span id="halfMealCounter">0</span> / 500</div>
 
-    <button class="btn btn-success" style="width:100%;" onclick="submitMealOrder('half_price_meal', 'halfMealItemsInput', 'halfMealAddressInput')">تأكيد طلب الوجبات بنصف الثمن</button>
+    <button class="btn btn-success" style="width:100%;" onclick="submitMealOrder('half_price_meal', 'halfMealItemsInput', 'halfMealAddressInput')">إرسال</button>
     <p id="halfMealOrderMsg" style="color:var(--success); font-weight:bold; margin-top:10px;"></p>
   </div>
 </div>
 
+<!-- صفحة الوجبات المجانية للفائز -->
 <div id="freeMealScreen" class="screen">
   <div class="top-bar">
     <strong>🏆 وجبات مجانية للفائز</strong>
@@ -602,7 +630,7 @@
     <textarea id="freeMealItemsInput" maxlength="500" rows="4" placeholder="اكتب الوجبات المجانية المطلوبة..." oninput="updateCharCounter('freeMealItemsInput', 'freeMealCounter')"></textarea>
     <div class="char-counter"><span id="freeMealCounter">0</span> / 500</div>
 
-    <button class="btn btn-success" style="width:100%;" onclick="submitMealOrder('free_meal', 'freeMealItemsInput', 'freeMealAddressInput')">تأكيد طلب الوجبات المجانية</button>
+    <button class="btn btn-success" style="width:100%;" onclick="submitMealOrder('free_meal', 'freeMealItemsInput', 'freeMealAddressInput')">إرسال</button>
     <p id="freeMealOrderMsg" style="color:var(--success); font-weight:bold; margin-top:10px;"></p>
   </div>
 </div>
@@ -637,6 +665,7 @@
   };
 
   let allTeamsMap = {};
+  let allAvailableTasksMap = {};
   let challengeSettings = {};
   let activeVoteUnsub = null;
   let voteCountdownInterval = null;
@@ -644,23 +673,14 @@
   let activeDirectoryFilter = null;
   let cashSlotsData = ["", "", "", "", ""];
 
-  // إنشاء اسم فريد للاعب الفردي بإضافة آخر 3 أرقام من رقم الموبايل (مثال: عبده #377)
-  function buildUniqueSoloName(playerName, playerPhone, fallbackIndex = 0) {
-    const cleanName = String(playerName || "لاعب").trim();
-    const digitsOnly = String(playerPhone || "").replace(/\D/g, "");
-    const suffix = digitsOnly.length >= 3
-      ? digitsOnly.slice(-3)
-      : (digitsOnly || String(fallbackIndex + 1));
-    return `${cleanName} #${suffix}`;
+  // اسم الفريق الفردي للاعب من مجموعة: عضو رقم (ترتيب اسمه في الفريق الأصلي بتاعه)
+  function buildSoloMemberOrderTeamName(memberOrderNum) {
+    return `عضو رقم (${memberOrderNum})`;
   }
 
   function normalizeFiveCashSlots(val) {
-    if (Array.isArray(val)) {
-      return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
-    }
-    if (val && typeof val === "object") {
-      return Array.from({ length: 5 }, (_, i) => String(val[i] ?? val[`slot${i}`] ?? "").trim());
-    }
+    if (Array.isArray(val)) return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
+    if (val && typeof val === "object") return Array.from({ length: 5 }, (_, i) => String(val[i] ?? val[`slot${i}`] ?? "").trim());
     return ["", "", "", "", ""];
   }
 
@@ -674,6 +694,399 @@
 
   function getCleanTeamsEntries() {
     return Object.entries(allTeamsMap || {}).filter(([k, v]) => isValidTeamRecord(k, v));
+  }
+
+  function closeVoteModal() {
+    if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
+    document.getElementById("voteOverlayModal").style.display = "none";
+    document.getElementById("voteModalBox").classList.remove("danger-mode");
+    document.getElementById("voteDangerBanner").style.display = "none";
+    document.getElementById("voteHourglassBlock").style.display = "none";
+    document.getElementById("voteModalCustomBody").innerHTML = "";
+    document.getElementById("voteModalButtons").innerHTML = "";
+  }
+
+  // عرض شاشة خطر مع ساعة رملية وعد تنازلي 60 ثانية وزر عودة
+  function showDangerCountdownModal({ title, message, onReturnClick, onTimeout }) {
+    closeVoteModal();
+    const box = document.getElementById("voteModalBox");
+    box.classList.add("danger-mode");
+    document.getElementById("voteDangerBanner").style.display = "block";
+    document.getElementById("voteHourglassBlock").style.display = "block";
+    document.getElementById("voteModalTitle").innerText = title;
+    document.getElementById("voteModalMessage").innerText = message;
+    document.getElementById("voteModalCustomBody").innerHTML = "";
+
+    const btnsEl = document.getElementById("voteModalButtons");
+    const retBtn = document.createElement("button");
+    retBtn.className = "btn btn-primary";
+    retBtn.innerText = "↩️ عودة";
+    retBtn.onclick = () => {
+      if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
+      closeVoteModal();
+      if (typeof onReturnClick === "function") onReturnClick();
+    };
+    btnsEl.appendChild(retBtn);
+
+    let sec = 60;
+    document.getElementById("voteCountdownSec").innerText = sec;
+    document.getElementById("voteOverlayModal").style.display = "flex";
+
+    voteCountdownInterval = setInterval(() => {
+      sec--;
+      document.getElementById("voteCountdownSec").innerText = Math.max(0, sec);
+      if (sec <= 0) {
+        clearInterval(voteCountdownInterval);
+        voteCountdownInterval = null;
+        closeVoteModal();
+        if (typeof onTimeout === "function") onTimeout();
+      }
+    }, 1000);
+  }
+
+  // فتح صفحة إدخال رقم التليفون/البيانات خلال 60 ثانية بعد الضغط على عودة
+  function openReverifyWindow60Sec(modeLabel, onSuccessCallback) {
+    closeVoteModal();
+    const box = document.getElementById("voteModalBox");
+    box.classList.add("danger-mode");
+    document.getElementById("voteDangerBanner").style.display = "block";
+    document.getElementById("voteHourglassBlock").style.display = "block";
+    document.getElementById("voteModalTitle").innerText = `⏱️ تأكيد البيانات خلال 60 ثانية (${modeLabel})`;
+    document.getElementById("voteModalMessage").innerText =
+      "أدخل بياناتك ورقم تليفونك ضمن المجموعة خلال 60 ثانية قبل انتهاء المهلة:";
+
+    document.getElementById("voteModalCustomBody").innerHTML = `
+      <input type="text" id="reverifyNameInput" placeholder="اسمك ضمن المجموعة" value="${sessionState.playerName || ""}" style="margin-bottom:8px;" />
+      <input type="tel" id="reverifyPhoneInput" placeholder="رقم تليفونك ضمن المجموعة" style="margin-bottom:4px;" />
+    `;
+
+    const btnsEl = document.getElementById("voteModalButtons");
+    const confirmBtn = document.createElement("button");
+    confirmBtn.className = "btn btn-success";
+    confirmBtn.innerText = "✅ تأكيد";
+    confirmBtn.onclick = async () => {
+      const enteredName = document.getElementById("reverifyNameInput").value.trim();
+      const enteredPhone = document.getElementById("reverifyPhoneInput").value.trim();
+      const team = allTeamsMap[sessionState.teamId];
+      const members = team?.members || [];
+      const found = members.find(m => (m.phone || "").trim() === enteredPhone && (!enteredName || (m.name || "").trim() === enteredName));
+      if (!found) {
+        alert("⚠️ الاسم أو رقم التليفون غير مطابق لأعضاء المجموعة.");
+        return;
+      }
+      if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
+      closeVoteModal();
+      sessionState.playerName = found.name;
+      sessionState.playerPhone = found.phone;
+      if (typeof onSuccessCallback === "function") await onSuccessCallback(found);
+    };
+    btnsEl.appendChild(confirmBtn);
+
+    let sec = 60;
+    document.getElementById("voteCountdownSec").innerText = sec;
+    document.getElementById("voteOverlayModal").style.display = "flex";
+
+    voteCountdownInterval = setInterval(async () => {
+      sec--;
+      document.getElementById("voteCountdownSec").innerText = Math.max(0, sec);
+      if (sec <= 0) {
+        clearInterval(voteCountdownInterval);
+        voteCountdownInterval = null;
+        closeVoteModal();
+        if (typeof onSuccessCallback === "function") {
+          // انتهت مهلة الـ 60 ثانية دون تأكيد
+        }
+        await executeExpulsionDueToTimeout();
+      }
+    }, 1000);
+  }
+
+  async function executeExpulsionDueToTimeout() {
+    const tId = sessionState.teamId;
+    if (!tId || !allTeamsMap[tId]) return;
+    const team = allTeamsMap[tId];
+    const members = team.members || [];
+    const targetPhone = sessionState.playerPhone;
+    const remaining = members.filter(m => (m.phone || "").trim() !== (targetPhone || "").trim());
+
+    await push(ref(db, `teamRewards/${tId}`), {
+      text: `⚠️ تم فصل العضو (${sessionState.playerName || "عضو"}) من المجموعة لعدم تأكيد البيانات خلال 60 ثانية.`,
+      scope: "group",
+      sentAt: Date.now()
+    });
+
+    if (remaining.length === 0) {
+      await remove(ref(db, `teams/${tId}`));
+    } else {
+      await update(ref(db, `teams/${tId}`), { members: remaining });
+    }
+
+    alert("⚠️ انتهت مهلة الـ 60 ثانية وتم فصلك من المجموعة.");
+    window.exitGameLogout();
+  }
+
+  // مراقبة جلسات التصويت التفاعلية عبر Firebase للفريق الحالي
+  let activeTeamVoteSessionUnsub = null;
+  let lastHandledVoteSessionId = null;
+
+  function listenToTeamVoteSessions(teamId) {
+    if (activeTeamVoteSessionUnsub) { activeTeamVoteSessionUnsub(); activeTeamVoteSessionUnsub = null; }
+    if (!teamId) return;
+
+    activeTeamVoteSessionUnsub = onValue(ref(db, `teamVotes/${teamId}`), async (snap) => {
+      const vote = snap.val();
+      if (!vote || !vote.active) return;
+
+      const myPhone = (sessionState.playerPhone || "").trim();
+      const myName = (sessionState.playerName || "").trim();
+      const members = vote.members || [];
+      const myIdx = members.findIndex(m => (m.phone || "").trim() === myPhone);
+      const isInitiator = myIdx === 0 || (vote.initiatorPhone && vote.initiatorPhone === myPhone);
+
+      // مرحلة 1: دعوة أعضاء الفريق للموافقة على الدخول في التحدي
+      if (vote.stage === "invite") {
+        if (isInitiator) return;
+        const myChoice = vote.responses?.[myPhone];
+        if (myChoice) return;
+
+        closeVoteModal();
+        document.getElementById("voteModalTitle").innerText = `📩 دعوة دخول التحدي — ${vote.teamName}`;
+        document.getElementById("voteModalMessage").innerText =
+          "هل انت موافق على الدخول فى التحدى الاتى ضمن مجموعتك؟";
+
+        const btnsEl = document.getElementById("voteModalButtons");
+        const yesBtn = document.createElement("button");
+        yesBtn.className = "btn btn-success";
+        yesBtn.innerText = "نعم";
+        yesBtn.onclick = async () => {
+          await set(ref(db, `teamVotes/${teamId}/responses/${myPhone}`), {
+            name: myName,
+            phone: myPhone,
+            choice: "yes",
+            at: Date.now()
+          });
+          closeVoteModal();
+          alert("✅ تم تسجيل موافقتك (نعم).");
+        };
+
+        const noBtn = document.createElement("button");
+        noBtn.className = "btn btn-danger";
+        noBtn.innerText = "لا";
+        noBtn.onclick = async () => {
+          await set(ref(db, `teamVotes/${teamId}/responses/${myPhone}`), {
+            name: myName,
+            phone: myPhone,
+            choice: "no",
+            at: Date.now()
+          });
+          await update(ref(db, `teamVotes/${teamId}`), {
+            rejectedByPhone: myPhone,
+            rejectedByName: myName,
+            stage: "rejection_notice"
+          });
+          closeVoteModal();
+        };
+
+        btnsEl.appendChild(yesBtn);
+        btnsEl.appendChild(noBtn);
+        document.getElementById("voteOverlayModal").style.display = "flex";
+        return;
+      }
+
+      // مرحلة 2: وصول إشعار رفض العضو لباقي الأعضاء وطلب الفصل للقائد والمصوتين بـ نعم
+      if (vote.stage === "rejection_notice") {
+        const rejectedPhone = vote.rejectedByPhone;
+        const rejectedName = vote.rejectedByName || "عضو";
+        const responses = vote.responses || {};
+        const votedYes = isInitiator || responses[myPhone]?.choice === "yes";
+
+        if (myPhone === rejectedPhone) {
+          closeVoteModal();
+          document.getElementById("voteModalTitle").innerText = "⚠️ إشعار رفض الدخول";
+          document.getElementById("voteModalMessage").innerText =
+            "تم تسجيل رفضك للدخول في التحدي؛ بانتظار قرار المجموعة.";
+          document.getElementById("voteOverlayModal").style.display = "flex";
+          return;
+        }
+
+        if (votedYes && !vote.expulsionVotes?.[myPhone]) {
+          closeVoteModal();
+          let selectedExpelChoice = null;
+          document.getElementById("voteModalTitle").innerText = `🗳️ رفض العضو (${rejectedName})`;
+          document.getElementById("voteModalMessage").innerText =
+            `رفض العضو (${rejectedName}) الدخول في التحدي. هل تريد فصل العضو؟`;
+
+          const customBody = document.getElementById("voteModalCustomBody");
+          const bYes = document.createElement("button");
+          bYes.type = "button";
+          bYes.className = "choice-pill-btn";
+          bYes.innerText = "نعم";
+          bYes.style.marginLeft = "8px";
+
+          const bNo = document.createElement("button");
+          bNo.type = "button";
+          bNo.className = "choice-pill-btn";
+          bNo.innerText = "لا";
+
+          bYes.onclick = () => {
+            selectedExpelChoice = "yes";
+            bYes.classList.add("selected-yes");
+            bNo.classList.remove("selected-no");
+          };
+          bNo.onclick = () => {
+            selectedExpelChoice = "no";
+            bNo.classList.add("selected-no");
+            bYes.classList.remove("selected-yes");
+          };
+          customBody.appendChild(bYes);
+          customBody.appendChild(bNo);
+
+          const btnsEl = document.getElementById("voteModalButtons");
+          const confirmExpelBtn = document.createElement("button");
+          confirmExpelBtn.className = "btn btn-primary";
+          confirmExpelBtn.innerText = "تأكيد";
+          confirmExpelBtn.onclick = async () => {
+            if (!selectedExpelChoice) {
+              alert("⚠️ اختر (نعم) أو (لا) أولاً ثم اضغط تأكيد.");
+              return;
+            }
+            await set(ref(db, `teamVotes/${teamId}/expulsionVotes/${myPhone}`), {
+              name: myName,
+              phone: myPhone,
+              choice: selectedExpelChoice,
+              at: Date.now()
+            });
+            closeVoteModal();
+            await evaluateExpulsionAndTieState(teamId);
+          };
+          btnsEl.appendChild(confirmExpelBtn);
+          document.getElementById("voteOverlayModal").style.display = "flex";
+        } else if (!votedYes) {
+          closeVoteModal();
+          document.getElementById("voteModalTitle").innerText = "📢 إشعار المجموعة";
+          document.getElementById("voteModalMessage").innerText =
+            `قام العضو (${rejectedName}) برفض الدخول في التحدي.`;
+          const okBtn = document.createElement("button");
+          okBtn.className = "btn btn-outline btn-sm";
+          okBtn.innerText = "حسناً";
+          okBtn.onclick = closeVoteModal;
+          document.getElementById("voteModalButtons").appendChild(okBtn);
+          document.getElementById("voteOverlayModal").style.display = "flex";
+        }
+        return;
+      }
+
+      // مرحلة 3: تنفيذ نتيجة التصويت (فصل العضو الرافض أو فصل اثنين عند رفض أحد المصوتين أو تعادل)
+      if (vote.stage === "outcome_countdown" && vote.outcomeId && lastHandledVoteSessionId !== vote.outcomeId) {
+        const outcomeType = vote.outcomeType;
+        const targets = vote.targetPhones || [];
+        if (!targets.includes(myPhone)) return;
+
+        lastHandledVoteSessionId = vote.outcomeId;
+        const isTie = outcomeType === "tie_collapse";
+        const msgText = isTie
+          ? "اذا لم تضغط عوده خلال 60 ثانيه ستنهار المجموعه"
+          : "سيتم فصلكم من المجموعه خلال 60 ثانيه اذا لم تضغط عوده";
+
+        showDangerCountdownModal({
+          title: isTie ? "⚖️ تعادل في التصويت — خطر انهيار المجموعة" : "🚨 تحذير الفصل من المجموعة",
+          message: msgText,
+          onReturnClick: () => {
+            openReverifyWindow60Sec(isTie ? "منع انهيار المجموعة" : "العودة ضمن المجموعة", async (verifiedMember) => {
+              await set(ref(db, `teamVotes/${teamId}/returnedPhones/${verifiedMember.phone}`), true);
+            });
+          },
+          onTimeout: async () => {
+            const retSnap = await get(ref(db, `teamVotes/${teamId}/returnedPhones/${myPhone}`));
+            if (retSnap.val() === true) return;
+
+            const currentTeamSnap = await get(ref(db, `teams/${teamId}`));
+            const currentTeam = currentTeamSnap.val() || {};
+            const curMembers = currentTeam.members || [];
+            const expelledMembers = curMembers.filter(m => targets.includes((m.phone || "").trim()));
+            const keptMembers = curMembers.filter(m => !targets.includes((m.phone || "").trim()));
+
+            if (expelledMembers.length > 0) {
+              const detachedTeamRef = push(ref(db, "teams"));
+              await set(detachedTeamRef, {
+                teamName: `${expelledMembers[0].name} (مجموعة منفصلة)`,
+                regType: expelledMembers.length > 1 ? "group" : "solo",
+                phone: expelledMembers[0].phone,
+                members: expelledMembers,
+                points: 0,
+                detachedFromTeam: currentTeam.teamName || "",
+                status: "approved_for_payment",
+                createdAt: new Date().toLocaleString("ar-EG")
+              });
+            }
+
+            if (keptMembers.length === 0) {
+              await remove(ref(db, `teams/${teamId}`));
+            } else {
+              await update(ref(db, `teams/${teamId}`), { members: keptMembers });
+            }
+
+            await push(ref(db, `teamRewards/${teamId}`), {
+              text: isTie
+                ? "⚠️ تم فصل الأعضاء المعنيين لعدم الضغط على عودة خلال 60 ثانية عند التعادل؛ ويمكنهم تكوين مجموعة بمفردهم أو التسجيل من جديد."
+                : `⚠️ تم فصل (${targets.join(" / ")}) من المجموعة؛ ويمكن للأعضاء المفصولين تكوين مجموعة بمفردهم أو التسجيل من جديد كفريق مجموعة أو فردي.`,
+              scope: "group",
+              sentAt: Date.now()
+            });
+
+            alert("⚠️ تم فصلك من المجموعة. يمكنك تكوين مجموعة بمفردك أو التسجيل من جديد كفريق مجموعة أو فردي.");
+            window.exitGameLogout();
+          }
+        });
+      }
+    });
+  }
+
+  async function evaluateExpulsionAndTieState(teamId) {
+    const voteSnap = await get(ref(db, `teamVotes/${teamId}`));
+    const vote = voteSnap.val();
+    if (!vote) return;
+
+    const expVotes = Object.values(vote.expulsionVotes || {});
+    const yesCount = expVotes.filter(v => v.choice === "yes").length;
+    const noCount = expVotes.filter(v => v.choice === "no").length;
+
+    const votersList = Object.values(vote.expulsionVotes || {}).map(v => v.phone);
+    const rejectedPhone = vote.rejectedByPhone;
+
+    if (noCount > 0) {
+      // إذا صوّت أحد الأعضاء بـ لا يتم فصل العضوين تلقائياً (العضو الرافض + العضو المصوّت بـ لا)
+      const firstNoVoter = expVotes.find(v => v.choice === "no")?.phone;
+      const twoTargets = [...new Set([rejectedPhone, firstNoVoter].filter(Boolean))];
+      await update(ref(db, `teamVotes/${teamId}`), {
+        stage: "outcome_countdown",
+        outcomeType: "two_expelled",
+        targetPhones: twoTargets,
+        outcomeId: `out_${Date.now()}`
+      });
+      return;
+    }
+
+    // في حالة التعادل (2 ضد 2 أو 1 ضد 1 أو تساوي نعم ولا)
+    if (expVotes.length >= 2 && yesCount === noCount) {
+      const tieTargets = [...new Set([rejectedPhone, ...votersList].filter(Boolean))];
+      await update(ref(db, `teamVotes/${teamId}`), {
+        stage: "outcome_countdown",
+        outcomeType: "tie_collapse",
+        targetPhones: tieTargets,
+        outcomeId: `tie_${Date.now()}`
+      });
+      return;
+    }
+
+    if (yesCount > 0 && expVotes.length >= 1) {
+      await update(ref(db, `teamVotes/${teamId}`), {
+        stage: "outcome_countdown",
+        outcomeType: "single_expelled",
+        targetPhones: [rejectedPhone].filter(Boolean),
+        outcomeId: `exp_${Date.now()}`
+      });
+    }
   }
 
   window.zoomMenuImage = (src) => {
@@ -794,6 +1207,7 @@
     if (el && cnt) cnt.innerText = Math.min(500, el.value.length);
   };
 
+  // توقيت 30 ثانية وشريط تحميل يصل إلى 100%
   const SPLASH_DURATION_SEC = 30;
   let remainingSplashSec = SPLASH_DURATION_SEC;
 
@@ -839,7 +1253,39 @@
     }
   };
 
-  // الانتقال إلى صفحة تحويل الكاش عند اختيار "تحدي"
+  // التحقق من عدد الفرق المشتركة في التحدي أو موعد التحدي القادم عند الضغط على "تحدى جديد" أو "الدخول فى تحدى جديد"
+  window.handleNewChallengeAction = async (noticeBoxId) => {
+    const noticeEl = document.getElementById(noticeBoxId);
+    const maxTeams = parseInt(challengeSettings.maxTeams);
+    const hasLimit = !isNaN(maxTeams) && maxTeams > 0;
+    const challengeOpen = challengeSettings.isOpen !== false;
+
+    const activeCount = getCleanTeamsEntries()
+      .map(([, t]) => t)
+      .filter(t => t.status === "in_challenge" || t.status === "won").length;
+
+    const canEnter = challengeOpen && (!hasLimit || activeCount < maxTeams);
+
+    if (canEnter) {
+      if (noticeEl) noticeEl.style.display = "none";
+      if (sessionState.teamId) {
+        await update(ref(db, `teams/${sessionState.teamId}`), { status: "in_challenge" });
+      }
+      window.showScreen("challengeScreen");
+    } else {
+      const nextTime = (challengeSettings.nextChallengeTime || "").trim();
+      const msg = nextTime
+        ? `⏳ موعد التحدي القادم: <b>${nextTime}</b>`
+        : "🔔 سيتم ارسال تنبيه لك بموعد التحدى القادم";
+      if (noticeEl) {
+        noticeEl.style.display = "block";
+        noticeEl.innerHTML = `<span style="color:var(--primary); font-weight:bold;">${msg}</span>`;
+      } else {
+        alert(msg.replace(/<[^>]+>/g, ""));
+      }
+    }
+  };
+
   window.goToCashTransferScreen = async () => {
     if (sessionState.teamId) {
       const team = allTeamsMap[sessionState.teamId] || {};
@@ -850,16 +1296,20 @@
     window.showScreen("cashTransferScreen");
   };
 
+  // عند الخروج من اللعبة يتم تصفير الجلسة بحيث يلزم إدخال الاسم ورقم التليفون (وكلمة السر إن وُجدت) عند الدخول مرة أخرى
   window.exitGameLogout = () => {
     if (activeVoteUnsub) { activeVoteUnsub(); activeVoteUnsub = null; }
-    if (voteCountdownInterval) { clearInterval(voteCountdownInterval); voteCountdownInterval = null; }
-    document.getElementById("voteOverlayModal").style.display = "none";
+    if (activeTeamVoteSessionUnsub) { activeTeamVoteSessionUnsub(); activeTeamVoteSessionUnsub = null; }
+    closeVoteModal();
     document.getElementById("celebrationModal").style.display = "none";
     window.closeTeamsDirectoryPanel();
     sessionState = { teamId: "", playMode: "group", soloTeamName: "", playerName: "", playerPhone: "", memberIndex: 0 };
     document.getElementById("loginTeamNameInput").value = "";
-    document.getElementById("loginPlayerNameInput").value = "";
-    document.getElementById("loginPhoneInput").value = "";
+    document.getElementById("loginTeamPasswordInput").value = "";
+    document.getElementById("loginSoloNameInput").value = "";
+    document.getElementById("loginSoloPhoneInput").value = "";
+    document.getElementById("loginSoloPasswordInput").value = "";
+    document.querySelectorAll(".lg-name, .lg-phone").forEach(inp => { inp.value = ""; });
     window.showScreen("welcomeChoiceScreen");
   };
 
@@ -881,10 +1331,10 @@
     container.appendChild(div);
   };
 
-  // بعد تسجيل البيانات -> يدخل مباشرة على صفحة التحدي والمهام
   window.submitTeamRegistration = async () => {
     const regType = document.getElementById("regTypeSelect").value;
     const teamName = document.getElementById("teamNameInput").value.trim();
+    const teamPassword = document.getElementById("regTeamPasswordInput").value.trim();
     const names = [...document.querySelectorAll(".m-name")].map(i => i.value.trim());
     const phones = [...document.querySelectorAll(".m-phone")].map(i => i.value.trim());
 
@@ -905,6 +1355,7 @@
     const teamId = teamRef.key;
     await set(teamRef, {
       teamName,
+      teamPassword,
       regType,
       phone: members[0].phone,
       members,
@@ -917,51 +1368,58 @@
     sessionState = {
       teamId,
       playMode: regType,
-      soloTeamName: regType === "solo" ? buildUniqueSoloName(members[0].name, members[0].phone, 0) : "",
+      soloTeamName: regType === "solo" ? buildSoloMemberOrderTeamName(1) : "",
       playerName: members[0].name,
       playerPhone: members[0].phone,
       memberIndex: 0
     };
+    listenToTeamVoteSessions(teamId);
     window.showScreen("challengeAndTasksHubScreen");
   };
 
   window.toggleLoginModeUI = () => {
     const mode = document.getElementById("loginPlayMode").value;
     document.getElementById("loginGroupNameBox").style.display = mode === "group" ? "block" : "none";
+    document.getElementById("loginSoloFieldsBox").style.display = mode === "solo" ? "block" : "none";
   };
 
-  // بعد دخول المشترك -> يدخل مباشرة على صفحة التحدي والمهام
+  window.addLoginGroupMemberRow = () => {
+    const list = document.getElementById("loginGroupMembersList");
+    const div = document.createElement("div");
+    div.className = "login-g-row";
+    div.style.cssText = "display:grid; grid-template-columns:1fr 1fr; gap:8px;";
+    div.innerHTML = `
+      <input type="text" class="lg-name" placeholder="اسم عضو إضافي" />
+      <input type="tel" class="lg-phone" placeholder="رقم تليفون العضو" />
+    `;
+    list.appendChild(div);
+  };
+
   window.handleSubscriberLogin = async () => {
     const playMode = document.getElementById("loginPlayMode").value;
-    const teamNameInput = document.getElementById("loginTeamNameInput").value.trim();
-    const playerName = document.getElementById("loginPlayerNameInput").value.trim();
-    const playerPhone = document.getElementById("loginPhoneInput").value.trim();
-
-    if (!playerName || !playerPhone) {
-      alert("⚠️ يجب إدخال الاسم ورقم التليفون.");
-      return;
-    }
-
     const snap = await get(ref(db, "teams"));
     const teams = snap.val() || {};
     allTeamsMap = teams;
     updateTopBarTeamCounts();
 
-    let matchedTeamId = "";
-    let matchedTeam = null;
-    let memberIndex = -1;
+    // وضع اللعب الفردي: بالاسم ورقم التليفون، واسم الفريق يكون: عضو رقم (ترتيب اسمه في الفريق الأصلي)
+    if (playMode === "solo") {
+      const playerName = document.getElementById("loginSoloNameInput").value.trim();
+      const playerPhone = document.getElementById("loginSoloPhoneInput").value.trim();
+      const enteredPass = document.getElementById("loginSoloPasswordInput").value.trim();
 
-    for (const [tId, t] of getCleanTeamsEntries()) {
-      const members = t.members || [];
-      const foundIdx = members.findIndex(m => (m.phone || "").trim() === playerPhone);
-      if (playMode === "group") {
-        if ((t.teamName || "").trim() === teamNameInput && foundIdx !== -1) {
-          matchedTeamId = tId;
-          matchedTeam = t;
-          memberIndex = foundIdx;
-          break;
-        }
-      } else {
+      if (!playerName || !playerPhone) {
+        alert("⚠️ يرجى إدخال اسم اللاعب ورقم التليفون.");
+        return;
+      }
+
+      let matchedTeamId = "";
+      let matchedTeam = null;
+      let memberIndex = -1;
+
+      for (const [tId, t] of getCleanTeamsEntries()) {
+        const members = t.members || [];
+        const foundIdx = members.findIndex(m => (m.phone || "").trim() === playerPhone);
         if (foundIdx !== -1) {
           matchedTeamId = tId;
           matchedTeam = t;
@@ -969,17 +1427,20 @@
           break;
         }
       }
-    }
 
-    if (!matchedTeamId || !matchedTeam) {
-      alert("⚠️ لم يتم العثور على بيانات مطابقة. تأكد من الاسم ورقم التليفون واسم الفريق أو قم بالتسجيل أولاً.");
-      return;
-    }
+      if (!matchedTeamId || !matchedTeam) {
+        alert("⚠️ لم يتم العثور على هذا الرقم ضمن الفرق المسجلة.");
+        return;
+      }
 
-    const orderNum = memberIndex + 1;
+      if (matchedTeam.teamPassword && enteredPass !== matchedTeam.teamPassword) {
+        alert("⚠️ كلمة سر الفريق غير صحيحة.");
+        return;
+      }
 
-    if (playMode === "solo") {
-      const soloGeneratedName = buildUniqueSoloName(playerName, playerPhone, memberIndex);
+      const memberOrderNum = memberIndex + 1;
+      const soloGeneratedName = buildSoloMemberOrderTeamName(memberOrderNum);
+
       sessionState = {
         teamId: matchedTeamId,
         playMode: "solo",
@@ -993,13 +1454,57 @@
         originalTeamId: matchedTeamId,
         originalTeamName: matchedTeam.teamName,
         soloTeamName: soloGeneratedName,
+        memberOrder: memberOrderNum,
         playerName,
         playerPhone,
-        memberOrder: orderNum,
         updatedAt: Date.now()
       });
 
+      listenToTeamVoteSessions(matchedTeamId);
       window.showScreen("challengeAndTasksHubScreen");
+      return;
+    }
+
+    // وضع المجموعة: يلزم إدخال أسماء وأرقام هواتف أعضاء الفريق
+    const teamNameInput = document.getElementById("loginTeamNameInput").value.trim();
+    const enteredPass = document.getElementById("loginTeamPasswordInput").value.trim();
+    const rows = [...document.querySelectorAll(".login-g-row")].map(r => ({
+      name: r.querySelector(".lg-name")?.value.trim() || "",
+      phone: r.querySelector(".lg-phone")?.value.trim() || ""
+    })).filter(r => r.name || r.phone);
+
+    if (!teamNameInput || rows.length < 1 || rows.some(r => !r.name || !r.phone)) {
+      alert("⚠️ لدخول المجموعة، أدخل اسم الفريق وأسماء وأرقام تليفونات جميع الأعضاء.");
+      return;
+    }
+
+    let matchedTeamId = "";
+    let matchedTeam = null;
+
+    for (const [tId, t] of getCleanTeamsEntries()) {
+      if ((t.teamName || "").trim() === teamNameInput) {
+        const dbMembers = t.members || [];
+        const allEnteredMatchDb = rows.every(r =>
+          dbMembers.some(dm => (dm.name || "").trim() === r.name && (dm.phone || "").trim() === r.phone)
+        );
+        const coversAllDbMembers = dbMembers.length > 0 && dbMembers.every(dm =>
+          rows.some(r => (r.phone || "").trim() === (dm.phone || "").trim() && (r.name || "").trim() === (dm.name || "").trim())
+        );
+        if (allEnteredMatchDb && coversAllDbMembers) {
+          matchedTeamId = tId;
+          matchedTeam = t;
+          break;
+        }
+      }
+    }
+
+    if (!matchedTeamId || !matchedTeam) {
+      alert("⚠️ تأكد من مطابقة اسم الفريق وأسماء وأرقام هواتف جميع أعضاء الفريق المسجلين.");
+      return;
+    }
+
+    if (matchedTeam.teamPassword && enteredPass !== matchedTeam.teamPassword) {
+      alert("⚠️ كلمة سر الفريق غير صحيحة.");
       return;
     }
 
@@ -1007,11 +1512,27 @@
       teamId: matchedTeamId,
       playMode: "group",
       soloTeamName: "",
-      playerName,
-      playerPhone,
-      memberIndex
+      playerName: rows[0].name,
+      playerPhone: rows[0].phone,
+      memberIndex: 0
     };
 
+    // بدء جلسة دعوة وموافقة أعضاء المجموعة لحظياً عبر Firebase
+    await set(ref(db, `teamVotes/${matchedTeamId}`), {
+      active: true,
+      stage: "invite",
+      teamId: matchedTeamId,
+      teamName: matchedTeam.teamName,
+      initiatorPhone: rows[0].phone,
+      initiatorName: rows[0].name,
+      members: matchedTeam.members || [],
+      responses: {
+        [rows[0].phone]: { name: rows[0].name, phone: rows[0].phone, choice: "yes", at: Date.now() }
+      },
+      createdAt: Date.now()
+    });
+
+    listenToTeamVoteSessions(matchedTeamId);
     window.showScreen("challengeAndTasksHubScreen");
   };
 
@@ -1085,7 +1606,7 @@
 
     const pts = team.points || 0;
     const displayTitle = sessionState.playMode === "solo"
-      ? `${sessionState.soloTeamName} (فريق أصلي: ${team.teamName})`
+      ? `${sessionState.soloTeamName} — ${sessionState.playerName} (${team.teamName})`
       : (team.teamName || "فريقي");
 
     ["hubTeamTitle", "cashTeamTitle", "chTeamTitle", "loserTeamTitle"].forEach(id => {
@@ -1100,8 +1621,8 @@
     const hubSub = document.getElementById("hubPlayerSub");
     if (hubSub) {
       hubSub.innerText = sessionState.playMode === "solo"
-        ? `👤 وضع فردي: ${sessionState.soloTeamName}`
-        : `👥 وضع مجموعة — اللاعب: ${sessionState.playerName}`;
+        ? `👤 تحدي فردي: ${sessionState.soloTeamName} (${sessionState.playerName})`
+        : `👥 مجموعة — اللاعب: ${sessionState.playerName}`;
     }
 
     if (team.challengePhotoStatus === "rejected") {
@@ -1156,7 +1677,6 @@
     });
   }
 
-  // عرض 5 خانات لأرقام الموبايل المحددة من الأدمن في صفحة تحويل الكاش وبطاقة الاشتراك
   function renderFiveCashSlots() {
     const targets = ["fiveCashSlotsList", "regFiveCashSlotsList"];
     const html = Array.from({ length: 5 }, (_, idx) => {
@@ -1196,375 +1716,4 @@
           canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL("image/jpeg", quality));
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  window.handleChallengePhotoPicked = async (input) => {
-    const file = input.files?.[0];
-    const nameEl = document.getElementById("challengePickedFileName");
-    const prevEl = document.getElementById("challengePickedPreview");
-    if (!file) {
-      nameEl.innerText = "لم يتم اختيار صورة بعد";
-      prevEl.style.display = "none";
-      return;
-    }
-    nameEl.innerText = `📎 الصورة المختارة: ${file.name}`;
-    const b64 = await readFileAsBase64(file);
-    prevEl.src = b64;
-    prevEl.style.display = "block";
-  };
-
-  window.confirmChallengeSubmission = async () => {
-    const file = document.getElementById("challengePhotoInput").files[0];
-    if (!file) {
-      alert("⚠️ اضغط على زر (كاميرا / استوديو) لالتقاط صورة أو سحب صورة من الاستوديو أولاً.");
-      return;
-    }
-
-    const base64 = await readFileAsBase64(file);
-    const team = allTeamsMap[sessionState.teamId] || {};
-    const teamName = sessionState.playMode === "solo" ? sessionState.soloTeamName : (team.teamName || "فريق");
-    const senderPhone = sessionState.playerPhone || team.phone || "";
-    const subKey = sessionState.teamId ? `${sessionState.teamId}_ch_${Date.now()}` : `guest_ch_${Date.now()}`;
-
-    await set(ref(db, `challengeSubmissions/${subKey}`), {
-      teamId: sessionState.teamId || "guest",
-      teamName,
-      phone: senderPhone,
-      submissionKind: "challenge_photo",
-      photo: base64,
-      status: "pending",
-      isWinner: false,
-      timestamp: Date.now()
-    });
-
-    if (sessionState.teamId) {
-      await update(ref(db, `teams/${sessionState.teamId}`), {
-        challengePhotoStatus: "pending",
-        challengePhotoRejectReason: ""
-      });
-    }
-
-    document.getElementById("photoSentMsg").innerText = "✅ تم إرسال صورة التحدي بنجاح!";
-  };
-
-  onValue(ref(db, "settings/challenge"), (snap) => {
-    challengeSettings = snap.val() || {};
-    document.getElementById("challengeDescriptionText").innerText =
-      challengeSettings.description || "التحدي اليومي قيد التجهيز...";
-
-    const isKeys = challengeSettings.type === "keys";
-    document.getElementById("chModeLabel").innerText = isKeys ? "🗝️ تحدي المفاتيح (GPS)" : "📸 تحدي إرسال صورة التحدي";
-    document.getElementById("photoChallengeBox").style.display = isKeys ? "none" : "block";
-    document.getElementById("keysChallengeBox").style.display = isKeys ? "block" : "none";
-    document.getElementById("requiredKeysTarget").innerText = challengeSettings.requiredKeys || 3;
-  });
-
-  window.openLoserHalfMealSection = () => {
-    document.getElementById("loserNoticeBox").style.display = "none";
-    document.getElementById("loserHalfMealSection").style.display = "block";
-  };
-
-  let allAvailableTasksMap = {};
-
-  onValue(ref(db, "adminTasks"), (snap) => {
-    allAvailableTasksMap = snap.val() || {};
-    renderSubscriberTasks();
-  });
-
-  window.handleTaskProofPhotoSelected = (input) => {
-    const f = input.files?.[0];
-    document.getElementById("taskSelectedPhotoName").innerText = f ? `📎 تم اختيار الصورة: ${f.name}` : "";
-  };
-
-  function renderSubscriberTasks() {
-    const myTeamId = sessionState.teamId;
-    const myEffectiveTeamId = sessionState.playMode === "solo"
-      ? `${myTeamId}_solo_${sessionState.memberIndex}`
-      : myTeamId;
-
-    const myActiveBox = document.getElementById("myActiveTaskBox");
-    const listEl = document.getElementById("subscriberAvailableTasksList");
-    listEl.innerHTML = "";
-
-    let myAcceptedTaskEntry = null;
-    Object.entries(allAvailableTasksMap).forEach(([taskId, t]) => {
-      if (t.status === "accepted" && t.acceptedByTeamId === myEffectiveTeamId) {
-        myAcceptedTaskEntry = [taskId, t];
-      }
-    });
-
-    if (myAcceptedTaskEntry) {
-      const [taskId, t] = myAcceptedTaskEntry;
-      myActiveBox.style.display = "block";
-      myActiveBox.dataset.taskId = taskId;
-      document.getElementById("myActiveTaskText").innerText = t.text || "";
-      document.getElementById("myActiveTaskDuration").innerText = t.duration || "غير محدد";
-      const adminImgEl = document.getElementById("myActiveTaskAdminImg");
-      if (t.image) {
-        adminImgEl.src = t.image;
-        adminImgEl.style.display = "block";
-      } else {
-        adminImgEl.style.display = "none";
-      }
-    } else {
-      myActiveBox.style.display = "none";
-      myActiveBox.dataset.taskId = "";
-    }
-
-    Object.entries(allAvailableTasksMap).forEach(([taskId, t]) => {
-      if (t.status !== "available") return;
-      listEl.innerHTML += `
-        <div class="reward-item">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span style="color:var(--info); font-size:0.86rem;">⏱️ وقت الإتمام: <b>${t.duration || "غير محدد"}</b></span>
-            <button class="btn btn-success btn-sm" onclick="acceptSubscriberTask('${taskId}')">✅ قبول</button>
-          </div>
-          <p style="margin:8px 0 0; white-space:pre-wrap; line-height:1.6;">${t.text || ""}</p>
-          ${t.image ? `<img src="${t.image}" class="menu-img" style="max-height:200px;" onclick="zoomMenuImage('${t.image}')" />` : ""}
-        </div>
-      `;
-    });
-
-    if (!listEl.innerHTML) listEl.innerHTML = "<p style='color:var(--muted);'>لا توجد مهام متاحة حالياً.</p>";
-  }
-
-  window.acceptSubscriberTask = async (taskId) => {
-    const myTeamId = sessionState.teamId;
-    if (!myTeamId) {
-      alert("⚠️ يرجى تسجيل الدخول أولاً.");
-      return;
-    }
-
-    const myEffectiveTeamId = sessionState.playMode === "solo"
-      ? `${myTeamId}_solo_${sessionState.memberIndex}`
-      : myTeamId;
-
-    const alreadyHasTask = Object.values(allAvailableTasksMap).some(
-      t => t.status === "accepted" && t.acceptedByTeamId === myEffectiveTeamId
-    );
-    if (alreadyHasTask) {
-      alert("يمكنك اختيار مهمة واحدة");
-      return;
-    }
-
-    const team = allTeamsMap[myTeamId] || {};
-    const teamDisplayName = sessionState.playMode === "solo"
-      ? sessionState.soloTeamName
-      : (team.teamName || "فريق");
-    const phonesStr = sessionState.playMode === "solo"
-      ? sessionState.playerPhone
-      : (team.members || []).map(m => m.phone).filter(Boolean).join(" / ");
-
-    await update(ref(db, `adminTasks/${taskId}`), {
-      status: "accepted",
-      acceptedByTeamId: myEffectiveTeamId,
-      acceptedByTeamName: teamDisplayName,
-      acceptedByPhones: phonesStr,
-      acceptedAt: Date.now()
-    });
-  };
-
-  window.confirmMyTaskCompletion = async () => {
-    const taskId = document.getElementById("myActiveTaskBox").dataset.taskId;
-    if (!taskId || !allAvailableTasksMap[taskId]) return;
-
-    const proofFile = document.getElementById("taskProofPhotoInput").files[0];
-    const proofNote = document.getElementById("taskProofNoteInput").value.trim().slice(0, 500);
-    const taskObj = allAvailableTasksMap[taskId];
-
-    const finishSubmit = async (proofBase64) => {
-      await set(ref(db, `completedAdminTasks/${taskId}`), {
-        ...taskObj,
-        status: "completed",
-        proofPhoto: proofBase64 || "",
-        proofNote,
-        completedAt: Date.now()
-      });
-      await remove(ref(db, `adminTasks/${taskId}`));
-      document.getElementById("taskProofPhotoInput").value = "";
-      document.getElementById("taskProofNoteInput").value = "";
-      document.getElementById("taskSelectedPhotoName").innerText = "";
-      alert("✅ تم تأكيد إتمام المهمة وإرسالها للإدارة! يمكنك الآن اختيار مهمة أخرى.");
-    };
-
-    if (proofFile) {
-      const b64 = await readFileAsBase64(proofFile);
-      await finishSubmit(b64);
-    } else {
-      await finishSubmit("");
-    }
-  };
-
-  let playerMap = null;
-  let gpsKeysList = [];
-  let collectedKeyIds = new Set();
-
-  onValue(ref(db, "gpsCoins"), (snap) => {
-    const val = snap.val() || {};
-    gpsKeysList = Object.entries(val).map(([id, k]) => ({ id, ...k }));
-  });
-
-  function initPlayerMap() {
-    if (!playerMap) {
-      playerMap = L.map("playerMap").setView([27.2579, 33.8116], 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(playerMap);
-    }
-    setTimeout(() => playerMap.invalidateSize(), 150);
-  }
-
-  function calcDistanceMeters(lat1, lon1, lat2, lon2) {
-    const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
-
-  window.checkNearbyKey = () => {
-    if (!navigator.geolocation) {
-      alert("⚠️ متصفحك لا يدعم تحديد الموقع الجغرافي.");
-      return;
-    }
-    document.getElementById("gpsStatusMsg").innerText = "📡 جاري تحديد موقعك الحالي...";
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      const radius = parseInt(challengeSettings.keyRadius) || 30;
-      const reqKeys = parseInt(challengeSettings.requiredKeys) || 3;
-
-      if (playerMap) {
-        playerMap.setView([latitude, longitude], 16);
-        L.circleMarker([latitude, longitude], { radius: 8, color: "#3b82f6" }).addTo(playerMap).bindPopup("موقعك الحالي").openPopup();
-      }
-
-      let foundKey = null;
-      for (const k of gpsKeysList) {
-        const dist = calcDistanceMeters(latitude, longitude, k.lat, k.lng);
-        if (dist <= radius && !collectedKeyIds.has(k.id)) {
-          foundKey = k;
-          break;
-        }
-      }
-
-      if (foundKey) {
-        collectedKeyIds.add(foundKey.id);
-        document.getElementById("collectedKeysCount").innerText = collectedKeyIds.size;
-        document.getElementById("gpsStatusMsg").innerText = `🗝️ مبروك! وجدت المفتاح: ${foundKey.label || "مفتاح"}`;
-
-        if (collectedKeyIds.size >= reqKeys && sessionState.teamId) {
-          const team = allTeamsMap[sessionState.teamId] || {};
-          const teamName = sessionState.playMode === "solo" ? sessionState.soloTeamName : (team.teamName || "فريق");
-          const phone = sessionState.playerPhone || team.phone || "";
-          await set(ref(db, `keyWinners/${sessionState.teamId}`), {
-            teamId: sessionState.teamId,
-            teamName,
-            phone,
-            keysCount: collectedKeyIds.size,
-            confirmed: false,
-            timestamp: Date.now()
-          });
-          document.getElementById("gpsStatusMsg").innerText = "🏆 أتممت تجميع كل المفاتيح المطلوبة!";
-        }
-      } else {
-        document.getElementById("gpsStatusMsg").innerText = "🔍 لا يوجد مفتاح جديد ضمن النطاق المحدد.";
-      }
-    }, () => {
-      document.getElementById("gpsStatusMsg").innerText = "⚠️ تعذر الوصول إلى GPS.";
-    });
-  };
-
-  onValue(ref(db, "settings/meals"), (snap) => {
-    const meals = snap.val() || {};
-    const freeImg = document.getElementById("freeMealMenuImg");
-    const noFreeImg = document.getElementById("noFreeMealImg");
-    if (meals.freeMealImg) {
-      freeImg.src = meals.freeMealImg;
-      freeImg.style.display = "block";
-      noFreeImg.style.display = "none";
-    } else {
-      freeImg.style.display = "none";
-      noFreeImg.style.display = "block";
-    }
-
-    const halfImg = document.getElementById("loserHalfMealImg");
-    const noHalfImg = document.getElementById("loserNoHalfMealImg");
-    if (meals.halfMealImg) {
-      halfImg.src = meals.halfMealImg;
-      halfImg.style.display = "block";
-      noHalfImg.style.display = "none";
-    } else {
-      halfImg.style.display = "none";
-      noHalfImg.style.display = "block";
-    }
-  });
-
-  window.submitMealOrder = async (mealType, textareaId, addressInputId) => {
-    const orderText = document.getElementById(textareaId).value.trim().slice(0, 500);
-    const address = document.getElementById(addressInputId).value.trim();
-
-    if (!orderText) {
-      alert("⚠️ يرجى كتابة نوع وعدد وجبات الطعام قبل التأكيد.");
-      return;
-    }
-
-    const team = allTeamsMap[sessionState.teamId] || {};
-    const teamName = sessionState.playMode === "solo"
-      ? sessionState.soloTeamName
-      : (team.teamName || "مشارك");
-    const firstMemberPhone = team.members?.[0]?.phone || sessionState.playerPhone || "";
-
-    await push(ref(db, "mealOrders"), {
-      teamId: sessionState.teamId || "guest",
-      teamName,
-      firstMemberPhone,
-      address: address || "لم يُحدد عنوان",
-      mealType,
-      orderText,
-      createdAt: Date.now()
-    });
-
-    const msgId = mealType === "free_meal" ? "freeMealOrderMsg" : "halfMealOrderMsg";
-    document.getElementById(msgId).innerText = "✅ تم تأكيد وإرسال طلب الوجبات بنجاح!";
-  };
-
-  let latestAnnouncement = null;
-  const pageOpenedAt = Date.now();
-
-  onValue(ref(db, "settings/winnersAnnouncement"), (snap) => {
-    const ann = snap.val();
-    if (!ann || !ann.winners || ann.winners.length === 0) {
-      document.getElementById("celebrationModal").style.display = "none";
-      return;
-    }
-    latestAnnouncement = ann;
-
-    const hasActiveSession = Boolean(sessionState && sessionState.teamId);
-    const isFreshAnnouncement = (ann.announcedAt || 0) > pageOpenedAt;
-    const seenId = sessionStorage.getItem("mc_seen_celebration");
-
-    if (splashFinished && hasActiveSession && isFreshAnnouncement && seenId !== ann.id) {
-      document.getElementById("celTitle").innerText = ann.title || "🎉 احتفال الأبطال 🎉";
-      document.getElementById("celSubtitle").innerText = ann.subtitle || "ألف مبروك للفرق الفائزة!";
-      document.getElementById("celWinnersList").innerHTML = (ann.winners || [])
-        .map(w => `<div class="winner-chip">🏆 ${w.teamName} — ${w.points || 10} نقطة</div>`)
-        .join("");
-      document.getElementById("celebrationModal").style.display = "flex";
-    }
-  });
-
-  window.closeCelebrationModal = () => {
-    if (latestAnnouncement?.id) {
-      sessionStorage.setItem("mc_seen_celebration", latestAnnouncement.id);
-    }
-    document.getElementById("celebrationModal").style.display = "none";
-  };
-</script>
-
-</body>
-</html>
+        img.src = e.target.
