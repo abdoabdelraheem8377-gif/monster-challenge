@@ -216,7 +216,7 @@
 <body>
 
 <div id="menuZoomModal" onclick="this.style.display='none'">
-  <img id="zoomedMenuImg" src="" alt="تكبير القائمة" />
+  <img id="zoomedMenuImg" src="" alt="تكبير الصورة" />
 </div>
 
 <div id="forceUpdateModal">
@@ -387,6 +387,7 @@
     <div id="teamRewardsList"></div>
   </div>
 
+  <!-- قسم تحويل الكاش ورفع صورة الإيصال (يظهر في صفحة المشتركين في التحدي داخل admin.html) -->
   <div id="paymentSection" class="card" style="display:none;">
     <h2>💳 تحويل رسوم الاشتراك</h2>
     <p style="color:var(--muted); font-size:0.9rem;">حوّل على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال (مرة واحدة فقط):</p>
@@ -480,6 +481,7 @@
   </div>
 </div>
 
+<!-- شاشة التحدي اليومي: إرسال صورة التحدي إلى صفحة (صور التحدي) في لوحة الأدمن -->
 <div id="challengeScreen" class="screen">
   <div class="top-bar">
     <div>
@@ -504,11 +506,8 @@
   </div>
 
   <div id="photoChallengeBox" class="card" style="display:none;">
-    <h3>💳 تحويل الكاش وإرسال صورة التحويل</h3>
+    <h3>📸 إرسال صورة التحدي</h3>
     <div id="rejectedPhotoAlert" style="display:none; background:rgba(239,68,68,0.15); border:1px solid var(--danger); padding:12px; border-radius:10px; margin-bottom:12px; color:#fecaca;"></div>
-
-    <label style="color:var(--primary); font-weight:bold;">📱 أرقام الموبايل لتحويل الكاش إليها (اختر أو أدخل الرقم):</label>
-    <div id="challengeThreePhonesList"></div>
 
     <input type="file" id="challengePhotoInput" accept="image/*" style="display:none;" onchange="handleChallengePhotoPicked(this)" />
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0;">
@@ -517,7 +516,7 @@
     </div>
     <img id="challengePickedPreview" class="menu-img" style="display:none; max-height:220px;" onclick="zoomMenuImage(this.src)" />
 
-    <button type="button" class="btn btn-success" style="width:100%; margin-top:8px;" onclick="confirmChallengeTransferSubmission()">✅ تأكيد</button>
+    <button type="button" class="btn btn-success" style="width:100%; margin-top:8px;" onclick="confirmChallengeSubmission()">✅ إرسال صورة التحدي</button>
     <p id="photoSentMsg" style="color:var(--success); font-weight:bold; margin-top:10px;"></p>
   </div>
 
@@ -649,8 +648,6 @@
 
   let allTeamsMap = {};
   let challengeSettings = {};
-  let activeCashNums = [];
-  let selectedCashTargetPhone = "";
   let activeVoteUnsub = null;
   let voteCountdownInterval = null;
   let splashFinished = false;
@@ -813,9 +810,8 @@
     });
     const target = document.getElementById(screenId);
     if (target) target.classList.add("active");
-    if (screenId === "challengeScreen") {
-      renderChallengeThreePhones();
-      if (challengeSettings.type === "keys") setTimeout(() => initPlayerMap(), 200);
+    if (screenId === "challengeScreen" && challengeSettings.type === "keys") {
+      setTimeout(() => initPlayerMap(), 200);
     }
   };
 
@@ -1292,6 +1288,9 @@
     }
   }
 
+  // ==========================================
+  // 1) قفل ورفع صورة إيصال تحويل الكاش -> يظهر في صفحة (المشتركين في التحدي) في admin.html
+  // ==========================================
   function isReceiptAlreadySubmitted(team) {
     return Boolean(team && (team.receiptSubmittedOnce === true || team.status === "receipt_uploaded"));
   }
@@ -1309,6 +1308,41 @@
     }
     if (lockNotice) lockNotice.style.display = locked ? "block" : "none";
   }
+
+  window.uploadReceiptImage = async () => {
+    const tId = sessionState.teamId;
+    if (!tId) {
+      alert("⚠️ سجل فريقك أو ادخل كمشترك أولاً.");
+      return;
+    }
+
+    const snap = await get(ref(db, `teams/${tId}`));
+    const currentTeam = snap.val() || allTeamsMap[tId] || {};
+
+    if (isReceiptAlreadySubmitted(currentTeam)) {
+      syncReceiptUploadLock(currentTeam);
+      alert("⚠️ لقد أرسلت صورة الإيصال بالفعل ولا يمكن إرسالها أكثر من مرة.");
+      return;
+    }
+
+    const file = document.getElementById("receiptFileInput").files[0];
+    if (!file) {
+      alert("⚠️ اختر صورة الإيصال أولاً.");
+      return;
+    }
+
+    const base64 = await readFileAsBase64(file);
+    await update(ref(db, `teams/${tId}`), {
+      receiptImage: base64,
+      receiptSubmittedOnce: true,
+      receiptUploadedAt: Date.now(),
+      status: "receipt_uploaded"
+    });
+
+    document.getElementById("receiptFileInput").value = "";
+    syncReceiptUploadLock({ ...currentTeam, receiptSubmittedOnce: true, status: "receipt_uploaded" });
+    alert("✅ تم إرسال صورة الإيصال بنجاح، وستظهر في صفحة المشتركين في التحدي لدى الأدمن.");
+  };
 
   onValue(ref(db, "teams"), (snap) => {
     allTeamsMap = snap.val() || {};
@@ -1411,10 +1445,6 @@
 
   onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
     const nums = snap.val() || [];
-    activeCashNums = nums;
-    if (nums.length > 0 && !selectedCashTargetPhone) {
-      selectedCashTargetPhone = nums[0];
-    }
     const el = document.getElementById("activeCashList");
     if (!nums.length) {
       el.innerHTML = "<p style='color:var(--muted);'>لا توجد أرقام كاش مفعلة حالياً.</p>";
@@ -1426,35 +1456,7 @@
         </div>
       `).join("");
     }
-    renderChallengeThreePhones();
   });
-
-  function renderChallengeThreePhones() {
-    const container = document.getElementById("challengeThreePhonesList");
-    if (!container) return;
-    container.innerHTML = "";
-
-    for (let i = 0; i < 3; i++) {
-      const val = activeCashNums[i] || "";
-      const isSelected = selectedCashTargetPhone && val && selectedCashTargetPhone === val;
-      container.innerHTML += `
-        <div class="cash-card" style="border-color:${isSelected ? 'var(--success)' : 'var(--border)'};">
-          <input type="tel" id="chTransferPhone_${i}" value="${val}" placeholder="رقم الموبايل رقم ${i + 1} لتحويل الكاش" style="margin-bottom:0; flex:1;" oninput="selectCashPhoneSlot(${i})" />
-          <button type="button" class="btn ${isSelected ? 'btn-success' : 'btn-outline'} btn-sm" onclick="selectCashPhoneSlot(${i})">
-            ${isSelected ? '✓ محدد' : 'اختيار'}
-          </button>
-        </div>
-      `;
-    }
-  }
-
-  window.selectCashPhoneSlot = (idx) => {
-    const inp = document.getElementById(`chTransferPhone_${idx}`);
-    if (inp && inp.value.trim()) {
-      selectedCashTargetPhone = inp.value.trim();
-      renderChallengeThreePhones();
-    }
-  };
 
   function readFileAsBase64(file, maxW = 800, quality = 0.7) {
     return new Promise((resolve) => {
@@ -1475,6 +1477,9 @@
     });
   }
 
+  // ==========================================
+  // 2) رفع صورة التحدي -> تظهر في صفحة (صور التحدي) في admin.html فقط
+  // ==========================================
   window.handleChallengePhotoPicked = async (input) => {
     const file = input.files?.[0];
     const nameEl = document.getElementById("challengePickedFileName");
@@ -1490,19 +1495,10 @@
     prevEl.style.display = "block";
   };
 
-  window.confirmChallengeTransferSubmission = async () => {
+  window.confirmChallengeSubmission = async () => {
     const file = document.getElementById("challengePhotoInput").files[0];
-    const p0 = (document.getElementById("chTransferPhone_0")?.value || "").trim();
-    const p1 = (document.getElementById("chTransferPhone_1")?.value || "").trim();
-    const p2 = (document.getElementById("chTransferPhone_2")?.value || "").trim();
-    const chosenPhone = selectedCashTargetPhone || p0 || p1 || p2;
-
     if (!file) {
       alert("⚠️ اضغط على زر (كاميرا / استوديو) لالتقاط صورة أو سحب صورة من الاستوديو أولاً.");
-      return;
-    }
-    if (!chosenPhone) {
-      alert("⚠️ اختر أو أدخل رقم موبايل لتحويل الكاش إليه.");
       return;
     }
 
@@ -1510,14 +1506,13 @@
     const team = allTeamsMap[sessionState.teamId] || {};
     const teamName = sessionState.playMode === "solo" ? sessionState.soloTeamName : (team.teamName || "فريق");
     const senderPhone = sessionState.playerPhone || team.phone || "";
-    const subKey = sessionState.teamId ? `${sessionState.teamId}_tr_${Date.now()}` : `guest_tr_${Date.now()}`;
+    const subKey = sessionState.teamId ? `${sessionState.teamId}_ch_${Date.now()}` : `guest_ch_${Date.now()}`;
 
     await set(ref(db, `challengeSubmissions/${subKey}`), {
       teamId: sessionState.teamId || "guest",
       teamName,
       phone: senderPhone,
-      transferPhone: chosenPhone,
-      submissionKind: "transfer_photo",
+      submissionKind: "challenge_photo",
       photo: base64,
       status: "pending",
       isWinner: false,
@@ -1531,42 +1526,7 @@
       });
     }
 
-    document.getElementById("photoSentMsg").innerText = `✅ تم تأكيد وإرسال صورة التحويل على الرقم (${chosenPhone})!`;
-  };
-
-  window.uploadReceiptImage = async () => {
-    const tId = sessionState.teamId;
-    if (!tId) {
-      alert("⚠️ سجل فريقك أو ادخل كمشترك أولاً.");
-      return;
-    }
-
-    const snap = await get(ref(db, `teams/${tId}`));
-    const currentTeam = snap.val() || allTeamsMap[tId] || {};
-
-    if (isReceiptAlreadySubmitted(currentTeam)) {
-      syncReceiptUploadLock(currentTeam);
-      alert("⚠️ لقد أرسلت صورة الإيصال بالفعل ولا يمكن إرسالها أكثر من مرة.");
-      return;
-    }
-
-    const file = document.getElementById("receiptFileInput").files[0];
-    if (!file) {
-      alert("⚠️ اختر صورة الإيصال أولاً.");
-      return;
-    }
-
-    const base64 = await readFileAsBase64(file);
-    await update(ref(db, `teams/${tId}`), {
-      receiptImage: base64,
-      receiptSubmittedOnce: true,
-      receiptUploadedAt: Date.now(),
-      status: "receipt_uploaded"
-    });
-
-    document.getElementById("receiptFileInput").value = "";
-    syncReceiptUploadLock({ ...currentTeam, receiptSubmittedOnce: true, status: "receipt_uploaded" });
-    alert("✅ تم إرسال صورة الإيصال للأدمن بنجاح.");
+    document.getElementById("photoSentMsg").innerText = "✅ تم إرسال صورة التحدي بنجاح إلى صفحة صور التحدي لدى الأدمن!";
   };
 
   onValue(ref(db, "settings/challenge"), (snap) => {
@@ -1575,11 +1535,10 @@
       challengeSettings.description || "التحدي اليومي قيد التجهيز...";
 
     const isKeys = challengeSettings.type === "keys";
-    document.getElementById("chModeLabel").innerText = isKeys ? "🗝️ تحدي المفاتيح (GPS)" : "💳 تحدي تحويل الكاش والصورة";
+    document.getElementById("chModeLabel").innerText = isKeys ? "🗝️ تحدي المفاتيح (GPS)" : "📸 تحدي إرسال صورة التحدي";
     document.getElementById("photoChallengeBox").style.display = isKeys ? "none" : "block";
     document.getElementById("keysChallengeBox").style.display = isKeys ? "block" : "none";
     document.getElementById("requiredKeysTarget").innerText = challengeSettings.requiredKeys || 3;
-    renderChallengeThreePhones();
   });
 
   window.attemptEnterNewChallenge = async (noticeBoxId = "hubChallengeNoticeBox") => {
