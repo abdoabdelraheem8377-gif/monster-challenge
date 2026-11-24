@@ -287,10 +287,11 @@
     </div>
   </div>
 
+  <!-- صفحة المشتركين في التحدي: تعرض صور إيصالات تحويل الكاش -->
   <div id="subscribers" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
-        <h2 style="margin:0;">المشتركين في التحدي — النقاط والإيصالات</h2>
+        <h2 style="margin:0;">المشتركين في التحدي — النقاط وإيصالات تحويل الكاش</h2>
         <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
       </div>
       <div id="subscribersList">جاري التحميل...</div>
@@ -333,7 +334,7 @@
         <div>
           <label>نوع التحدي الحالي:</label>
           <select id="challengeTypeSelect" onchange="toggleChallengeTypeUI()">
-            <option value="photo">📸 تحدي إرسال صورة / تحويل</option>
+            <option value="photo">📸 تحدي إرسال صورة التحدي</option>
             <option value="keys">🗝️ تحدي إيجاد المفاتيح على الخريطة (GPS)</option>
           </select>
         </div>
@@ -436,14 +437,15 @@
     </div>
   </div>
 
+  <!-- صفحة صور التحدي: تعرض صور التحدي فقط -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
-        <h2 style="margin:0;">📸 صور التحدي وصور التحويل المرسلة</h2>
+        <h2 style="margin:0;">📸 صور التحدي المرسلة من الفرق</h2>
         <div class="row-flex">
           <button class="btn btn-primary btn-sm" onclick="publishWinnersAnnouncement()">🎉 الاحتفال بالفائزين</button>
           <button class="btn btn-info btn-sm" onclick="finishRoundAndMarkLosers()">🏁 إنهاء الجولة</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل الصور</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
         </div>
       </div>
       <div id="challengePhotosList">جاري التحميل...</div>
@@ -696,10 +698,11 @@
         `;
       }
 
-      if (team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
-        if (team.status === "receipt_uploaded") pendingReceiptCount++;
+      // يظهر في صفحة (المشتركين في التحدي) كل من رفع إيصال كاش أو دخل التحدي
+      if (team.receiptImage || team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
+        if (team.status === "receipt_uploaded" && team.receiptImage) pendingReceiptCount++;
         const statusLabel = {
-          receipt_uploaded: "⏳ بانتظار اعتماد الإيصال",
+          receipt_uploaded: "⏳ بانتظار اعتماد إيصال الكاش",
           in_challenge: "✅ مشترك داخل التحدي",
           won: "🏆 فائز بالتحدي",
           lost: "💔 في صفحة المكافأة"
@@ -720,7 +723,7 @@
             <div class="member-list">${membersHtml}</div>
             ${team.receiptImage ? `
               <div>
-                <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
+                <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال تحويل الكاش (اضغط للتكبير):</span><br/>
                 <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" /><br/>
               </div>
             ` : ``}
@@ -1219,11 +1222,14 @@
     alert("✅ تم إرسال الرسالة/الملاحظة للفريق.");
   };
 
+  // صفحة صور التحدي: تعرض صور التحدي فقط ولا تعرض أي صور تحويل كاش
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
     const container = document.getElementById("challengePhotosList");
     container.innerHTML = "";
-    const entries = Object.entries(subs).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+    const entries = Object.entries(subs)
+      .filter(([, item]) => item && item.submissionKind !== "transfer_photo")
+      .sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
     document.getElementById("badgePhotos").innerText = entries.length;
 
     entries.forEach(([subKey, item], idx) => {
@@ -1231,9 +1237,6 @@
       const isApproved = item.status === "approved" || item.isWinner === true;
       const isRejected = item.status === "rejected";
       const borderColor = isApproved ? "var(--success)" : isRejected ? "var(--danger)" : "var(--card-light)";
-      const kindLabel = item.submissionKind === "transfer_photo"
-        ? `💳 صورة تحويل على رقم: <b>${item.transferPhone || ""}</b>`
-        : `📸 صورة تحدي`;
 
       container.innerHTML += `
         <div class="card" style="background:#0f172a; border-color:${borderColor};">
@@ -1241,7 +1244,6 @@
             <div>
               <strong>#${idx + 1} — فريق: ${item.teamName || "مشارك"}</strong>
               ${item.phone ? `<span style="color:var(--muted); font-size:0.85rem;"> (📱 ${item.phone})</span>` : ""}
-              <div style="color:var(--primary); font-size:0.88rem; margin-top:4px;">${kindLabel}</div>
             </div>
             <span style="color:var(--muted); font-size:0.85rem;">⏱️ ${timeStr}</span>
           </div>
@@ -1260,7 +1262,7 @@
       `;
     });
 
-    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي أو التحويل بعد.</p>";
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
   });
 
   window.acceptChallengeSubmission = async (subKey) => {
@@ -1271,24 +1273,19 @@
 
     await update(ref(db, `challengeSubmissions/${subKey}`), {
       status: "approved",
-      isWinner: item.submissionKind !== "transfer_photo"
+      isWinner: true
     });
 
     if (targetTeamId && latestTeamsData[targetTeamId]) {
       const curPts = latestTeamsData[targetTeamId].points || 0;
-      const updates = {};
-      if (item.submissionKind === "transfer_photo") {
-        updates.status = "in_challenge";
-      } else {
-        updates.status = "won";
-        if (!latestTeamsData[targetTeamId].isWinnerAwarded) {
-          updates.points = curPts + 10;
-          updates.isWinnerAwarded = true;
-        }
+      const updates = { status: "won" };
+      if (!latestTeamsData[targetTeamId].isWinnerAwarded) {
+        updates.points = curPts + 10;
+        updates.isWinnerAwarded = true;
       }
       await update(ref(db, `teams/${targetTeamId}`), updates);
     }
-    alert("✅ تم قبول الإرسال.");
+    alert("✅ تم قبول صورة التحدي.");
   };
 
   window.rejectChallengeSubmission = async (subKey) => {
@@ -1309,13 +1306,13 @@
         challengePhotoRejectReason: reason
       });
     }
-    alert("❌ تم رفض الإرسال.");
+    alert("❌ تم رفض صورة التحدي.");
   };
 
   window.deleteChallengePhoto = async (subKey) => remove(ref(db, `challengeSubmissions/${subKey}`));
 
   window.deleteAllChallengePhotos = async () => {
-    if (!confirm("هل تريد مسح كل صور التحدي والتحويل؟")) return;
+    if (!confirm("هل تريد مسح كل صور التحدي؟")) return;
     await remove(ref(db, "challengeSubmissions"));
   };
 
