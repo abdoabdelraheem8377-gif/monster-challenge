@@ -644,6 +644,16 @@
   let activeDirectoryFilter = null;
   let cashSlotsData = ["", "", "", "", ""];
 
+  // إنشاء اسم فريد للاعب الفردي بإضافة آخر 3 أرقام من رقم الموبايل (مثال: عبده #377)
+  function buildUniqueSoloName(playerName, playerPhone, fallbackIndex = 0) {
+    const cleanName = String(playerName || "لاعب").trim();
+    const digitsOnly = String(playerPhone || "").replace(/\D/g, "");
+    const suffix = digitsOnly.length >= 3
+      ? digitsOnly.slice(-3)
+      : (digitsOnly || String(fallbackIndex + 1));
+    return `${cleanName} #${suffix}`;
+  }
+
   function normalizeFiveCashSlots(val) {
     if (Array.isArray(val)) {
       return Array.from({ length: 5 }, (_, i) => String(val[i] ?? "").trim());
@@ -907,7 +917,7 @@
     sessionState = {
       teamId,
       playMode: regType,
-      soloTeamName: regType === "solo" ? `${members[0].name}1` : "",
+      soloTeamName: regType === "solo" ? buildUniqueSoloName(members[0].name, members[0].phone, 0) : "",
       playerName: members[0].name,
       playerPhone: members[0].phone,
       memberIndex: 0
@@ -969,7 +979,7 @@
     const orderNum = memberIndex + 1;
 
     if (playMode === "solo") {
-      const soloGeneratedName = `${playerName}${orderNum}`;
+      const soloGeneratedName = buildUniqueSoloName(playerName, playerPhone, memberIndex);
       sessionState = {
         teamId: matchedTeamId,
         playMode: "solo",
