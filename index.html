@@ -74,6 +74,7 @@
       justify-content: center; gap: 8px; transition: 0.15s;
     }
     .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-primary { background: var(--primary); color: #000; }
     .btn-success { background: var(--success); color: #fff; }
     .btn-danger { background: var(--danger); color: #fff; }
@@ -405,12 +406,15 @@
 
   <div id="paymentSection" class="card" style="display:none;">
     <h2>💳 تحويل رسوم الاشتراك</h2>
-    <p style="color:var(--muted); font-size:0.9rem;">حوّل على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال:</p>
+    <p style="color:var(--muted); font-size:0.9rem;">حوّل على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال (يُسمح بالإرسال مرة واحدة فقط):</p>
     <div id="activeCashList"></div>
 
     <label style="margin-top:12px;">ارفع صورة إيصال التحويل:</label>
     <input type="file" id="receiptFileInput" accept="image/*" />
-    <button class="btn btn-success" style="width:100%;" onclick="uploadReceiptImage()">📤 إرسال صورة الإيصال</button>
+    <button id="uploadReceiptBtn" class="btn btn-success" style="width:100%;" onclick="uploadReceiptImage()">📤 إرسال صورة الإيصال</button>
+    <p id="receiptLockNotice" style="display:none; color:var(--primary); font-size:0.88rem; margin-top:10px; font-weight:bold;">
+      🔒 تم إرسال صورة إيصال الكاش بالفعل ولا يمكن إرسالها مرة أخرى.
+    </p>
   </div>
 
   <div id="goChallengeBtnBox" class="card" style="display:none; text-align:center;">
@@ -899,6 +903,7 @@
       phone: members[0].phone,
       members,
       points: 0,
+      receiptSubmittedOnce: false,
       status: "pending_registration",
       createdAt: new Date().toLocaleString("ar-EG")
     });
@@ -1320,6 +1325,35 @@
   }
 
   // ==========================================
+  // قفل إرسال إيصال الكاش مرة واحدة فقط
+  // ==========================================
+  function isReceiptAlreadySubmitted(team) {
+    return Boolean(
+      team && (
+        team.receiptSubmittedOnce === true ||
+        team.status === "receipt_uploaded" ||
+        team.status === "in_challenge" ||
+        team.status === "won" ||
+        team.status === "lost"
+      )
+    );
+  }
+
+  function syncReceiptUploadLock(team) {
+    const fileInput = document.getElementById("receiptFileInput");
+    const uploadBtn = document.getElementById("uploadReceiptBtn");
+    const lockNotice = document.getElementById("receiptLockNotice");
+    const locked = isReceiptAlreadySubmitted(team);
+
+    if (fileInput) fileInput.disabled = locked;
+    if (uploadBtn) {
+      uploadBtn.disabled = locked;
+      uploadBtn.innerText = locked ? "✅ تم إرسال صورة الإيصال (مرة واحدة)" : "📤 إرسال صورة الإيصال";
+    }
+    if (lockNotice) lockNotice.style.display = locked ? "block" : "none";
+  }
+
+  // ==========================================
   // متابعة بيانات الفريق والرسائل والهدايا
   // ==========================================
   onValue(ref(db, "teams"), (snap) => {
@@ -1330,6 +1364,8 @@
     if (!tId || !allTeamsMap[tId]) return;
 
     const team = allTeamsMap[tId];
+    syncReceiptUploadLock(team);
+
     const pts = team.points || 0;
     const displayTitle = sessionState.playMode === "solo"
       ? `${sessionState.soloTeamName} (فريق أصلي: ${team.teamName})`
@@ -1418,7 +1454,7 @@
   }
 
   // ==========================================
-  // أرقام الكاش ورفع الإيصال + 3 خانات أرقام الموبايل في صفحة التحدي اليومي
+  // أرقام الكاش ورفع الإيصال (مرة واحدة فقط) + 3 خانات أرقام الموبايل في صفحة التحدي اليومي
   // ==========================================
   onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
     const nums = snap.val() || [];
@@ -1501,7 +1537,6 @@
     prevEl.style.display = "block";
   };
 
-  // زر تأكيد إرسال صورة التحويل إلى رقم الموبايل المحدد
   window.confirmChallengeTransferSubmission = async () => {
     const file = document.getElementById("challengePhotoInput").files[0];
     const p0 = (document.getElementById("chTransferPhone_0")?.value || "").trim();
@@ -1547,17 +1582,38 @@
   };
 
   window.uploadReceiptImage = async () => {
+    const tId = sessionState.teamId;
+    if (!tId) {
+      alert("⚠️ يرجى إتمام التسجيل أو تسجيل الدخول أولاً.");
+      return;
+    }
+
+    const latestSnap = await get(ref(db, `teams/${tId}`));
+    const currentTeam = latestSnap.val() || allTeamsMap[tId] || {};
+
+    if (isReceiptAlreadySubmitted(currentTeam)) {
+      syncReceiptUploadLock(currentTeam);
+      alert("⚠️ لقد قمت بإرسال صورة إيصال الكاش بالفعل ولا يمكن إرسالها أكثر من مرة.");
+      return;
+    }
+
     const file = document.getElementById("receiptFileInput").files[0];
-    if (!file || !sessionState.teamId) {
+    if (!file) {
       alert("⚠️ اختر صورة الإيصال أولاً.");
       return;
     }
+
     const base64 = await readFileAsBase64(file);
-    await update(ref(db, `teams/${sessionState.teamId}`), {
+    await update(ref(db, `teams/${tId}`), {
       receiptImage: base64,
+      receiptSubmittedOnce: true,
+      receiptUploadedAt: Date.now(),
       status: "receipt_uploaded"
     });
-    alert("✅ تم إرسال صورة الإيصال بنجاح!");
+
+    document.getElementById("receiptFileInput").value = "";
+    syncReceiptUploadLock({ ...currentTeam, receiptSubmittedOnce: true, status: "receipt_uploaded" });
+    alert("✅ تم إرسال صورة الإيصال بنجاح، ولا يمكن إرسالها مرة أخرى.");
   };
 
   // ==========================================
